@@ -83,12 +83,7 @@ def createAssignment(cid):
           flash("Added Assignment Group")
           return redirect(url_for('administerCourse', id=cid))
       except Exception as e:
-        o = StringIO.StringIO()
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        traceback.print_tb(exc_traceback, limit=10, file=o)
-        flash(str(o.getvalue()))
-        o.close()
-        flash("Exception: " + str(type(e)) + " " + str(e.args) + " " + str(e))
+        raise e
   return redirect(url_for('administerCourse', id=cid))
 
 @app.route('/assignment/<cid>/<aid>/addproblem')
@@ -117,8 +112,7 @@ def addProblem(cid,aid):
     flash("This is your first time creating the problem please fill in all the form fields an hit save")
     return redirect(url_for('editProblem', cid=cid, aid=a.id, pid=p.id))
   except Exception as e:
-    flash("Exception: " + str(e))
-    return redirect(url_for('administerCourse', id=cid))
+    raise e
 
 
 @app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
@@ -141,8 +135,7 @@ def remProblem(cid,aid,pid):
 
     return redirect(url_for('administerCourse', id=cid))
   except Exception as e:
-    flash("Exception: " + str(e))
-    return redirect(url_for('administerCourse', id=cid))
+    raise e
 
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required
@@ -165,7 +158,7 @@ def delAssignment(cid, aid):
     c.save()
     flash("Assignment Group Removed")
   except Exception as e:
-    flash("Exception: "+str(e))
+    raise e
   return redirect(url_for('administerCourse', id=cid))
 
 '''
@@ -197,7 +190,7 @@ def addUserCourse(cid):
   except User.DoesNotExist:
     flash("Failed to find user")
   except Exception as e:
-    flash("Failed to add user " + str(e))
+    raise e
   return redirect(url_for('administerCourse', id=cid))
 
 @app.route('/editcourse/<cid>/remuser/<uid>/<t>')
@@ -224,5 +217,5 @@ def remUserCourse(cid, uid, t):
   except User.DoesNotExist:
     flash("Failed to find user")
   except Exception as e:
-    flash("Failed to remove user " + str(e))
+    raise e
   return redirect(url_for('administerCourse', id=cid))
