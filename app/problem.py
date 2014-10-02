@@ -13,6 +13,7 @@ from forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm
 
 import traceback, StringIO, sys
 import dateutil.parser
+from decimal import *
 
 @app.route('/editcourse/<cid>/<aid>/p/<pid>')
 @login_required
@@ -55,7 +56,7 @@ def updateProblem(cid, aid, pid):
     flash(str(e))
   return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))
 
-@app.route('/editcourse/<cid>/<aid>/p/<pid>/addrubricsection', methods=['POST'])
+@app.route('/editcourse/<cid>/<aid>/p/<pid>/addrubricsection', methods=['GET'])
 @login_required
 def addRubricSec(cid, aid, pid):
   try:
@@ -66,6 +67,37 @@ def addRubricSec(cid, aid, pid):
       return redirect(url_for('index'))
 
     p = Problem.objects.get(id=pid)
-  except:
-    pass
+
+    p.rubric[request.args['name']] = Decimal(request.args['points'])
+
+    #update the column score in the gradebook
+    p.gradeColumn.maxScore = p.totalPoints()
+    p.gradeColumn.save()
+
+    p.save()
+  except Exception as e:
+    flash(str(e))
+  return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))
+
+@app.route('/editcourse/<cid>/<aid>/p/<pid>/delrubricsection/<name>', methods=['GET'])
+@login_required
+def delRubricSec(cid, aid, pid, name):
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt an instructor or
+    #admin away
+    if not (g.user.isAdmin or c in current_user.courseInstructor):
+      return redirect(url_for('index'))
+
+    p = Problem.objects.get(id=pid)
+
+    del p.rubric[name]
+
+    #update the column score in the gradebook
+    p.gradeColumn.maxScore = p.totalPoints()
+    p.gradeColumn.save()
+
+    p.save()
+  except Exception as e:
+    flash(str(e))
   return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))

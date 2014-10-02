@@ -30,3 +30,4 @@ from root import *
 from accounts import *
 from admin import *
 from instructor import *
+from problem import *

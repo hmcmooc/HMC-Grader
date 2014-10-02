@@ -114,6 +114,7 @@ class Problem(db.Document):
   name = db.StringField()
   gradeColumn = db.ReferenceField('GBColumn')
   duedate = db.DateTimeField()
+  rubric = db.MapField(db.DecimalField())
 
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))
@@ -121,6 +122,12 @@ class Problem(db.Document):
   def __init__(self, name, **data):
     super(Problem, self).__init__(**data)
     self.name = name
+
+  def totalPoints(self):
+    total = 0
+    for k in self.rubric:
+      total += self.rubric[k]
+    return total
 
 class StudentSubmissionList(db.EmbeddedDocument):
   submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
