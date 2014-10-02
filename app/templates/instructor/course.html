@@ -1,0 +1,169 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Edit Course: {{course.name}}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{message}}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h1>{{course.name}}</h1>
+    <h2>Assignments</h2>
+    <form class="form-inline" action="{{url_for('createAssignment', cid=course.id)}}" method="POST" role="form">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.name(placeholder="eg. Week 0", class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary" name="btn"><span class="glyphicon glyphicon-plus"></span> Add Assignment Group</button>
+    </form>
+    <br>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Assignment Group</th>
+          <th>Problem</th>
+          <th>Due Date</th>
+          <th>Edit/Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in course.assignments %}
+        <tr>
+          <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
+          <td><a href="{{url_for('addProblem', cid=course.id, aid=a.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></a></td>
+          <td></td>
+          <td>
+            <a href="{{url_for("delAssignment", cid=course.id, aid=a.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a>
+          </td>
+        </tr>
+        {% for p in a.problems|sort(attribute="name") %}
+        <tr>
+          <td>{{p.name}}</td>
+          <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
+          <td>
+            <a href="{{url_for('editProblem', cid=course.id, aid=a.id, pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
+            &nbsp;&nbsp;&nbsp;<a href="{{url_for('remProblem', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a>
+          </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-3">
+  </div>
+  <div class="col-sm-2">
+    <h1>Students</h2>
+    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+      {{ suserform.hidden_tag() }}
+      <div class="form-group">
+        {{ suserform.uname(placeholder="eg. jdoe", class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary" value="student" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+        <td>{{s.username}}</td>
+        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+        <tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+    <h1>Grutors</h2>
+    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+      {{ guserform.hidden_tag() }}
+      <div class="form-group">
+        {{ guserform.uname(placeholder="eg. jdoe", class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary" value="grutor" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in grutors %}
+        <tr>
+        <td>{{s.username}}</td>
+        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+        <tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+    <h1>Instructors</h2>
+    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+      {{ iuserform.hidden_tag() }}
+      <div class="form-group">
+        {{ iuserform.uname(placeholder="eg. jdoe", class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary" value="instructor" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in instrs %}
+        <tr>
+        <td>{{s.username}}</td>
+        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+        <tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-3">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text("Due " + d.fromNow() + " on " + d.format("lll"))
+})
+</script>
+{% endblock %}

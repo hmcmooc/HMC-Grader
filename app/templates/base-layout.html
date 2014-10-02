@@ -1,0 +1,109 @@
+{% extends "bootstrap/base.html" %}
+
+{% block styles %}
+{{super()}}
+<style>
+body {
+  padding-top: 60px;
+}
+</style>
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{url_for('index')}}">Grader</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li{% if active_page == "index" %} class="active"{% endif %}><a href="{{url_for('index')}}">Home</a></li>
+        {% if g.user.is_authenticated() %}
+        {% if g.user.courseStudent|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Assignments<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseStudent|sort(attribute='name') %}
+            <li><a href="#">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if g.user.courseStudent|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">My Grades<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseStudent|sort(attribute='name') %}
+            <li><a href="#">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if g.user.courseGrutor|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grading<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseGrutor|sort(attribute='name') %}
+            <li><a href="#">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if g.user.courseInstructor|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Course Properties<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if g.user.courseInstructor|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grading<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% if g.user.courseInstructor|length > 0 %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Gradebook<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+        {% endif %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if not g.user.is_authenticated() %}
+        <li{% if active_page == "login" %} class="active"{% endif %}><a href="{{url_for('login')}}">Login</a></li>
+        {% else %}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{g.user.username}}<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% if g.user.isAdmin %}
+            <li><a href="{{url_for('adminIndex')}}">Admin Dashboard</a></li>
+            {% endif %}
+            <li{% if active_page == "userSettings" %} class="active"{% endif %}><a href="{{url_for('userSettings')}}">Settings</a></li>
+            <li><a href="{{url_for('logout')}}">Logout</a></li>
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+{% endblock %}

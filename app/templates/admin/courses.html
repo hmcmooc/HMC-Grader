@@ -1,0 +1,101 @@
+{% extends "admin/base-layout.html" %}
+
+{% block title %}
+Admin Panel: Courses
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{message}}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <form class="form" action="{{url_for('adminCourses')}}" method="POST" role="form">
+        {{ form.hidden_tag() }}
+        <div class="heading">
+            <h3 class="form-heading">Add a Course</h3>
+        </div>
+
+        <div class="form-group {% if form.name.errors %} has-error {% endif %}">
+            {{form.name.label}}
+            {{ form.name(placeholder="eg. CS5 Gold", class="form-control") }}
+            <p class="help-block">{{ form.name.errors[0] }}</p>
+        </div>
+        <div class="form-group {% if form.semester.errors %} has-error {% endif %}">
+            {{form.semester.label}}
+            {{ form.semester(placeholder="eg. Fall 14", class="form-control") }}
+            <p class="help-block">{{ form.semester.errors[0] }}</p>
+        </div>
+        <button type="submit" class="btn btn-primary" value="in" name="btn">Create Course</button>
+    </form>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-4">
+    <h3>Active Courses</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Semester</th>
+          <th>Administer</th>
+          <th>Deactivate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in courses %}
+        {% if c.isActive %}
+        <tr>
+          <td>{{c.name}}</td>
+          <td>{{c.semester}}</td>
+          <td><a class="btn btn-default" href="{{url_for('administerCourse', id=c.id)}}">Administer</a></td>
+          <td><a class="btn btn-danger" href="{{url_for('deactivateCourse', id=c.id)}}">Deactivate</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-4">
+    <h3>Inactive Courses</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Semester</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in courses %}
+        {% if not c.isActive %}
+        <tr>
+          <td>{{c.name}}</td>
+          <td>{{c.semester}}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}

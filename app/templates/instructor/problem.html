@@ -1,0 +1,110 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Edit Problem
+{% endblock %}
+
+
+{% block styles %}
+{{super()}}
+<link id="bsdp-css" href="{{url_for('static', filename='eternicode-bootstrap-datepicker/css/datepicker3.css')}}" rel="stylesheet">
+<link id="bsdp-css" href="{{url_for('static', filename='bootstrap-timepicker/assets/pygments.css')}}" rel="stylesheet">
+<link id="bsdp-css" href="{{url_for('static', filename='bootstrap-timepicker/assets/prettify/prettify.css')}}" rel="stylesheet">
+<link id="bsdp-css" href="{{url_for('static', filename='bootstrap-timepicker/assets/bootstrap/css/bootstrap-responsive.css')}}" rel="stylesheet">
+<link id="bsdp-css" href="{{url_for('static', filename='bootstrap-timepicker/css/bootstrap-timepicker.css')}}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{message}}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <form class="form" action="{{url_for('updateProblem', cid=course.id, aid=assignment.id, pid=problem.id)}}" method="POST" role="form">
+      {{ form.hidden_tag() }}
+      <div class="heading">
+        <ol class="breadcrumb">
+          <li><a href="{{url_for('administerCourse', id=course.id)}}">{{course.name}}</a></li>
+          <li>{{assignment.name}}</li>
+          <li>{{problem.name}}</li>
+        </ol>
+      </div>
+      <div class="form-group">
+        {{form.name.label}}
+        {{form.name(placeholder="eg. Problem 1", class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{form.date.label}}
+        {{form.date(placeholder="eg. 10/4/2014", class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{form.time.label}}
+        {{form.time(placeholder="eg. 11:59 PM", class="form-control")}}
+      </div>
+      <div style="display:none;">
+        {{form.hiddentime()}}
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='eternicode-bootstrap-datepicker/js/bootstrap-datepicker.js')}}"></script>
+<script src="{{url_for('static', filename='bootstrap-timepicker/assets/prettify/prettify.js')}}"></script>
+<script src="{{url_for('static', filename='bootstrap-timepicker/js/bootstrap-timepicker.js')}}"></script>
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+
+<script type="text/javascript">
+$(function(){
+  //Fill in the form for the name of the submission if it has been named
+  if ("{{problem.name}}"!="") {
+    $('#name').val("{{problem.name}}")
+  }
+
+  {% if problem.duedate == None %}
+  //Set default values for the submission
+  var d = new Date();
+  $('#time').val("11:59 PM")
+  $('#date').val((d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear())
+  {% else %}
+  var m = new moment("{{problem.duedate.isoformat()}}" + "Z");
+  $('#date').val(m.format('L'))
+  $('#time').val(m.format('h:mm a'))
+  {% endif %}
+
+  //Turn the forms into a date picker and time picker
+  $('#date').datepicker({format:'mm/dd/yyyy', todayHighlight:true});
+  $('#time').timepicker({});
+});
+
+
+$('#date').change(function(){
+  d = new Date($('#date').val() + " " + $('#time').val());
+  $('#hiddentime').val( d.toISOString());
+});
+
+$('#time').change(function(){
+  d = new Date($('#date').val() + " " + $('#time').val());
+  $('#hiddentime').val( d.toISOString());
+})
+</script>
+{% endblock %}

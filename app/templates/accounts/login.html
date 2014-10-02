@@ -1,0 +1,40 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-8">
+        <form class="form" action="{{url_for('login')}}" method="POST" role="form">
+            {{ form.hidden_tag() }}
+            <div class="heading">
+                <h3 class="form-heading">Sign In</h3>
+            </div>
+
+            <div class="form-group {% if form.username.errors %} has-error {% endif %}">
+                {{form.username.label}}
+                {{ form.username(placeholder="Username", class="form-control") }}
+                <p class="help-block">{{ form.username.errors[0] }}</p>
+            </div>
+            <div class="form-group {% if form.password.errors %} has-error {% endif %}">
+                {{form.password.label}}
+                {{ form.password(placeholder="Password", class="form-control") }}
+                <p class="help-block">{{ form.password.errors[0] }}</p>
+            </div>
+            <div class="form-group {% if form.remember.errors %} has-error {% endif %}">
+                {{form.remember}}
+                {{form.remember.label}}
+                <p class="help-block">{{ form.remember.errors[0] }}</p>
+            </div>
+            <button type="submit" class="btn btn-primary" value="in" name="btn">Sign In</button>
+        </form>
+    </div>
+
+    <div class="col-sm-2">
+    </div>
+</div>
+{% endblock %}
