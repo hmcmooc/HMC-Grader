@@ -7,3 +7,5 @@ SECRET_KEY="Grutors <3 SPAM"
 MONGODB_SETTINGS = {'DB': 'submissionsite'}
 
 DATABASE_QUERY_TIMEOUT = 0.5
+
+GROODY_HOME="/home/plenk/GroodyGrader"

@@ -11,6 +11,7 @@ To run this site you must create a python virtual env for testing. This has to h
  * flask-mongoengine
  * WTForms
  * python-dateutil
+ * pygments
 
 The site can then be run with the command:
 

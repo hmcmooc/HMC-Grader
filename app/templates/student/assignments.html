@@ -1,0 +1,86 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Assignments for {{course.name}}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{message}}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <table class="table table-bordered table-responsive">
+      <thead>
+        <tr>
+          <th>Assignment Group</th>
+          <th>Problem</th>
+          <th>Due Date</th>
+          <th>Maximum Points</th>
+          <th>Status</th>
+          <th>Submit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in course.assignments %}
+        <tr>
+          <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
+        </tr>
+        {% for p in a.problems|sort(attribute="name") %}
+        <tr>
+          <td>{{p.name}}</td>
+          <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
+          <td>{{p.totalPoints()}}</td>
+          <td>
+            {% if p.getSubmissionStatus(g.user)[0] == 0 %}
+            Unsubmitted
+            {% endif %}
+            {% if p.getSubmissionStatus(g.user)[0] == 1 %}
+            Ungraded
+            {% endif %}
+            {% if p.getSubmissionStatus(g.user)[0] == 2 %}
+            Autograding Complete
+            {% endif %}
+            {% if p.getSubmissionStatus(g.user)[0] == 3 %}
+            Graded
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{url_for('submitAssignment', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-primary btn-xs">Submit</a>
+          </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text(d.format("lll"))
+})
+</script>
+{% endblock %}

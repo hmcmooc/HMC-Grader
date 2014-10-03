@@ -31,3 +31,5 @@ from accounts import *
 from admin import *
 from instructor import *
 from problem import *
+
+from students import *

@@ -129,6 +129,13 @@ class Problem(db.Document):
       total += self.rubric[k]
     return total
 
+  def getSubmissionStatus(self, user):
+    '''Returns a status number and if the assignemnt is late'''
+    if user.username in self.studentSubmissions:
+      return (1, False)
+    else:
+      return (0, False)
+
 class StudentSubmissionList(db.EmbeddedDocument):
   submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
   partners = db.ListField(db.ReferenceField('User'))

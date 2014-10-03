@@ -165,7 +165,7 @@ Edit Course: {{course.name}}
 $(".time").each(function(){
   var t = $(this).text();
   var d = new moment(t+"Z");
-  $(this).text("Due " + d.fromNow() + " on " + d.format("lll"))
+  $(this).text(d.format("lll"))
 })
 </script>
 {% endblock %}

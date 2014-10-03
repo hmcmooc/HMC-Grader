@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, PasswordField, validators, HiddenField, BooleanField, SelectField
-from wtforms import TextAreaField, BooleanField
+from wtforms import TextAreaField, BooleanField, FileField
 from wtforms.validators import Required, EqualTo, Optional
 from wtforms.validators import Length, Email
 
@@ -59,3 +59,10 @@ class ProblemOptionsForm(Form):
 	date = TextField("Due Date")
 	time = TextField("Due Time")
 	hiddentime = TextField("")
+
+'''
+Student forms
+'''
+
+class SubmitAssignmentForm(Form):
+	files = FileField("Files")

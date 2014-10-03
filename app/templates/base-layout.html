@@ -30,7 +30,7 @@ body {
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Assignments<b class="caret"></b></a>
           <ul class="dropdown-menu">
             {% for c in g.user.courseStudent|sort(attribute='name') %}
-            <li><a href="#">{{c.name}}</a></li>
+            <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
