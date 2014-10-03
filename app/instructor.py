@@ -125,17 +125,18 @@ def remProblem(cid,aid,pid):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    a = AssignmentGroup.objects.get(id=aid)
+    #a = AssignmentGroup.objects.get(id=aid)
     p = Problem.objects.get(id=pid)
 
-    p.gradeColumn.delete()
-    a.problems.remove(p)
+    p.cleanup()
+    #p.gradeColumn.delete()
+    #a.problems.remove(p)
     p.delete()
-    a.save()
+    #a.save()
 
     return redirect(url_for('administerCourse', id=cid))
-  except Exception as e:
-    raise e
+  except Course.DoesNotExist:
+    pass
 
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required

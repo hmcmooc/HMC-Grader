@@ -26,6 +26,8 @@ db = MongoEngine(app)
 def beforeRequest():
   g.user = current_user
 
+from models import *
+
 from root import *
 from accounts import *
 from admin import *
