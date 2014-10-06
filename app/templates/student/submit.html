@@ -4,22 +4,7 @@
 Submit to {{course.name}}->{{assignment.name}}->{{problem.name}}
 {% endblock %}
 
-{% block content %}
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-info">{{message}}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
+{% block rows %}
 <div class="row">
   <div class="col-sm-2">
   </div>

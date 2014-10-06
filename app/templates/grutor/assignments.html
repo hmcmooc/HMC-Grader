@@ -15,9 +15,8 @@ Assignments for {{course.name}}
           <th>Assignment Group</th>
           <th>Problem</th>
           <th>Due Date</th>
-          <th>Maximum Points</th>
           <th>Status</th>
-          <th>Submit</th>
+          <th>Grade</th>
         </tr>
       </thead>
       <tbody>
@@ -29,16 +28,11 @@ Assignments for {{course.name}}
         <tr>
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
-          <td>{{p.totalPoints()}}</td>
           <td>
-            {% if p.getSubmissionNumber(g.user) == 0 %}
-            Unsubmitted
-            {% else %}
-            Submitted <a href="{{url_for('viewProblem', cid=course.id, aid=a.id, pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
-            {% endif %}
+            N/A
           </td>
           <td>
-            <a href="{{url_for('submitAssignment', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-primary btn-xs">Submit</a>
+            <a href="{{url_for('grutorGradelistProblem', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-success btn-xs">Grade</a>
           </td>
         </tr>
         {% endfor %}

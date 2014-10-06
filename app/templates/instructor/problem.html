@@ -14,22 +14,7 @@ Edit Problem
 <link id="bsdp-css" href="{{url_for('static', filename='bootstrap-timepicker/css/bootstrap-timepicker.css')}}" rel="stylesheet">
 {% endblock %}
 
-{% block content %}
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-info">{{message}}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
+{% block rows %}
 <div class="row">
   <div class="col-sm-2">
   </div>

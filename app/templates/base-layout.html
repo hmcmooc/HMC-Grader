@@ -43,7 +43,7 @@ body {
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grader<b class="caret"></b></a>
           <ul class="dropdown-menu">
             {% for c in g.user.gradingCourses()|sort(attribute='name') %}
-            <li><a href="#">{{c.name}}</a></li>
+            <li><a href="{{url_for('grutorAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
@@ -84,5 +84,27 @@ body {
       </ul>
     </div><!--/.nav-collapse -->
   </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-8">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-info">{{message}}</div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    </div>
+    <div class="col-sm-2">
+    </div>
+  </div>
+  {% block rows %}
+  {% endblock %}
 </div>
 {% endblock %}
