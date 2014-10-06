@@ -127,7 +127,7 @@ class Problem(db.Document):
     return total
 
   def getSubmissionNumber(self, user):
-    '''Returns a status number and if the assignemnt is late'''
+    '''gets the number of the latest submission'''
     if user.username in self.studentSubmissions:
       return len(self.studentSubmissions[user.username].submissions)
     else:

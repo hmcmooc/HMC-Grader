@@ -7,6 +7,7 @@ To run this site you must create a python virtual env for testing. This has to h
  * flask-script
  * flask-bootstrap
  * flask-login
+ * flask-markdown
  * mongoengine
  * flask-mongoengine
  * WTForms

@@ -9,7 +9,40 @@ Submissions for grading
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    Table goes here
+    <h1>Submissions for: {{course.name}}/{{assignment.name}}/{{problem.name}}</h1>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Submission Status</th>
+          <th>Grade Submission</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users|sort(attribute="username") %}
+        <tr>
+          <td>{{user.username}}</td>
+          {% with sub = problem.getLatestSubmission(user) %}
+          {% if sub == None %}
+            <td>No Submission</td>
+            <td>BUTTON</td>
+          {% else %}
+            <td>UNGRADED</td>
+            <td>BUTTON</td>
+          {% endif %}
+          {% endwith %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   <div class="col-sm-2">
   </div>

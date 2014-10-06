@@ -31,4 +31,17 @@ def grutorAssignments(cid):
 @app.route('/grutor/gradelist/<cid>/<aid>/<pid>')
 @login_required
 def grutorGradelistProblem(cid, aid, pid):
-  return redirect(url_for('index'))
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    p = Problem.objects.get(id=pid)
+    a = AssignmentGroup.objects.get(id=aid)
+    s = User.objects.filter(courseStudent=c)
+
+    return render_template("grutor/problems.html", \
+                            course=c, problem=p, assignment=a, users=s)
+  except Exception as e:
+    raise e
