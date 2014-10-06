@@ -78,12 +78,19 @@ class Submission(db.EmbeddedDocument):
   isLate = db.BooleanField(default=False)
   filePath = db.StringField(required=True)
   grade = db.ReferenceField('GBGrade')
+  status = db.IntField(default=0)
+  comments = db.StringField(default="No Comments")
 
   def cleanup(self):
     try:
       self.grade.delete()
     except:
       pass
+
+  def getFiles(self):
+    from os import listdir
+    from os.path import isfile, join
+    return [ f for f in listdir(self.filePath) if isfile(join(self.filePath,f)) ]
 
 class StudentSubmissionList(db.EmbeddedDocument):
   submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
@@ -119,12 +126,23 @@ class Problem(db.Document):
       total += self.rubric[k]
     return total
 
-  def getSubmissionStatus(self, user):
+  def getSubmissionNumber(self, user):
     '''Returns a status number and if the assignemnt is late'''
     if user.username in self.studentSubmissions:
-      return (1, False)
+      return len(self.studentSubmissions[user.username].submissions)
     else:
-      return (0, False)
+      return 0
+
+  def getSubmission(self, user, subnum):
+    '''Returns a single submission'''
+    return self.studentSubmissions[user.username].submissions[int(subnum)-1]
+
+  def getLatestSubmission(self, user):
+    '''Gets the latest submission for a user'''
+    if self.getSubmissionNumber(user) == 0:
+      return None
+    else:
+      return self.getSubmission(user, self.getSubmissionNumber(user))
 
 class AssignmentGroup(db.Document):
   name = db.StringField(required=True)

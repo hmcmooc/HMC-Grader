@@ -1,0 +1,147 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Assignments for {{course.name}}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{message}}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-4">
+    <h3>Submission Properties</h3>
+    <table class="table table-bordered">
+      <tr>
+        <th>Submission Number</th>
+        <td>
+          <div class="btn-group">
+            <button type="button" class="btn btn-default">{{subnum}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              {% for i in range(1,problem.getSubmissionNumber(g.user)+1) %}
+              <li><a href="{{url_for('viewProblem', cid=course.id, aid=assignment.id, pid=problem.id, subnum=i)}}">{{i}}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>Submission Time</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Submission Status</th>
+        <td class="danger">Ungraded</td>
+      </tr>
+    </table>
+  </div>
+  <div class="col-sm-4">
+    <h3>Rubric</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in problem.rubric|dictsort %}
+        <tr>
+          <td>{{p[0]}}</td>
+          <td>{{problem.getSubmission(g.user, subnum).grade.scores.setdefault(p[0], '0.0')}}/{{p[1]}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <div class="panel panel-default" id="panelcomments">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-target="#collapseComments" href="#collapseComments" class="collapsed">
+          Grader Comments
+        </a>
+      </h4>
+    </div>
+    <div id="collapseComments" class="panel-collapse collapse in">
+      <div class="panel-body">
+        {{ problem.getSubmission(g.user, subnum).comments|markdown}}
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h3>Raw Files</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>Filename</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in assignment.problems|sort(attribute="name") %}
+          {% if p == problem %}
+          <tr class="success">
+            <td rowspan="{{p.getSubmission(g.user, subnum).getFiles()|length+1}}">{{p.name}}</td>
+          </tr>
+            {% for f in p.getSubmission(g.user, subnum).getFiles()|sort %}
+            <tr>
+              <td>{{f}}</td>
+              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=problem.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <tr>
+            <td rowspan="{{p.getLatestSubmission(g.user).getFiles()|length+1}}">{{p.name}}</td>
+          </tr>
+            {% for f in p.getLatestSubmission(g.user).getFiles()|sort %}
+            <tr>
+              <td>{{f}}</td>
+              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=p.id, subnum=0, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
+            </tr>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}

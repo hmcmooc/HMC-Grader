@@ -46,17 +46,10 @@ Assignments for {{course.name}}
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
           <td>
-            {% if p.getSubmissionStatus(g.user)[0] == 0 %}
+            {% if p.getSubmissionNumber(g.user) == 0 %}
             Unsubmitted
-            {% endif %}
-            {% if p.getSubmissionStatus(g.user)[0] == 1 %}
-            Ungraded
-            {% endif %}
-            {% if p.getSubmissionStatus(g.user)[0] == 2 %}
-            Autograding Complete
-            {% endif %}
-            {% if p.getSubmissionStatus(g.user)[0] == 3 %}
-            Graded
+            {% else %}
+            Submitted <a href="{{url_for('viewProblem', cid=course.id, aid=a.id, pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
             {% endif %}
           </td>
           <td>

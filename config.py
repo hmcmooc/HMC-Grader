@@ -9,3 +9,5 @@ MONGODB_SETTINGS = {'DB': 'submissionsite'}
 DATABASE_QUERY_TIMEOUT = 0.5
 
 GROODY_HOME="/home/plenk/GroodyGrader"
+
+MARKABLE_FILES = ['.py','.rkt', '.java', '.txt', '.pl']

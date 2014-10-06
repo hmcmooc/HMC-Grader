@@ -3,7 +3,7 @@
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash
+from flask import g, request, render_template, redirect, url_for, flash, send_file
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -46,8 +46,27 @@ def submitAssignment(cid, aid, pid):
   except Exception as e:
     raise e
 
+@app.route('/assignments/<cid>/view/<aid>/<pid>/<subnum>')
+@login_required
+def viewProblem(cid,aid,pid,subnum):
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.courseStudent):
+      return redirect(url_for('index'))
+
+    a = AssignmentGroup.objects.get(id=aid)
+    p = Problem.objects.get(id=pid)
+
+    return render_template("student/viewsubmission.html", \
+                            course=c, assignment=a, problem=p,\
+                             subnum=subnum)
+  except Course.DoesNotExist:
+    pass
+  return redirect(url_for('studentAssignments', cid=cid))
+
 '''
-Backend upload functions
+Backend upload/download functions
 '''
 
 @app.route('/assignments/<cid>/submit/<aid>/<pid>/upload', methods=['POST'])
@@ -107,3 +126,20 @@ def uploadFiles(cid, aid, pid):
     return redirect(url_for('studentAssignments', cid=cid))
   except (Course.DoesNotExist):
     raise e
+
+@app.route('/assignments/<cid>/submit/<aid>/<pid>/download/<subnum>/<filename>')
+@login_required
+def downloadFiles(cid, aid, pid, subnum, filename):
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.courseStudent):
+      return redirect(url_for('index'))
+
+    a = AssignmentGroup.objects.get(id=aid)
+    p = Problem.objects.get(id=pid)
+    s = p.getSubmission(g.user, subnum)
+
+    return send_file(os.path.join(s.filePath, filename), as_attachment=True)
+  except Course.DoesNotExist:
+    pass

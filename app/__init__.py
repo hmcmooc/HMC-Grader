@@ -5,6 +5,7 @@ from flask import Flask
 from flask.ext.login import LoginManager, current_user
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.markdown import Markdown
 
 app = Flask(__name__)
 
@@ -21,6 +22,9 @@ loginManager.login_view = 'login' #Set the default view for logging in
 
 #Initialize the database connection
 db = MongoEngine(app)
+
+#Initialize the markdown engine
+Markdown(app)
 
 @app.before_request
 def beforeRequest():
