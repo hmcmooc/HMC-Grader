@@ -22,7 +22,7 @@ Assignments for {{course.name}}
             </button>
             <ul class="dropdown-menu" role="menu">
               {% for i in range(1,problem.getSubmissionNumber(g.user)+1) %}
-              <li><a href="{{url_for('viewProblem', cid=course.id, aid=assignment.id, pid=problem.id, subnum=i)}}">{{i}}</a></li>
+              <li><a href="{{url_for('grutorGradeSubmission', cid=course.id, aid=assignment.id, pid=problem.id, subnum=i)}}">{{i}}</a></li>
               {% endfor %}
             </ul>
           </div>
@@ -45,15 +45,24 @@ Assignments for {{course.name}}
         <tr>
           <th>Section</th>
           <th>Score</th>
+          <th>Max Points</th>
         </tr>
       </thead>
       <tbody>
+        {% with sub = problem.getSubmission(g.user, subnum) %}
         {% for p in problem.rubric|dictsort %}
-        <tr>
-          <td>{{p[0]}}</td>
-          <td>{{problem.getSubmission(g.user, subnum).grade.scores.setdefault(p[0], '0.0')}}/{{p[1]}}</td>
-        </tr>
+        <form method="GET" role="form" action="#">
+          <tr>
+            <td>{{p[0]}}</td>
+            <td><input class="form-control" name="{{p[0]}}" type="number" value="{{sub.grade.scores.setdefault(p[0], '0.0')}}"></td>
+            <td>{{p[1]}}</td>
+          </tr>
         {% endfor %}
+        {% endwith %}
+          <tr>
+            <td colspan="3" style="text-align:right"><button type="submit" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-floppy-disk"></span> Save Grades</button></td>
+          </tr>
+        </form>
       </tbody>
     </table>
   </div>
@@ -85,48 +94,5 @@ Assignments for {{course.name}}
   </div>
 </div>
 
-
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    <h3>Raw Files</h3>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Problem</th>
-          <th>Filename</th>
-          <th>Download</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in assignment.problems|sort(attribute="name") %}
-          {% if p == problem %}
-          <tr class="success">
-            <td rowspan="{{p.getSubmission(g.user, subnum).getFiles()|length+1}}">{{p.name}}</td>
-          </tr>
-            {% for f in p.getSubmission(g.user, subnum).getFiles()|sort %}
-            <tr>
-              <td>{{f}}</td>
-              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=problem.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
-            </tr>
-            {% endfor %}
-          {% else %}
-          <tr>
-            <td rowspan="{{p.getLatestSubmission(g.user).getFiles()|length+1}}">{{p.name}}</td>
-          </tr>
-            {% for f in p.getLatestSubmission(g.user).getFiles()|sort %}
-            <tr>
-              <td>{{f}}</td>
-              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=p.id, subnum=0, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
-            </tr>
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
+{% include 'widgets/filebrowser.html' %}
 {% endblock %}

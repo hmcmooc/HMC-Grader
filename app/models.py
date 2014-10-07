@@ -144,6 +144,11 @@ class Problem(db.Document):
     else:
       return self.getSubmission(user, self.getSubmissionNumber(user))
 
+  def getParents(self):
+    a = AssignmentGroup.objects.get(problems=self)
+    c = Course.objects.get(assignments=a)
+    return c,a
+
 class AssignmentGroup(db.Document):
   name = db.StringField(required=True)
   gradeEntry = db.ReferenceField('GBEntry', reverse_delete_rule=NULLIFY)

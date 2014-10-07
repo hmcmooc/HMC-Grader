@@ -45,3 +45,41 @@ def grutorGradelistProblem(cid, aid, pid):
                             course=c, problem=p, assignment=a, users=s)
   except Exception as e:
     raise e
+
+@app.route('/grutor/grade/<cid>/<aid>/<pid>/<subnum>')
+@login_required
+def grutorGradeSubmission(cid, aid, pid, subnum):
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    #c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    #p = Problem.objects.get(id=pid)
+    #a = AssignmentGroup.objects.get(id=aid)
+
+
+    return render_template("grutor/gradesubmission.html", \
+                            course=c, problem=p, assignment=a, subnum=subnum)
+  except Exception as e:
+    raise e
+
+'''
+Callbacks for Javascript
+'''
+
+@app.route('/grutor/grade/<pid>/<subnum>/savegrade')
+@login_required
+def grutorSaveGrades(cid, aid, pid, subnum):
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    p = Problem.objects.get(id=pid)
+    a,c = p.getParents()
+  except:
+    pass

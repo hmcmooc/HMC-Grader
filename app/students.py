@@ -118,6 +118,8 @@ def uploadFiles(cid, aid, pid):
 
         for f in request.files.getlist("files"):
           filename = secure_filename(f.filename)
+          if filename == "":
+            continue
           f.save(os.path.join(filepath, filename))
 
         p.save()

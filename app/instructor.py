@@ -189,7 +189,7 @@ def addUserCourse(cid):
           u.courseInstructor.append(c)
         u.save()
   except User.DoesNotExist:
-    flash("Failed to find user")
+    flash("Failed to find user", "error")
   except Exception as e:
     raise e
   return redirect(url_for('administerCourse', id=cid))

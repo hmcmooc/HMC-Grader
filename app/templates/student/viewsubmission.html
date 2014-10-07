@@ -86,47 +86,5 @@ Assignments for {{course.name}}
 </div>
 
 
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    <h3>Raw Files</h3>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Problem</th>
-          <th>Filename</th>
-          <th>Download</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in assignment.problems|sort(attribute="name") %}
-          {% if p == problem %}
-          <tr class="success">
-            <td rowspan="{{p.getSubmission(g.user, subnum).getFiles()|length+1}}">{{p.name}}</td>
-          </tr>
-            {% for f in p.getSubmission(g.user, subnum).getFiles()|sort %}
-            <tr>
-              <td>{{f}}</td>
-              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=problem.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
-            </tr>
-            {% endfor %}
-          {% else %}
-          <tr>
-            <td rowspan="{{p.getLatestSubmission(g.user).getFiles()|length+1}}">{{p.name}}</td>
-          </tr>
-            {% for f in p.getLatestSubmission(g.user).getFiles()|sort %}
-            <tr>
-              <td>{{f}}</td>
-              <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=p.id, subnum=0, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
-            </tr>
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
+{% include 'widgets/filebrowser.html' %}
 {% endblock %}
