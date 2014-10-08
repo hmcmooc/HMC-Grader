@@ -35,8 +35,10 @@ Submissions for grading
             <td>No Submission</td>
             <td>BUTTON</td>
           {% else %}
-            <td>UNGRADED</td>
-            <td><a href="{{url_for('grutorGradeSubmission', cid=course.id, aid=assignment.id, pid=problem.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>
+            {% with c,text = sub.getStatus() %}
+            <td class="{{c}}">{{text}}</td>
+            {% endwith %}
+            <td><a href="{{url_for('grutorGradeSubmission', pid=problem.id, uid=user.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% endif %}
           {% endwith %}
         </tr>

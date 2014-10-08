@@ -67,6 +67,7 @@ class GBColumn(db.Document):
 class GBGrade(db.Document):
   #Map score name (eg. GrutorScore or TestScore) to scores
   scores = db.MapField(db.DecimalField())
+  visible = db.MapField(db.BooleanField())
 
 
 '''
@@ -79,6 +80,11 @@ class Submission(db.EmbeddedDocument):
   filePath = db.StringField(required=True)
   grade = db.ReferenceField('GBGrade')
   status = db.IntField(default=0)
+  # 0 = Ungraded
+  # 1 = Autograde inprogress
+  # 2 = Autograde complete
+  # 3 = Manual grading in progress
+  # 4 = Manual grade complete
   comments = db.StringField(default="No Comments")
 
   def cleanup(self):
@@ -91,6 +97,18 @@ class Submission(db.EmbeddedDocument):
     from os import listdir
     from os.path import isfile, join
     return [ f for f in listdir(self.filePath) if isfile(join(self.filePath,f)) ]
+
+  def getStatus(self):
+    if self.status == 0:
+      return "danger", "Ungraded"
+    elif self.status == 1:
+      return "warning", "Autograde in progress"
+    elif self.status == 2:
+      return "info", "Awaiting Grader"
+    elif self.status == 3:
+      return "warning", "Grading in progress"
+    elif self.status == 4:
+      return "success", "Graded"
 
 class StudentSubmissionList(db.EmbeddedDocument):
   submissions = db.ListField(db.EmbeddedDocumentField('Submission'))

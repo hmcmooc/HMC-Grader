@@ -30,13 +30,15 @@ Assignments for {{course.name}}
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
-          <td>
-            {% if p.getSubmissionNumber(g.user) == 0 %}
-            Unsubmitted
-            {% else %}
-            Submitted <a href="{{url_for('viewProblem', cid=course.id, aid=a.id, pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
-            {% endif %}
+          {% if p.getSubmissionNumber(g.user) == 0 %}
+          <td>Unsubmitted</td>
+          {% else %}
+          {% with c,text = p.getLatestSubmission(g.user).getStatus() %}
+          <td class="{{c}}">
+          {{text}} <a href="{{url_for('viewProblem', cid=course.id, aid=a.id, pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
           </td>
+          {% endwith %}
+          {% endif %}
           <td>
             <a href="{{url_for('submitAssignment', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-primary btn-xs">Submit</a>
           </td>

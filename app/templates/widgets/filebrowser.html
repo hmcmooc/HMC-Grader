@@ -14,26 +14,26 @@
       <tbody>
         {% for p in assignment.problems|sort(attribute="name") %}
           {% if p == problem %}
-              {% if p.getSubmission(g.user, subnum).getFiles()|length != 0 %}
+              {% if p.getSubmission(user, subnum).getFiles()|length != 0 %}
               <tr class="success">
-                <td rowspan="{{p.getSubmission(g.user, subnum).getFiles()|length+1}}">{{p.name}}</td>
+                <td rowspan="{{p.getSubmission(user, subnum).getFiles()|length+1}}">{{p.name}}</td>
               </tr>
-              {% for f in p.getSubmission(g.user, subnum).getFiles()|sort %}
+              {% for f in p.getSubmission(user, subnum).getFiles()|sort %}
               <tr>
                 <td>{{f}}</td>
                 <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=problem.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
               </tr>
               {% endfor %}
               {% else %}
-              <tr><td class="success">{{p.name}}</td><td colspan="2">No Files</td></tr>
+              <tr><td class="info">{{p.name}}</td><td colspan="2">No Files</td></tr>
               {% endif %}
           {% else %}
-            {% if p.getLatestSubmission(g.user) != None %}
-                {% if p.getLatestSubmission(g.user).getFiles()|length != 0 %}
+            {% if p.getLatestSubmission(user) != None %}
+                {% if p.getLatestSubmission(user).getFiles()|length != 0 %}
                 <tr>
-                  <td rowspan="{{p.getLatestSubmission(g.user).getFiles()|length+1}}">{{p.name}}</td>
+                  <td rowspan="{{p.getLatestSubmission(user).getFiles()|length+1}}">{{p.name}}</td>
                 </tr>
-                {% for f in p.getLatestSubmission(g.user).getFiles()|sort %}
+                {% for f in p.getLatestSubmission(user).getFiles()|sort %}
                 <tr>
                   <td>{{f}}</td>
                   <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=p.id, subnum=0, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>

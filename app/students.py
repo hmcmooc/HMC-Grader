@@ -58,9 +58,11 @@ def viewProblem(cid,aid,pid,subnum):
     a = AssignmentGroup.objects.get(id=aid)
     p = Problem.objects.get(id=pid)
 
+    submission = p.getSubmission(current_user, subnum)
+
     return render_template("student/viewsubmission.html", \
                             course=c, assignment=a, problem=p,\
-                             subnum=subnum)
+                             subnum=subnum, submission=submission)
   except Course.DoesNotExist:
     pass
   return redirect(url_for('studentAssignments', cid=cid))

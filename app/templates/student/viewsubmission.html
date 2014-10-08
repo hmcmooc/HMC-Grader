@@ -30,11 +30,13 @@ Assignments for {{course.name}}
       </tr>
       <tr>
         <th>Submission Time</th>
-        <td>None</td>
+        <td class="time">{{submission.submissionTime.isoformat()}}</td>
       </tr>
       <tr>
         <th>Submission Status</th>
-        <td class="danger">Ungraded</td>
+        {% with c,text = submission.getStatus() %}
+        <td class="{{c}}">{{text}}</td>
+        {% endwith %}
       </tr>
     </table>
   </div>
@@ -51,7 +53,13 @@ Assignments for {{course.name}}
         {% for p in problem.rubric|dictsort %}
         <tr>
           <td>{{p[0]}}</td>
-          <td>{{problem.getSubmission(g.user, subnum).grade.scores.setdefault(p[0], '0.0')}}/{{p[1]}}</td>
+          <td>
+            {% if submission.grade.visible.setdefault(p[0], False) %}
+            {{submission.grade.scores.setdefault(p[0], '0.0')}}/{{p[1]}}
+            {% else %}
+            (N/A)/{{p[1]}}
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -76,7 +84,11 @@ Assignments for {{course.name}}
     </div>
     <div id="collapseComments" class="panel-collapse collapse in">
       <div class="panel-body">
-        {{ problem.getSubmission(g.user, subnum).comments|markdown}}
+        {% if submission.status == 4 %}
+        {{ submission.comments|markdown}}
+        {% else %}
+        Grading incomplete
+        {% endif %}
       </div>
     </div>
   </div>
@@ -85,6 +97,19 @@ Assignments for {{course.name}}
   </div>
 </div>
 
-
+{% with user = g.user %}
 {% include 'widgets/filebrowser.html' %}
+{% endwith %}
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text(d.format("lll"))
+})
+</script>
 {% endblock %}
