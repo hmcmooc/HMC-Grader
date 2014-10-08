@@ -33,7 +33,7 @@ Submissions for grading
           {% with sub = problem.getLatestSubmission(user) %}
           {% if sub == None %}
             <td>No Submission</td>
-            <td>BUTTON</td>
+            <td><a href="{{url_for('grutorMakeBlank', pid=problem.id, uid=user.id)}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% else %}
             {% with c,text = sub.getStatus() %}
             <td class="{{c}}">{{text}}</td>

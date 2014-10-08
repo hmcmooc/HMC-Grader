@@ -149,8 +149,37 @@ def grutorMakeBlank(pid, uid):
     #Check that the user we are trying to create a submission for is in the class
     if not (c in user.courseStudent):
       return redirect(url_for('index'))
-  except:
-    pass
+
+    #Create a blank submission
+    #Create the grade
+    grade = GBGrade()
+    grade.save()
+    p.gradeColumn.scores[user.username] = grade
+
+
+    p.studentSubmissions[user.username] = StudentSubmissionList()
+    p.studentSubmissions[user.username].submissions.append(Submission())
+
+    #create a filepath
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,user.username)
+    filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)))
+
+    #Get the submission and fill out its fields
+    #TODO handle partners
+    sub = p.studentSubmissions[user.username].submissions[-1]
+    sub.filePath = filepath
+    sub.grade = p.gradeColumn.scores[user.username]
+    sub.submissionTime = datetime.datetime.utcnow()
+    #The grader is making this so it isn't late
+    sub.isLate = False
+
+    #Create the needed folders
+    os.makedirs(filepath)
+
+    p.save(cascade=True)
+    return redirect(url_for('grutorGradeSubmission', uid=uid, pid=pid, subnum=1))
+  except Course.DoesNotExist as e:
+    raise e
 
 
 
