@@ -1,0 +1,176 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Edit Tests
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <ol class="breadcrumb">
+      <li><a href="{{url_for('administerCourse', id=course.id)}}">{{course.name}}</a></li>
+      <li>{{assignment.name}}</li>
+      <li><a href="{{url_for('editProblem', pid=problem.id, cid=course.id, aid=assignment.id)}}">{{problem.name}}</a></li>
+      <li>{{filename}}</li>
+    </ol>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-6">
+  </div>
+  <div class="col-sm-2" style="text-align:right">
+    <button class="btn btn-success">Save</button>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8" id="sections">
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-6">
+    <input type="text" class="form-control" id="newSecName"></input>
+  </div>
+  <div class="col-sm-2">
+    <button onClick="addSection()" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add Section</button>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+var gradeSpec = {
+  file:"test.py",
+  type:"python",
+  tests:["testA","testB","testC","testBlah"],
+  sections:[{name:"test", rubric:"Correctness", points:3, tests:["testA", "testC"]}, {name:"testington", rubric:"Style", points:5, tests:["testB"]}]
+};
+
+$( document ).ready(function() {
+  buildPage();
+});
+
+function buildPage(){
+  $("div#sections").html("")
+  for(var i = 0; i < gradeSpec.sections.length; ++i){
+    var sec = gradeSpec.sections[i];
+    makeSectionPane(sec.name, i);
+    for(var j = 0; j < sec.tests.length; ++j){
+      makeTestEntry(sec.name, sec.tests[j], i, j)
+    }
+  }
+
+  //We nest this in here because we have to reset the callbacks each time we
+  //rebuild the page
+  $("select[mytype='rubricSelector']").change(function(){
+    var sec = gradeSpec.sections[$(this).attr("index")];
+    sec.rubric = $(this).val();
+  });
+
+  $("input[mytype='points']").change(function(){
+    var sec = gradeSpec.sections[$(this).attr("index")]
+    sec.points = $(this).val();
+  })
+}
+
+function makeTestSelector(name, index){
+  var sec = gradeSpec.sections[index];
+  var sel = '<select id="'+name+'Test" class="form-control">';
+  for(var i = 0; i < gradeSpec.tests.length; ++i){
+    if (sec.tests.indexOf(gradeSpec.tests[i]) == -1){
+      sel += '<option value="'+gradeSpec.tests[i]+'">'+gradeSpec.tests[i]+'</option>'
+    }
+  }
+  sel += "</select>"
+  return sel
+}
+
+function makeSectionSelector(name, index){
+  var sec = gradeSpec.sections[index];
+  var rubricSects = {{problem.rubric.keys()|tojson}};
+  var sel = '<select id="'+name+'Section" index="'+index+'" mytype="rubricSelector" class="form-control">';
+  for(var i = 0; i < rubricSects.length; ++i){
+    if(rubricSects[i] == sec.rubric){
+      sel += '<option selected="selected"'
+    } else {
+      sel += '<option'
+    }
+    sel += ' value="'+rubricSects[i]+'">'+rubricSects[i]+'</option>';
+  }
+  sel += "</select>"
+  return sel
+}
+
+function makeSectionPane(name, index){
+  console.log(name);
+  var sec = gradeSpec.sections[index];
+  //Just a lot of Bootstrap HTML boilerplate
+  $('div#sections').append(
+'<div class="panel panel-default" id="'+name+'">\
+  <div class="panel-heading clearfix">\
+    <h3 class="panel-title pull-left">Section: '+ name +'</h3>\
+    <button class="btn btn-danger pull-right btn-xs" onClick="removeSection('+ index +')"><span class="glyphicon glyphicon-minus"></span></button>\
+  </div>\
+  <div class="panel-body">\
+  <div class="row">\
+  <div class="col-sm-6">Points: <input type="number" index="'+index+'" mytype="points" class="form-control" value="'+sec.points+'"></input></div>\
+  <div class="col-sm-6">Rubric Section: '+makeSectionSelector(name, index)+'</div>\
+  </div>\
+  </div>\
+  <table class="table table-bordered" id="' + name + '">\
+    <thead><tr><th>Test Name</th><th>Remove</th></thead>\
+    <tbody>\
+    <tr><td>'+makeTestSelector(name, index)+'</td><td><button onClick="addTest('+index+')" class="btn btn-s btn-primary"><span class="glyphicon glyphicon-plus"></span></button></td></tr>\
+    </tbody>\
+  </table>\
+</div>')
+}
+
+function makeTestEntry(secName, testName, secIndex, testIndex){
+  console.log(testName);
+  $('table#'+secName+' tbody tr:last').before('<tr id="'+testName+'"><td>'+testName+'</td><td><button onClick="removeTest('+secIndex+','+testIndex+')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></button></td></tr>')
+}
+
+function removeSection(index){
+  gradeSpec.sections.splice(index,1);
+  buildPage();
+}
+
+function removeTest(secIndex, testIndex){
+  var sec = gradeSpec.sections[secIndex];
+  sec.tests.splice(testIndex, 1);
+  buildPage();
+}
+
+function addTest(secIndex){
+  var sec = gradeSpec.sections[secIndex];
+  var testName = $("select#"+sec.name+"Test").val();
+  sec.tests.push(testName);
+  buildPage();
+}
+
+function addSection(){
+  var name = $('input#newSecName').val()
+  gradeSpec.sections.push({"name":name, points:0, section:"", tests:[]});
+  buildPage();
+}
+
+</script>
+{% endblock %}

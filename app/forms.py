@@ -60,6 +60,11 @@ class ProblemOptionsForm(Form):
 	time = TextField("Due Time")
 	hiddentime = TextField("")
 
+class AddTestForm(Form):
+	testFile = FileField("File")
+	testType = SelectField("Language", choices=[('python', 'Python')])
+
+
 '''
 Student forms
 '''

@@ -7,6 +7,9 @@ from flask.ext.mongoengine import MongoEngine
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.markdown import Markdown
 
+#import for celery task manager
+from celeryconfig import make_celery
+
 app = Flask(__name__)
 
 #Load the configuration file config.py
@@ -25,6 +28,9 @@ db = MongoEngine(app)
 
 #Initialize the markdown engine
 Markdown(app)
+
+app.config.update(CELERY_BROKER_URL="amqp://guest@localhost")
+celery = make_celery(app)
 
 @app.before_request
 def beforeRequest():

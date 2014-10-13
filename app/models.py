@@ -124,6 +124,7 @@ class Problem(db.Document):
   gradeColumn = db.ReferenceField('GBColumn', reverse_delete_rule=NULLIFY)
   duedate = db.DateTimeField()
   rubric = db.MapField(db.DecimalField())
+  testfiles = db.ListField(db.StringField())
 
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))

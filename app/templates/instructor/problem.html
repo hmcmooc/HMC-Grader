@@ -86,6 +86,45 @@ Edit Problem
   <div class="col-sm-2">
   </div>
 </div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h3>Tests</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Test Filename</th>
+          <th>Test Language</th>
+          <th>Edit</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in testFiles %}
+        <tr>
+          <td>{{f[0]}}</td>
+          <td>{{f[1]}}</td>
+          <td style="text-align:center"><a href="{{url_for('editTestFile', pid=problem.id, filename=f[0])}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a></td>
+          <td style="text-align:center"><a href="{{url_for('remTestFile', pid=problem.id, filename=f[0])}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+        </tr>
+        {% endfor %}
+        <form class="form" role="form" method="POST" enctype="multipart/form-data" action="{{url_for('addTestFile', pid=problem.id)}}">
+        <tr>
+          <td>{{testForm.hidden_tag()}}{{testForm.testFile(class="form-control")}}</input></td>
+          <td>
+            {{testForm.testType(class="form-control")}}
+          </td>
+          <td style="text-align:center"><button type="submit" class="btn btn-primary btn-s"><span class="glyphicon glyphicon-plus"></span></button></td>
+          <td class="active"></td>
+        </tr>
+        </form>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
