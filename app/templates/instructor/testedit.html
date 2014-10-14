@@ -25,7 +25,7 @@ Edit Tests
   <div class="col-sm-6">
   </div>
   <div class="col-sm-2" style="text-align:right">
-    <button class="btn btn-success">Save</button>
+    <button class="btn btn-success" id="save">Save</button>
   </div>
   <div class="col-sm-2">
   </div>
@@ -56,12 +56,8 @@ Edit Tests
 {% block scripts %}
 {{super()}}
 <script>
-var gradeSpec = {
-  file:"test.py",
-  type:"python",
-  tests:["testA","testB","testC","testBlah"],
-  sections:[{name:"test", rubric:"Correctness", points:3, tests:["testA", "testC"]}, {name:"testington", rubric:"Style", points:5, tests:["testB"]}]
-};
+var gradeSpec = {{data|tojson}};
+var sections = {{problem.rubric.keys()|tojson}};
 
 $( document ).ready(function() {
   buildPage();
@@ -104,7 +100,7 @@ function makeTestSelector(name, index){
 
 function makeSectionSelector(name, index){
   var sec = gradeSpec.sections[index];
-  var rubricSects = {{problem.rubric.keys()|tojson}};
+  var rubricSects = sections;
   var sel = '<select id="'+name+'Section" index="'+index+'" mytype="rubricSelector" class="form-control">';
   for(var i = 0; i < rubricSects.length; ++i){
     if(rubricSects[i] == sec.rubric){
@@ -168,9 +164,26 @@ function addTest(secIndex){
 
 function addSection(){
   var name = $('input#newSecName').val()
-  gradeSpec.sections.push({"name":name, points:0, section:"", tests:[]});
+  if(name == ""){
+    alert("Section name must contain valid characters")
+    return;
+  }
+  gradeSpec.sections.push({"name":name, points:0, section:sections[0], tests:[]});
   buildPage();
 }
+
+$("button#save").click(function(){
+  $.ajax({
+    url:"{{url_for('saveTestFile', pid=problem.id, filename=filename)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(gradeSpec),
+    dataType: 'json',
+    success: function(data) {
+      //Nothing to do
+    }
+  });
+});
 
 </script>
 {% endblock %}

@@ -3,7 +3,7 @@
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash
+from flask import g, request, render_template, redirect, url_for, flash, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -175,8 +175,12 @@ def editTestFile(pid, filename):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(filepath, filename)
+
     return render_template('instructor/testedit.html', course=c, assignment=a,\
-                            problem=p, filename=filename)
+                            problem=p, filename=filename, \
+                            data=getTestData(filepath))
   except Exception as e:
     flash(str(e), "error")
     return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
@@ -205,6 +209,38 @@ def remTestFile(pid, filename):
     flash(str(e), "error")
     return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
 
+@app.route('/editcourse/problem/<pid>/saveTestFile/<filename>', methods=['POST'])
+@login_required
+def saveTestFile(pid, filename):
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    #For security purposes we send anyone who isnt an instructor or
+    #admin away
+    if not (g.user.isAdmin or c in current_user.courseInstructor):
+      return jsonify(res=False)
+
+    #Try to get the contents
+    content = request.get_json()
+
+    #make sure we got the contents
+    if content == None:
+      return jsonify(res=False)
+
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(filepath, filename+".json")
+
+    with open(filepath, 'w') as f:
+      json.dump(content, f)
+
+    return jsonify(res=True)
+  except Exception as e:
+    return jsonify(res="Exception raised: "+ str(e))
+
+def getTestData(fn):
+  with open(fn+".json") as f:
+    data = json.load(f)
+  return data
 
 def getTestInfo(fn):
   with open(fn+".json") as f:
