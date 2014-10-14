@@ -112,7 +112,6 @@ class Submission(db.EmbeddedDocument):
 
 class StudentSubmissionList(db.EmbeddedDocument):
   submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
-  partners = db.ListField(db.ReferenceField('User'))
 
   def cleanup(self):
     for s in self.submissions:

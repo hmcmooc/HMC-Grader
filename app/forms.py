@@ -58,6 +58,7 @@ class ProblemOptionsForm(Form):
 	name = TextField("Problem Name")
 	date = TextField("Due Date")
 	time = TextField("Due Time")
+	allowPartners = BooleanField("Allow Partners")
 	hiddentime = TextField("")
 
 class AddTestForm(Form):
@@ -71,3 +72,4 @@ Student forms
 
 class SubmitAssignmentForm(Form):
 	files = FileField("Files")
+	partner = SelectField("Partner")

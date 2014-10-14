@@ -40,6 +40,11 @@ Edit Problem
         {{form.time.label}}
         {{form.time(placeholder="eg. 11:59 PM", class="form-control")}}
       </div>
+      <div class="form-group">
+        <label>
+        {{form.allowPartners()}} {{form.allowPartners.label}}
+        </label>
+      </div>
       <div style="display:none;">
         {{form.hiddentime()}}
       </div>
