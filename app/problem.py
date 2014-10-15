@@ -61,6 +61,7 @@ def updateProblem(cid, aid, pid):
       if form.validate():
         p.name = form.name.data
         p.duedate = dateutil.parser.parse(form.hiddentime.data)
+        p.allowPartners = form.allowPartners.data
         p.save()
   except Exception as e:
     flash(str(e))

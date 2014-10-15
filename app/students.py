@@ -72,7 +72,7 @@ Backend upload/download functions
 
 @app.route('/assignments/submit/<pid>/upload', methods=['POST'])
 @login_required
-def uploadFiles(cid, aid, pid):
+def uploadFiles(pid):
   try:
     p = Problem.objects.get(id=pid)
     c, a = p.getParents()
@@ -86,52 +86,80 @@ def uploadFiles(cid, aid, pid):
       if form.validate():
 
         #TODO: Possibly reorder path
-        filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,g.user.username)
+        filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name)
 
-        #Check for the metasubmission entry and create it if it doesn't exist
-        if g.user.username not in p.studentSubmissions:
-          p.studentSubmissions[g.user.username] = StudentSubmissionList()
+        userSub = createSubmission(p, g.user, filepath, request.files.getlist("files"))
 
-        #Create a new grade entry in the gradebook
-        grade = GBGrade()
-        grade.save()
-        p.gradeColumn.scores[g.user.username] = grade
+        if form.partner.data != "None":
+          partner = User.objects.get(id=form.partner.data)
+          partnerSub = createSubmission(p, partner, filepath, request.files.getlist("files"))
 
-        #Finish the filepath
-        filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)+1))
+          #Create the partner info for the first user
+          uPartnerInfo = PartnerInfo()
+          uPartnerInfo.user = partner
+          uPartnerInfo.submission = partnerSub
+          uPartnerInfo.save()
+          userSub.partnerInfo = uPartnerInfo
 
-        #Make a new submission for the submission list
-        sub = Submission()
-        #Initial fields for submission
-        sub.filePath = filepath
-        sub.grade = p.gradeColumn.scores[g.user.username]
-        sub.submissionTime = datetime.datetime.utcnow()
+          #Create the partner info for the partner
+          pPartnerInfo = PartnerInfo()
+          pPartnerInfo.user = User.objects.get(id=g.user.id)
+          pPartnerInfo.submission = userSub
+          pPartnerInfo.save()
+          partnerSub.partnerInfo = pPartnerInfo
 
-        sub.save()
-        p.studentSubmissions[g.user.username].submissions.append(sub)
-
-        #TODO handle partners
-
-        #Check for lateness
-        if p.duedate < sub.submissionTime:
-          sub.isLate = True
-
-        #make sure the directory exists
-        os.makedirs(filepath)
-
-
-        for f in request.files.getlist("files"):
-          filename = secure_filename(f.filename)
-          if filename == "":
-            continue
-          f.save(os.path.join(filepath, filename))
+          #Save the submissions
+          userSub.save()
+          partnerSub.save()
 
         p.save()
         p.gradeColumn.save()
 
-    return redirect(url_for('studentAssignments', cid=cid))
+    return redirect(url_for('studentAssignments', cid=c.id))
   except (Course.DoesNotExist):
     raise e
+
+def createSubmission(problem, user, filepath, files):
+  filepath = os.path.join(filepath, user.username)
+  #Check for the metasubmission entry and create it if it doesn't exist
+  if user.username not in problem.studentSubmissions:
+    problem.studentSubmissions[user.username] = StudentSubmissionList()
+
+  #Create a new grade entry in the gradebook
+  grade = GBGrade()
+  grade.save()
+  problem.gradeColumn.scores[user.username] = grade
+
+  #Finish the filepath
+  filepath = os.path.join(filepath, str(len(problem.studentSubmissions[g.user.username].submissions)+1))
+
+  #Make a new submission for the submission list
+  sub = Submission()
+  #Initial fields for submission
+  sub.filePath = filepath
+  sub.grade = problem.gradeColumn.scores[user.username]
+  sub.submissionTime = datetime.datetime.utcnow()
+
+  sub.save()
+  problem.studentSubmissions[user.username].submissions.append(sub)
+
+  #Check for lateness
+  if problem.duedate < sub.submissionTime:
+    sub.isLate = True
+
+  #make sure the directory exists
+  os.makedirs(filepath)
+
+
+  for f in files:
+    filename = secure_filename(f.filename)
+    if filename == "":
+      continue
+    f.save(os.path.join(filepath, filename))
+
+  sub.save()
+
+  return sub
 
 @app.route('/assignments/download/<pid>/<uid>/<subnum>/<filename>')
 @login_required

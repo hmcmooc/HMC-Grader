@@ -65,6 +65,12 @@ def grutorGradeSubmission(pid, uid, subnum):
     submission = p.getSubmission(user, subnum)
     submission.status = max(submission.status, 3)
 
+    if submission.partnerInfo != None:
+      submission.partnerInfo.submission.status = max(submission.partnerInfo.submission.status, 3)
+      submission.partnerInfo.submission.save()
+
+    submission.save()
+
     p.save()
 
     return render_template("grutor/gradesubmission.html", \
@@ -86,14 +92,23 @@ def grutorFinishSubmission(pid, uid, subnum):
     if not ( c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
+    #Define a function for performing closing operations
+    def finish(sub):
+      sub.status = max(sub.status, 4)
+      for g in sub.grade.scores:
+        sub.grade.visible[g] = True
+
+      sub.grade.save()
+      sub.save()
+    #End definition
+
     submission = p.getSubmission(user, subnum)
-    submission.status = max(submission.status, 4)
+    finish(submission)
 
-    for g in submission.grade.scores:
-      submission.grade.visible[g] = True
-
-    submission.grade.save()
-    submission.save()
+    #Handle the partners submission as well
+    #TODO: Make this a function for cleaner code
+    if submission.partnerInfo != None:
+      finish(submission.partnerInfo.submission)
 
     p.save()
 
@@ -113,15 +128,19 @@ def grutorReleaseSubmission(pid, uid, subnum):
     if not ( c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
-    #p = Problem.objects.get(id=pid)
-    #a = AssignmentGroup.objects.get(id=aid)
+    #Define function for releasing submissions
+    def release(sub):
+      sub.status = min(submission.status, 2)
+      sub.grade.save()
+      sub.save()
+    #End definition
 
     submission = p.getSubmission(user, subnum)
     #if not submission.status == 4:
-    submission.status = min(submission.status, 2)
+    release(submission)
 
-    submission.grade.save()
-    submission.save()
+    if submission.partnerInfo != None:
+      release(submission.partnerInfo.submission)
 
     p.save()
 
@@ -208,17 +227,21 @@ def grutorSaveGrades(pid, uid, subnum):
     if content == None:
       return jsonify(res=False)
 
+    #Define function for applying scores to a submission
+    def score(sub):
+      for section in content:
+        sub.grade.scores[section] = content[section]
+
+      sub.grade.save()
+      sub.save()
+    #End definition
+
     user = User.objects.get(id=uid)
     sub = p.getSubmission(user, subnum)
 
-    #put the sections in the grade
-    for section in content:
-      sub.grade.scores[section] = content[section]
-
-    #Save changes to the problem
-    p.save(cascade=True)
-    sub.grade.save()
-    sub.save()
+    score(sub)
+    if sub.partnerInfo != None:
+      score(sub.partnerInfo.submission)
 
     return jsonify(res=True)
 
@@ -250,12 +273,17 @@ def grutorSaveComment(pid, uid, subnum):
     if content == None:
       return jsonify(res=False)
 
+    #Define function for saving comments
+    def comment(sub):
+      sub.comments = content['text']
+      sub.save()
+
     user = User.objects.get(id=uid)
     sub = p.getSubmission(user, subnum)
 
-    #put the sections in the grade
-    sub.comments = content["text"]
-    sub.save()
+    comment(sub)
+    if sub.partnerInfo != None:
+      comment(sub.partnerInfo.submission)
 
 
     #Save changes to the problem

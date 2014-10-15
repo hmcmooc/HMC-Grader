@@ -21,7 +21,7 @@
               {% for f in p.getSubmission(user, subnum).getFiles()|sort %}
               <tr>
                 <td>{{f}}</td>
-                <td><a href="{{url_for('downloadFiles', cid=course.id, aid=assignment.id, pid=problem.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
+                <td><a href="{{url_for('downloadFiles', pid=problem.id, uid=user.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
               </tr>
               {% endfor %}
               {% else %}

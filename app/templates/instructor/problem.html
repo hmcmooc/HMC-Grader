@@ -144,6 +144,7 @@ $(function(){
   //Fill in the form for the name of the submission if it has been named
   if ("{{problem.name}}"!="") {
     $('#name').val("{{problem.name}}")
+    $('#allowPartners').prop("checked", {{problem.allowPartners|tojson}})
   }
 
   {% if problem.duedate == None %}

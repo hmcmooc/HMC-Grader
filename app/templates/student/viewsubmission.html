@@ -33,6 +33,14 @@ Assignments for {{course.name}}
         <td class="time">{{submission.submissionTime.isoformat()}}</td>
       </tr>
       <tr>
+        <th>Partner</th>
+        {% if submission.partnerInfo != None %}
+        <td>{{submission.partnerInfo.user.username}}</td>
+        {% else %}
+        <td>None</td>
+        {% endif %}
+      </tr>
+      <tr>
         <th>Submission Status</th>
         {% with c,text = submission.getStatus() %}
         <td class="{{c}}">{{text}}</td>
