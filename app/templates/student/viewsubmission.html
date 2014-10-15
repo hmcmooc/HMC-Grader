@@ -22,7 +22,7 @@ Assignments for {{course.name}}
             </button>
             <ul class="dropdown-menu" role="menu">
               {% for i in range(1,problem.getSubmissionNumber(g.user)+1) %}
-              <li><a href="{{url_for('viewProblem', cid=course.id, aid=assignment.id, pid=problem.id, subnum=i)}}">{{i}}</a></li>
+              <li><a href="{{url_for('viewProblem', pid=problem.id, subnum=i)}}">{{i}}</a></li>
               {% endfor %}
             </ul>
           </div>

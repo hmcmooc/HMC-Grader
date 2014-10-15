@@ -35,12 +35,12 @@ Assignments for {{course.name}}
           {% else %}
           {% with c,text = p.getLatestSubmission(g.user).getStatus() %}
           <td class="{{c}}">
-          {{text}} <a href="{{url_for('viewProblem', cid=course.id, aid=a.id, pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
+          {{text}} <a href="{{url_for('viewProblem', pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
           </td>
           {% endwith %}
           {% endif %}
           <td>
-            <a href="{{url_for('submitAssignment', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-primary btn-xs">Submit</a>
+            <a href="{{url_for('submitAssignment', pid=p.id)}}" class="btn btn-primary btn-xs">Submit</a>
           </td>
         </tr>
         {% endfor %}

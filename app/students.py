@@ -28,35 +28,34 @@ def studentAssignments(cid):
   except Exception as e:
     raise e
 
-@app.route('/assignments/<cid>/submit/<aid>/<pid>')
+@app.route('/assignments/submit/<pid>')
 @login_required
-def submitAssignment(cid, aid, pid):
+def submitAssignment(pid):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
       return redirect(url_for('index'))
 
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
+    saf = SubmitAssignmentForm()
+    saf.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
 
     return render_template("student/submit.html", \
                             course=c, assignment=a, problem=p,\
-                            form=SubmitAssignmentForm())
+                            form=saf)
   except Exception as e:
     raise e
 
-@app.route('/assignments/<cid>/view/<aid>/<pid>/<subnum>')
+@app.route('/assignments/view/<pid>/<subnum>')
 @login_required
-def viewProblem(cid,aid,pid,subnum):
+def viewProblem(pid,subnum):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c, a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
       return redirect(url_for('index'))
-
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
 
     submission = p.getSubmission(current_user, subnum)
 
@@ -71,20 +70,19 @@ def viewProblem(cid,aid,pid,subnum):
 Backend upload/download functions
 '''
 
-@app.route('/assignments/<cid>/submit/<aid>/<pid>/upload', methods=['POST'])
+@app.route('/assignments/submit/<pid>/upload', methods=['POST'])
 @login_required
 def uploadFiles(cid, aid, pid):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c, a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
       return redirect(url_for('index'))
 
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
-
     if request.method == "POST":
       form = SubmitAssignmentForm(request.form)
+      form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
       if form.validate():
 
         #TODO: Possibly reorder path
@@ -98,17 +96,21 @@ def uploadFiles(cid, aid, pid):
         grade = GBGrade()
         grade.save()
         p.gradeColumn.scores[g.user.username] = grade
-        #Make a new submission for the submission list
-        p.studentSubmissions[g.user.username].submissions.append(Submission())
-        #Finish the filepath
-        filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)))
 
-        #Get the submission and fill out its fields
-        #TODO handle partners
-        sub = p.studentSubmissions[g.user.username].submissions[-1]
+        #Finish the filepath
+        filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)+1))
+
+        #Make a new submission for the submission list
+        sub = Submission()
+        #Initial fields for submission
         sub.filePath = filepath
         sub.grade = p.gradeColumn.scores[g.user.username]
         sub.submissionTime = datetime.datetime.utcnow()
+
+        sub.save()
+        p.studentSubmissions[g.user.username].submissions.append(sub)
+
+        #TODO handle partners
 
         #Check for lateness
         if p.duedate < sub.submissionTime:
@@ -131,18 +133,19 @@ def uploadFiles(cid, aid, pid):
   except (Course.DoesNotExist):
     raise e
 
-@app.route('/assignments/<cid>/submit/<aid>/<pid>/download/<subnum>/<filename>')
+@app.route('/assignments/download/<pid>/<uid>/<subnum>/<filename>')
 @login_required
-def downloadFiles(cid, aid, pid, subnum, filename):
+def downloadFiles(pid, uid, subnum, filename):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
       return redirect(url_for('index'))
 
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
-    s = p.getSubmission(g.user, subnum)
+    u = User.objects.get(id=uid)
+
+    s = p.getSubmission(u, subnum)
 
     return send_file(os.path.join(s.filePath, filename), as_attachment=True)
   except Course.DoesNotExist:

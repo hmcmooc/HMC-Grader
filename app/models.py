@@ -74,12 +74,24 @@ class GBGrade(db.Document):
 Course and submission models
 '''
 
-class Submission(db.EmbeddedDocument):
+#TODO: Figure out what to do when a user is removed from a course
+class PartnerInfo(db.Document):
+  '''
+  A database model for storing information about the partner of a specific
+  submission
+  '''
+  user = db.ReferenceField('User')
+  submission = db.ReferenceField('Submission')
+
+
+
+class Submission(db.Document):
   submissionTime = db.DateTimeField(required=True)
   isLate = db.BooleanField(default=False)
   filePath = db.StringField(required=True)
   grade = db.ReferenceField('GBGrade')
   status = db.IntField(default=0)
+
   # 0 = Ungraded
   # 1 = Autograde inprogress
   # 2 = Autograde complete
@@ -87,8 +99,14 @@ class Submission(db.EmbeddedDocument):
   # 4 = Manual grade complete
   comments = db.StringField(default="No Comments")
 
+  partnerInfo = db.ReferenceField("PartnerInfo", reverse_delete_rule=NULLIFY, default=None)
+
+  meta = {"cascade": True}
+
   def cleanup(self):
     try:
+      if self.partnerInfo:
+        self.partnerInfo.delete()
       self.grade.delete()
     except:
       pass
@@ -111,11 +129,14 @@ class Submission(db.EmbeddedDocument):
       return "success", "Graded"
 
 class StudentSubmissionList(db.EmbeddedDocument):
-  submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
+  submissions = db.ListField(db.ReferenceField('Submission'))
+
+  meta = {"cascade": True}
 
   def cleanup(self):
     for s in self.submissions:
       s.cleanup()
+      s.delete()
     self.submissions = []
 
 class Problem(db.Document):
@@ -124,9 +145,12 @@ class Problem(db.Document):
   duedate = db.DateTimeField()
   rubric = db.MapField(db.DecimalField())
   testfiles = db.ListField(db.StringField())
+  allowPartners = db.BooleanField(default=True)
 
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))
+
+  meta = {"cascade": True}
 
   def __init__(self, name, **data):
     super(Problem, self).__init__(**data)
@@ -172,6 +196,8 @@ class AssignmentGroup(db.Document):
   gradeEntry = db.ReferenceField('GBEntry', reverse_delete_rule=NULLIFY)
   problems = db.ListField(db.ReferenceField('Problem', reverse_delete_rule=PULL))
 
+  meta = {"cascade": True}
+
   def __init__(self, name, **data):
     super(AssignmentGroup, self).__init__(**data)
     self.name = name
@@ -194,6 +220,8 @@ class Course(db.Document):
 
   #Is this course still being taught at this time
   isActive = db.BooleanField(default=True)
+
+  meta = {"cascade": True, 'ordering': ["+semester", "+name"]}
 
   def cleanup(self):
     self.gradeBook.cleanup()

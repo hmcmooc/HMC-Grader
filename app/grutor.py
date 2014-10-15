@@ -86,9 +86,6 @@ def grutorFinishSubmission(pid, uid, subnum):
     if not ( c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
-    #p = Problem.objects.get(id=pid)
-    #a = AssignmentGroup.objects.get(id=aid)
-
     submission = p.getSubmission(user, subnum)
     submission.status = max(submission.status, 4)
 
@@ -96,6 +93,7 @@ def grutorFinishSubmission(pid, uid, subnum):
       submission.grade.visible[g] = True
 
     submission.grade.save()
+    submission.save()
 
     p.save()
 
@@ -123,6 +121,7 @@ def grutorReleaseSubmission(pid, uid, subnum):
     submission.status = min(submission.status, 2)
 
     submission.grade.save()
+    submission.save()
 
     p.save()
 
@@ -158,18 +157,22 @@ def grutorMakeBlank(pid, uid):
 
 
     p.studentSubmissions[user.username] = StudentSubmissionList()
-    p.studentSubmissions[user.username].submissions.append(Submission())
 
     #create a filepath
     filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,user.username)
-    filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)))
+    filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)+1))
 
-    #Get the submission and fill out its fields
-    #TODO handle partners
-    sub = p.studentSubmissions[user.username].submissions[-1]
+    sub = Submission()
+    #Initial fields for submission
     sub.filePath = filepath
     sub.grade = p.gradeColumn.scores[user.username]
     sub.submissionTime = datetime.datetime.utcnow()
+
+    sub.save()
+    p.studentSubmissions[user.username].submissions.append(sub)
+
+
+    #TODO handle partners
     #The grader is making this so it isn't late
     sub.isLate = False
 
@@ -215,6 +218,7 @@ def grutorSaveGrades(pid, uid, subnum):
     #Save changes to the problem
     p.save(cascade=True)
     sub.grade.save()
+    sub.save()
 
     return jsonify(res=True)
 
@@ -251,6 +255,7 @@ def grutorSaveComment(pid, uid, subnum):
 
     #put the sections in the grade
     sub.comments = content["text"]
+    sub.save()
 
 
     #Save changes to the problem
