@@ -13,7 +13,8 @@ To run this site you must create a python virtual env for testing. This has to h
  * WTForms
  * python-dateutil
  * pygments
+ * celery
 
 The site can then be run with the command:
 
-<virtualenv>/bin/python run.py
+`<virtualenv>/bin/python run.py`
