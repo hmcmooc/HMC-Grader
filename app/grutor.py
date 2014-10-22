@@ -13,7 +13,7 @@ from werkzeug import secure_filename
 from models import *
 from forms import SubmitAssignmentForm
 
-import os, datetime
+import os, datetime, fcntl, random
 import markdown
 
 @app.route('/grutor/assignments/<cid>')
@@ -46,6 +46,62 @@ def grutorGradelistProblem(pid):
                             course=c, problem=p, assignment=a, users=students)
   except Exception as e:
     raise e
+
+@app.route('/grutor/grade/<pid>/random')
+@login_required
+def grutorGradeRandom(pid):
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    #For security we redirect anyone who shouldn't be here to the index
+    if not (c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    #create a path to the lockfile
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.lock')
+    #Open the file and get a writelock to serialize
+    with open(filepath, 'w+') as f:
+      fcntl.flock(f, fcntl.LOCK_EX)
+      #Find an ungraded assignment
+      submissions = p.studentSubmissions.values()
+      #Get only the latest submission
+      submissions = map(lambda x: (x,p.studentSubmissions[x].submissions[-1], len(p.studentSubmissions[x].submissions)), p.studentSubmissions)
+      #Get only submissions that can be graded
+      #Define a small predicate to use in the filter
+      def isGradeable(submission):
+        #get the submission from the tuple
+        sub = submission[1]
+        if sub.status == 2:
+          return True
+        else:
+          return False
+
+      submissions = filter(isGradeable, submissions)
+      if len(submissions) == 0:
+        #If there are none to pick redirect and notify
+        flash("All submissions have been claimed")
+        fcntl.flock(f, fcntl.LOCK_UN)
+        return redirect(url_for('grutorGradelistProblem', pid=pid))
+
+      #To prevent race conditions we claim these before the lock is released
+      #even though this also happens when we redirect
+      subTuple = random.choice(submissions)
+      sub = subTuple[1]
+      sub.status = 3
+      sub.save()
+      if sub.partnerInfo != None:
+        sub.partnerInfo.submission.status = 3
+        sub.partnerInfo.submission.save()
+      #release the lock
+      fcntl.flock(f, fcntl.LOCK_UN)
+      #redirect to grading
+      #We get the user after releasing the lock to prevent deadlock if this fails
+      #for some reason
+      user = User.objects.get(username=subTuple[0])
+      return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=subTuple[2]))
+  except Exception as e:
+    raise e
+
 
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>')
 @login_required
