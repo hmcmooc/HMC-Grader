@@ -12,6 +12,8 @@ from werkzeug import secure_filename
 
 from models import *
 from forms import SubmitAssignmentForm
+from autograde import gradeSubmission
+
 
 import os, datetime
 
@@ -90,6 +92,7 @@ def uploadFiles(pid):
 
         userSub = createSubmission(p, g.user, filepath, request.files.getlist("files"))
 
+
         if form.partner.data != "None":
           partner = User.objects.get(id=form.partner.data)
           partnerSub = createSubmission(p, partner, filepath, request.files.getlist("files"))
@@ -114,6 +117,12 @@ def uploadFiles(pid):
 
         p.save()
         p.gradeColumn.save()
+
+
+        #Grade after everything is saved
+        gradeSubmission.delay(p.id, g.user.id, p.getSubmissionNumber(g.user))
+        if form.partner.data != "None":
+          gradeSubmission.delay(p.id, partner.id, p.getSubmissionNumber(partner))
 
     return redirect(url_for('studentAssignments', cid=c.id))
   except (Course.DoesNotExist):

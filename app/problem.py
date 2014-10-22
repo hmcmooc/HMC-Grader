@@ -34,8 +34,9 @@ def editProblem(cid, aid, pid):
     p = Problem.objects.get(id=pid)
 
     testFiles = []
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
     for f in p.testfiles:
-      testFiles.append(getTestInfo(f))
+      testFiles.append(getTestInfo(os.path.join(filepath,f)))
 
     return render_template("instructor/problem.html", course=c, problem=p, assignment=a,\
                            form=ProblemOptionsForm(), testForm=AddTestForm(),\
@@ -141,7 +142,7 @@ def addTestFile(pid):
         request.files[form.testFile.name].save(os.path.join(filepath, filename))
 
         # Add the file to the problem
-        p.testfiles.append(os.path.join(filepath, filename))
+        p.testfiles.append(filename)
         p.save()
 
         #Create json spec file
@@ -203,7 +204,7 @@ def remTestFile(pid, filename):
     os.remove(filepath)
     os.remove(filepath+".json")
 
-    p.testfiles.remove(filepath)
+    p.testfiles.remove(filename)
     p.save()
     return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
   except Exception as e:
