@@ -34,8 +34,8 @@ body {
             {% for c in g.user.courseStudent|sort(attribute='name') %}
             <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
-            <li class="divider"></li>
-            <li><a href="{{url_for('index')}}">My Grades</a></li>
+            <!--<li class="divider"></li>
+            <li><a href="{{url_for('index')}}">My Grades</a></li>-->
           </ul>
         </li>
         {% endif %}
@@ -57,10 +57,10 @@ body {
             {% for c in g.user.courseInstructor|sort(attribute='name') %}
             <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
-            <li class="divider"></li>
+            <!--<li class="divider"></li>
             <li class="dropdown-header">Grade Book</li>
             {% for c in g.user.courseInstructor|sort(attribute='name') %}
-            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
+            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>-->
             {% endfor %}
           </ul>
         </li>
