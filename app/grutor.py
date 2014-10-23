@@ -58,7 +58,10 @@ def grutorGradeRandom(pid):
       return redirect(url_for('index'))
 
     #create a path to the lockfile
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.lock')
+    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name)
+    if not os.path.isdir(filepath):
+      os.mkdirs(filepath)
+    filepath = os.path.join(filepath, '.lock')
     students = User.objects.filter(courseStudent=c)
     #Open the file and get a writelock to serialize
     with open(filepath, 'w+') as f:
