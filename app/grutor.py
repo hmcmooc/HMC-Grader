@@ -59,18 +59,27 @@ def grutorGradeRandom(pid):
 
     #create a path to the lockfile
     filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.lock')
+    students = User.objects.filter(courseStudent=c)
     #Open the file and get a writelock to serialize
     with open(filepath, 'w+') as f:
       fcntl.flock(f, fcntl.LOCK_EX)
+
+      def getSubmission(name):
+        if name in p.studentSubmissions:
+          return (name, p.studentSubmissions[name].submissions[-1], len(p.studentSubmissions[name].submissions))
+        else:
+          return (name, None, 1)
+
       #Find an ungraded assignment
-      submissions = p.studentSubmissions.values()
-      #Get only the latest submission
-      submissions = map(lambda x: (x,p.studentSubmissions[x].submissions[-1], len(p.studentSubmissions[x].submissions)), p.studentSubmissions)
+      submissions = map(lambda x: getSubmission(x.username), students)
       #Get only submissions that can be graded
       #Define a small predicate to use in the filter
       def isGradeable(submission):
         #get the submission from the tuple
         sub = submission[1]
+        #Handle submissions with nothing attached
+        if sub == None:
+          return True
         if sub.status == 2:
           return True
         else:
@@ -87,11 +96,17 @@ def grutorGradeRandom(pid):
       #even though this also happens when we redirect
       subTuple = random.choice(submissions)
       sub = subTuple[1]
-      sub.status = 3
-      sub.save()
-      if sub.partnerInfo != None:
-        sub.partnerInfo.submission.status = 3
-        sub.partnerInfo.submission.save()
+      #Handle a non submission
+      if sub == None:
+        flash("This student submitted nothing. A blank submission has been created")
+        #Leverage this function to create stuff for us
+        grutorMakeBlank(pid, User.objects.get(username=subTuple[0]).id)
+      else:
+        sub.status = 3
+        sub.save()
+        if sub.partnerInfo != None:
+          sub.partnerInfo.submission.status = 3
+          sub.partnerInfo.submission.save()
       #release the lock
       fcntl.flock(f, fcntl.LOCK_UN)
       #redirect to grading
