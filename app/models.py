@@ -118,11 +118,11 @@ class Submission(db.Document):
 
   def getStatus(self):
     if self.status == 0:
-      return "danger", "Ungraded"
+      return "info", "Submitted (Ungraded)"
     elif self.status == 1:
       return "warning", "Autograde in progress"
     elif self.status == 2:
-      return "info", "Awaiting Grader"
+      return "info", "Submitted (Ungraded)"
     elif self.status == 3:
       return "warning", "Grading in progress"
     elif self.status == 4:

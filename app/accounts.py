@@ -35,7 +35,7 @@ def login():
           return render_template("accounts/login.html", form=form, active_page="login")
 
         #Validated so login the user
-        login_user(user)
+        login_user(user, remember=form.remember.data)
         #set the session global user variable
         g.user = current_user
         return redirect(url_for('index'))

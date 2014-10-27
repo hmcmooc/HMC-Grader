@@ -36,6 +36,7 @@ celery = make_celery(app)
 def beforeRequest():
   g.user = current_user
 
+#We perform imports here for all the other files which contain pages
 from models import *
 
 from root import *
