@@ -58,10 +58,6 @@ class GBColumn(db.Document):
     self.name = name
 
   def cleanup(self):
-    # for k in self.scores:
-    #   s = self.scores[k]
-    #   self.scores[k] = None
-    #   s.delete()
     pass
 
 class GBGrade(db.Document):
@@ -69,6 +65,11 @@ class GBGrade(db.Document):
   scores = db.MapField(db.DecimalField())
   visible = db.MapField(db.BooleanField())
 
+'''
+Settings models
+'''
+class Settings(db.EmbeddedDocument):
+  pass
 
 '''
 Course and submission models
@@ -82,8 +83,6 @@ class PartnerInfo(db.Document):
   '''
   user = db.ReferenceField('User')
   submission = db.ReferenceField('Submission')
-
-
 
 class Submission(db.Document):
   submissionTime = db.DateTimeField(required=True)
@@ -220,6 +219,9 @@ class Course(db.Document):
 
   #Is this course still being taught at this time
   isActive = db.BooleanField(default=True)
+
+  #Do we show usernames during grading
+  anonGrading = db.BooleanField(default=False)
 
   meta = {"cascade": True, 'ordering': ["+semester", "+name"]}
 
