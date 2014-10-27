@@ -29,16 +29,23 @@ db = MongoEngine(app)
 #Initialize the markdown engine
 Markdown(app)
 
+#Configure the celery settings
+#TODO: move this to the config file
 app.config.update(CELERY_BROKER_URL="amqp://guest@localhost")
+#Initialize the celery object
 celery = make_celery(app)
 
+#Before each request we should store our current user (provided by flask-login)
+#in the global object g (which is accessable inside templates)
 @app.before_request
 def beforeRequest():
   g.user = current_user
 
-#We perform imports here for all the other files which contain pages
 from models import *
 
+#We perform imports here for all the other files which contain pages
+#By importing these here the decorators execute and the view functions become
+#available. If you add another file with view functions you must import it here
 from root import *
 from accounts import *
 

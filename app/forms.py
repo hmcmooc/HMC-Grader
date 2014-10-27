@@ -7,7 +7,6 @@ from wtforms.validators import Length, Email
 '''
 Account management forms
 '''
-
 class SignInForm(Form):
 	username = TextField('Username',validators=[Required('Please provide a username')])
 	password = PasswordField('Password', validators=[Required()])
@@ -18,6 +17,7 @@ class ChangePasswordForm(Form):
 	newPassword = PasswordField('New Password', validators=[Required()])
 	newPasswordConf = PasswordField('Confirm New Password', validators=[Required()])
 
+#TODO: Refactor to remove these forms
 class ChangeFirstNameForm(Form):
 	firstName = TextField('First Name')
 
