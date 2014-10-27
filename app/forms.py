@@ -65,6 +65,9 @@ class AddTestForm(Form):
 	testFile = FileField("File")
 	testType = SelectField("Language", choices=[('python', 'Python')])
 
+class CourseSettingsForm(Form):
+	anonymousGrading = BooleanField("Use anonymous grading")
+
 
 '''
 Student forms

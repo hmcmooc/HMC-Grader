@@ -3,13 +3,13 @@
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash
+from flask import g, request, render_template, redirect, url_for, flash, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
 
 from models import *
-from forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm
+from forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
 
 import traceback, StringIO, sys
 import dateutil.parser
@@ -35,10 +35,28 @@ def administerCourse(id):
     return render_template("instructor/course.html",\
      course=c, students=s, grutors=grutor, instrs=i,\
      form=CreateAssignmentForm(), suserform=AddUserCourseForm(),\
-     guserform=AddUserCourseForm(), iuserform=AddUserCourseForm())
+     guserform=AddUserCourseForm(), iuserform=AddUserCourseForm(),
+     settingsForm=CourseSettingsForm())
   except Course.DoesNotExist:
     return redirect(url_for('adminIndex'))
 
+'''
+Saving the settings
+'''
+@app.route('/assignment/<cid>/settings', methods=['POST'])
+@login_required
+def instructorSaveSettings(cid):
+  try:
+    c = Course.objects.get(id=cid)
+    if not (g.user.isAdmin or c in current_user.courseInstructor):
+      return jsonify(res=False)
+
+    content = request.get_json()
+    c.anonymousGrading = content['anonymousGrading']
+    c.save()
+    return jsonify(res=True)
+  except:
+    return jsonify(res=False, stuff="error")
 
 '''
 Modifying assignments

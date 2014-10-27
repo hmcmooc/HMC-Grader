@@ -10,7 +10,7 @@ Assignments for {{course.name}}
   </div>
   <div class="col-sm-8">
     <h3>Submssion for: {{course.name}}/{{assignment.name}}/{{problem.name}}</h3>
-    <h3>User: {{user.username}}</h3>
+    <h3>User: {% if not course.anonymousGrading %}{{user.username}}{% else %}{{user.id}}{% endif %}</h3>
   </div>
   <div class="col-sm-2">
   </div>
@@ -45,7 +45,7 @@ Assignments for {{course.name}}
       <tr>
         <th>Partner</th>
         {% if submission.partnerInfo != None %}
-        <td>{{submission.partnerInfo.user.username}}</td>
+        <td>{% if not course.anonymousGrading %}{{submission.partnerInfo.user.username}}{% else %}{{submission.partnerInfo.user.id}}{% endif %}</td>
         {% else %}
         <td>None</td>
         {% endif %}
@@ -59,7 +59,7 @@ Assignments for {{course.name}}
       <tr>
         <td colspan="2" style="text-align:right">
           <a href="{{url_for('grutorReleaseSubmission', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-danger btn-xs">Cancel Grade</a>
-          <a href="{{url_for('grutorFinishSubmission', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-success btn-xs">Finish Grading</a>
+          <a href="{{url_for('grutorFinishSubmission', pid=problem.id, uid=user.id, subnum=subnum)}}" id="finishGrading" class="btn btn-success btn-xs">Finish Grading</a>
         </td>
       </tr>
     </table>
@@ -171,6 +171,21 @@ function saveGrades(){
   return false;
 };
 
+function saveComments(){
+  values = {}
+  values["text"] = $("#commentarea").val()
+  $.ajax({
+    url:"{{url_for('grutorSaveComment', pid=problem.id, uid=user.id, subnum=subnum)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(values),
+    dataType: 'json',
+    success: function(data) {
+      //Nothing to do
+    }
+  });
+}
+
 $("#previewBtn").click(function(){
   values = {}
   values["text"] = $("#commentarea").val()
@@ -186,19 +201,10 @@ $("#previewBtn").click(function(){
   });
 })
 
-$("#saveBtn").click(function(){
-  values = {}
-  values["text"] = $("#commentarea").val()
-  $.ajax({
-    url:"{{url_for('grutorSaveComment', pid=problem.id, uid=user.id, subnum=subnum)}}",
-    type:'POST',
-    contentType:'application/json',
-    data: JSON.stringify(values),
-    dataType: 'json',
-    success: function(data) {
-      //Nothing to do
-    }
-  });
+$("#saveBtn").click(saveComments());
+$("#finishGrading").click(function(){
+  saveGrades();
+  saveComments();
 })
 </script>
 

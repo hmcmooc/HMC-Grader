@@ -30,7 +30,7 @@ Submissions for grading
     <table class="table table-bordered">
       <thead>
         <tr>
-          <th>Username</th>
+          <th>{% if not course.anonymousGrading %}Username{% else %}User Identifier{% endif %}</th>
           <th>Submission Status</th>
           <th>Grade Submission</th>
         </tr>
@@ -38,7 +38,7 @@ Submissions for grading
       <tbody>
         {% for user in users|sort(attribute="username") %}
         <tr>
-          <td>{{user.username}}</td>
+          <td>{% if not course.anonymousGrading %}{{user.username}}{% else %}{{user.id}}{% endif %}</td>
           {% with sub = problem.getLatestSubmission(user) %}
           {% if sub == None %}
             <td>No Submission</td>

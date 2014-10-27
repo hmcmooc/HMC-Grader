@@ -221,7 +221,7 @@ class Course(db.Document):
   isActive = db.BooleanField(default=True)
 
   #Do we show usernames during grading
-  anonGrading = db.BooleanField(default=False)
+  anonymousGrading = db.BooleanField(default=False)
 
   meta = {"cascade": True, 'ordering': ["+semester", "+name"]}
 

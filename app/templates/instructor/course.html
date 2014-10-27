@@ -58,6 +58,22 @@ Edit Course: {{course.name}}
   </div>
 </div>
 <div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h2>Settings</h2>
+    <form class="form" role="form" onSubmit="return saveSettings()" id="settings">
+      <div class="form-group">
+        {{settingsForm.anonymousGrading()}}{{settingsForm.anonymousGrading.label}}
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<hr/>
+<div class="row">
   <div class="col-sm-3">
   </div>
   <div class="col-sm-2">
@@ -152,5 +168,23 @@ $(".time").each(function(){
   var d = new moment(t+"Z");
   $(this).text(d.format("lll"))
 })
+
+$('#anonymousGrading').prop("checked", {{course.anonymousGrading|tojson}})
+
+function saveSettings(){
+  values = {};
+  values['anonymousGrading'] = $('#anonymousGrading').prop('checked');
+  $.ajax({
+    url:"{{url_for('instructorSaveSettings', cid=course.id)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(values),
+    dataType: 'json',
+    success: function(data) {
+      //Nothing to do
+    }
+  });
+  return false;
+};
 </script>
 {% endblock %}
