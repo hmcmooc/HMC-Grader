@@ -32,7 +32,7 @@ def administerCourse(cid):
     cid: The object ID of the course being administered
   '''
   try:
-    c = Course.objects.get(id=id)
+    c = Course.objects.get(id=cid)
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
