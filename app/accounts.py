@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+'''
+This module handles login, logout, and settings for user accounts
+'''
+
 #import the app and the login manager
 from app import app, loginManager
 
@@ -14,26 +18,41 @@ from forms import SignInForm, ChangePasswordForm, ChangeFirstNameForm\
 
 LOGIN_ERROR_MSG = "Invalid Username/Password"
 
-'''
-User loader for the login manager. Flask-Login will store the id of the
-current user. This function must return the object for that user.
-'''
+
 @loginManager.user_loader
 def load_user(id):
+  '''
+  Function Type: Boilerplate
+  Purpose: This function takes the user ID stored in the session cookie and
+  converts it into a User object by performing a database query.
+  '''
   return User.objects.get(id=id)
 
-'''
-login view function.
-Renders the accounts/login.html template.
-Validates login information from the SignInForm and redirects to the index if
-login is succesful. Otherwise it fill in error fields and re-renders the login
-template.
-'''
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+  '''
+  Function Type: View Function, Form handler
+  Template: accounts/login.html
+  Purpose: Handle the login of a user and provide feedback when login fails.
+
+  Inputs: None
+
+  Template Parameters:
+    form: A form of the class SignInForm. This takes the username and password
+    of the user.
+    active_pate: A string naming the active page. This is for higlighting the
+    active page in the nav-bar.
+
+  Forms Handled:
+    SignInForm: Uses this form to determine if the user has the credentials to
+    access the account. If an error occurs the appropriate error fields are
+    filled in and the form is sent back to the template.
+  '''
+  #If the user is already authenticated we are done here just go to the index
   if g.user is not None and g.user.is_authenticated():
     return redirect(url_for('index'))
 
+  #If the form is being submitted (we get a POST request) handle the login
   if request.method == 'POST':
     form = SignInForm(request.form)
     if form.validate():
@@ -43,9 +62,11 @@ def login():
         #Check for matching password hashes
         if not passMatch:
           form.password.errors.append(LOGIN_ERROR_MSG)
-          return render_template("accounts/login.html", form=form, active_page="login")
+          return render_template("accounts/login.html", form=form, \
+                                  active_page="login")
 
-        #Validated so login the user
+        #Validated so login the user (If the asked to be remembered tell
+        #flask-login to handle that)
         login_user(user, remember=form.remember.data)
         #set the session global user variable
         g.user = current_user
@@ -53,32 +74,54 @@ def login():
 
       except User.DoesNotExist:
         form.password.errors.append(LOGIN_ERROR_MSG)
-        return render_template("accounts/login.html", form=form, active_page="login")
+        return render_template("accounts/login.html", form=form, \
+                                active_page="login")
 
   #If it wasn't a form submission just render a blank form
-  return render_template("accounts/login.html", form=SignInForm(), active_page="login")
+  return render_template("accounts/login.html", form=SignInForm(), \
+                          active_page="login")
 
-'''
-logout view function.
-Doesn't render any template but instead logs out the user and redirects to the
-index.
-'''
 @app.route('/logout')
 @login_required
 def logout():
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Log out the current user and redirect to the index
+
+  Inputs: None
+
+  Forms Handled: None
+  '''
   logout_user()
   g.user = current_user
   return redirect(url_for('index'))
 
-'''
-Account settings view function.
-Renders the accounts/settings.html template.
-Also handles the submission of several forms for changing settings of the user.
-'''
 #TODO refactor this. possibly use javascript and a smaller callback rather than this large elif mess
 @app.route('/settings', methods=['POST', 'GET'])
 @login_required
 def userSettings():
+  '''
+  Function Type: View Function
+  Template: accounts/settings.html
+  Purpose: Display current account information as well as provide forms for
+  changing account information.
+
+  Inputs: None
+
+  Template Parameters:
+    pwform: PasswordChangeForm for allowing the user to change their password
+    fnform: Form for changing first names
+    lnform: Form for changing last names
+    eform: Form for changing email addresses
+    active_page: Identifier for highlighting the active page in the nav-bar
+
+  Forms Handled:
+    PasswordChangeForm: Confirms that the old password matches and that the two
+    new passwords match then changes the users password.
+    ChangeFirstNameForm: Changes the users first name
+    ChangeLastNameForm: Changes the users last name
+    ChangeEmailForm: Changes the users email
+  '''
   if request.method == 'POST':
     #Find which form was submitted
     if request.form['btn'] == 'changepasswd':

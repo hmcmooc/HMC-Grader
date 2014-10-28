@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+'''
+This module supports all of the view and callback functions that can be used by
+grutors and instructors performing a grutor role.
+'''
 
 #import the app and the login manager
 from app import app, loginManager
@@ -19,9 +23,23 @@ import markdown
 @app.route('/grutor/assignments/<cid>')
 @login_required
 def grutorAssignments(cid):
+  '''
+  Function Type: View Function
+  Template: grutor/assignments.html
+  Purpose: Display all of the assignment groups and problems in those groups
+  for the course specified by <cid>.
+
+  Inputs:
+    cid: A course object ID
+
+  Template Parameters:
+    course: The course object specified by <cid>
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
-    #For security purposes we send anyone who isnt in this class to the index
+    #For security purposes we send anyone who isnt grading this class to the index
     if not ( c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
@@ -32,6 +50,23 @@ def grutorAssignments(cid):
 @app.route('/grutor/gradelist/problem/<pid>')
 @login_required
 def grutorGradelistProblem(pid):
+  '''
+  Function Type: View Function
+  Template: grutor/problems.html
+  Purpose: Display all of the student submissions for the problem specified by
+  <pid>.
+
+  Inputs:
+    pid: A problem object ID
+
+  Template Parameters:
+    course: The course which contains the problem specified by <pid>
+    assignment: The assignment group containing the problem specified by <pid>
+    problem: The problem specified by <pid>
+    users: A list of the students who are enrolled in <course>
+
+  Forms handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
