@@ -8,6 +8,8 @@ body {
   padding-bottom: 60px;
 }
 </style>
+
+<link href="{{url_for('static', filename='octicons/octicons.css')}}" rel="stylesheet">
 {% endblock %}
 
 {% block navbar %}
@@ -55,12 +57,12 @@ body {
           <ul class="dropdown-menu">
             <li class="dropdown-header">Course Properties</li>
             {% for c in g.user.courseInstructor|sort(attribute='name') %}
-            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>
+            <li><a href="{{url_for('administerCourse', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <!--<li class="divider"></li>
             <li class="dropdown-header">Grade Book</li>
             {% for c in g.user.courseInstructor|sort(attribute='name') %}
-            <li><a href="{{url_for('administerCourse', id=c.id)}}">{{c.name}}</a></li>-->
+            <li><a href="{{url_for('administerCourse', cid=c.id)}}">{{c.name}}</a></li>-->
             {% endfor %}
           </ul>
         </li>
@@ -68,6 +70,7 @@ body {
         {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://github.com/robojeb/groody-grader/issues" target="_blank"><span class="octicon octicon-bug"></span> Report a Bug</a></li>
         {% if not g.user.is_authenticated() %}
         <li{% if active_page == "login" %} class="active"{% endif %}><a href="{{url_for('login')}}">Login</a></li>
         {% else %}

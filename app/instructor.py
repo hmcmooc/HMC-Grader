@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+'''
+This module supports operations for instructors to manage courses and assignments
+'''
+
 #import the app and the login manager
 from app import app, loginManager
 
@@ -15,13 +19,18 @@ import traceback, StringIO, sys
 import dateutil.parser
 
 
-'''
-Base pages to display
-'''
-
-@app.route('/editcourse/<id>')
+@app.route('/editcourse/<cid>')
 @login_required
-def administerCourse(id):
+def administerCourse(cid):
+  '''
+  Function Type: View Function
+  Template: instructor/course.html
+  Purpose: Allows an instructor to manipulate the assignemnts of a course.
+  Course settings, and the users and graders for a course. 
+
+  Inputs:
+    cid: The object ID of the course being administered
+  '''
   try:
     c = Course.objects.get(id=id)
     if not (g.user.isAdmin or c in current_user.courseInstructor):
