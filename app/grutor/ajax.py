@@ -24,6 +24,23 @@ import markdown
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>/savegrade', methods=['POST'])
 @login_required
 def grutorSaveGrades(pid, uid, subnum):
+  '''
+  Function Type: Callback-AJAX Function
+  Called By: grutor/gradesubmission.html:saveGrades()
+  Purpose: Recieves a list of grades from the page and puts them into the grade
+  for this submission.
+
+  Inputs:
+    pid: The problem that this grade is for
+    uid: The user whose grade this is
+    subnum: The submission number that is currently being graded
+  
+  POST Values: A dictionary mapping names of rubric sections to numbers.
+
+  Outputs:
+    res: The result. True if it succeeded, False if it failed, and a string
+    if there was an exception.
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
@@ -63,6 +80,19 @@ def grutorSaveGrades(pid, uid, subnum):
 @app.route('/grutor/grade/preview', methods=['POST'])
 @login_required
 def grutorPreview():
+  '''
+  Funcion Type: Callback-AJAX Function
+  Called By: grutor/gradesubmission.html:$("#previewBtn").click(...)
+  Purpose: Produce HTML from a given markdown string.
+
+  Inputs: None
+
+  POST Values: A json object containing one field called "text" which contains
+  the markdown formatted string.
+
+  Outputs:
+    res: The resulting html generated from the markdown
+  '''
   content = request.get_json()
   html = markdown.markdown(content["text"])
   return jsonify(res=html)
@@ -70,6 +100,24 @@ def grutorPreview():
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>/savecomment', methods=['POST'])
 @login_required
 def grutorSaveComment(pid, uid, subnum):
+  '''
+  Function Type: Callback-AJAX Function
+  Called By: grutor/gradesubmission.html:saveComments()
+  Purpose: Recieves a markdown formatted string and saves it as a grader 
+  comment for a specified submission
+
+  Inputs:
+    pid: The problem that this grade is for
+    uid: The user whose grade this is
+    subnum: The submission number that is currently being graded
+  
+  POST Values: A json object containing one field called "text" which contains
+  the markdown formatted string
+
+  Outputs:
+    res: The result. True if it succeeded, False if it failed, and a string
+    if there was an exception.
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()

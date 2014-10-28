@@ -22,6 +22,16 @@ import markdown
 @app.route('/grutor/grade/<pid>/random')
 @login_required
 def grutorGradeRandom(pid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Select an ungraded student submission and claim it for the current
+  grader. If it selects a student without a submission one is created.
+
+  Inputs:
+    pid: The object ID of the problem that is being graded
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
@@ -93,42 +103,21 @@ def grutorGradeRandom(pid):
     raise e
 
 
-@app.route('/grutor/grade/<pid>/<uid>/<subnum>')
-@login_required
-def grutorGradeSubmission(pid, uid, subnum):
-  try:
-    p = Problem.objects.get(id=pid)
-    c,a = p.getParents()
-    user = User.objects.get(id=uid)
-
-    #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
-
-    #p = Problem.objects.get(id=pid)
-    #a = AssignmentGroup.objects.get(id=aid)
-
-    submission = p.getSubmission(user, subnum)
-    submission.status = max(submission.status, 3)
-
-    if submission.partnerInfo != None:
-      submission.partnerInfo.submission.status = max(submission.partnerInfo.submission.status, 3)
-      submission.partnerInfo.submission.save()
-
-    submission.save()
-
-    p.save()
-
-    return render_template("grutor/gradesubmission.html", \
-                            course=c, problem=p, assignment=a, subnum=subnum,
-                            user=user, submission=submission)
-  except Exception as e:
-    raise e
-
-
 @app.route('/grutor/finish/<pid>/<uid>/<subnum>')
 @login_required
 def grutorFinishSubmission(pid, uid, subnum):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Save all the changes to a given submission and return to the 
+  list of problems.
+
+  Inputs:
+    pid: The object ID of the problem this submission belongs to
+    uid: The object ID of the user this submission belongs to
+    subnum: The submission number for this submission
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
@@ -165,6 +154,18 @@ def grutorFinishSubmission(pid, uid, subnum):
 @app.route('/grutor/release/<pid>/<uid>/<subnum>')
 @login_required
 def grutorReleaseSubmission(pid, uid, subnum):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Put the submission back so that it may be chosen by another
+  grader.
+
+  Inputs:
+    pid: The object ID of the problem this submission belongs to
+    uid: The object ID of the user this submission belongs to
+    subnum: The submission number for this submission
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
@@ -194,13 +195,21 @@ def grutorReleaseSubmission(pid, uid, subnum):
   except Exception as e:
     raise e
 
-'''
-Function to create a blank submission
-'''
-
 @app.route('/grutor/create/<pid>/<uid>')
 @login_required
 def grutorMakeBlank(pid, uid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: When a student does not have a submission for a given assignment this
+  function is called. It creates a blank submission with no files and then
+  redirects the grader to the grade submission page.
+
+  Inputs:
+    pid: The object ID for the problem that is being graded.
+    uid: The object ID of the user who is being graded.
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()

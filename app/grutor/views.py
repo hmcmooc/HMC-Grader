@@ -81,3 +81,58 @@ def grutorGradelistProblem(pid):
                             course=c, problem=p, assignment=a, users=students)
   except Exception as e:
     raise e
+
+@app.route('/grutor/grade/<pid>/<uid>/<subnum>')
+@login_required
+def grutorGradeSubmission(pid, uid, subnum):
+  '''
+  Function Type: View Function
+  Template: grutor/gradesubmission.html
+  Purpose: Display to the grader forms that will allow the grader to assign
+  grades and give comments on a submission. Additionally allows the grader to
+  download the files for the submission.
+
+  Inputs:
+    pid: The object ID of the problem being graded
+    uid: The object ID of the user whose submission is being graded
+    subnum: Which submission of the user is being graded
+
+  Template Parameters:
+    course: The course this problem is contained in
+    assignment: The assignment group this problem is contained in
+    problem: The problem with ID <pid>
+    subnum: The submission number that is being graded
+    user: The user object specified by <uid>
+    submission: The submission object specified by the user, problem, and
+    subnum
+
+  Forms Handled: None
+  '''
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    user = User.objects.get(id=uid)
+
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    #p = Problem.objects.get(id=pid)
+    #a = AssignmentGroup.objects.get(id=aid)
+
+    submission = p.getSubmission(user, subnum)
+    submission.status = max(submission.status, 3)
+
+    if submission.partnerInfo != None:
+      submission.partnerInfo.submission.status = max(submission.partnerInfo.submission.status, 3)
+      submission.partnerInfo.submission.save()
+
+    submission.save()
+
+    p.save()
+
+    return render_template("grutor/gradesubmission.html", \
+                            course=c, problem=p, assignment=a, subnum=subnum,
+                            user=user, submission=submission)
+  except Exception as e:
+    raise e
