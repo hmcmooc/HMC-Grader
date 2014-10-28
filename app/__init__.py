@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
+import os, sys
 
 from flask import Flask
 from flask.ext.login import LoginManager, current_user

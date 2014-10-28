@@ -1,6 +1,10 @@
 
 # -*- coding: utf-8 -*-
 
+'''
+This module handles all administrator views and functions. 
+'''
+
 #import the app and the login manager
 from app import app, loginManager
 

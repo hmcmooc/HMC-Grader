@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-This module supports all of the view and callback functions that can be used by
-grutors and instructors performing a grutor role.
+This module contains all the callback functions for the grutor pages
 '''
 
 #import the app and the login manager
@@ -14,73 +13,11 @@ from flask.ext.mongoengine import DoesNotExist
 
 from werkzeug import secure_filename
 
-from models import *
-from forms import SubmitAssignmentForm
+from app.models import *
+from app.forms import SubmitAssignmentForm
 
 import os, datetime, fcntl, random
 import markdown
-
-@app.route('/grutor/assignments/<cid>')
-@login_required
-def grutorAssignments(cid):
-  '''
-  Function Type: View Function
-  Template: grutor/assignments.html
-  Purpose: Display all of the assignment groups and problems in those groups
-  for the course specified by <cid>.
-
-  Inputs:
-    cid: A course object ID
-
-  Template Parameters:
-    course: The course object specified by <cid>
-
-  Forms Handled: None
-  '''
-  try:
-    c = Course.objects.get(id=cid)
-    #For security purposes we send anyone who isnt grading this class to the index
-    if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
-
-    return render_template("grutor/assignments.html", course=c)
-  except Exception as e:
-    raise e
-
-@app.route('/grutor/gradelist/problem/<pid>')
-@login_required
-def grutorGradelistProblem(pid):
-  '''
-  Function Type: View Function
-  Template: grutor/problems.html
-  Purpose: Display all of the student submissions for the problem specified by
-  <pid>.
-
-  Inputs:
-    pid: A problem object ID
-
-  Template Parameters:
-    course: The course which contains the problem specified by <pid>
-    assignment: The assignment group containing the problem specified by <pid>
-    problem: The problem specified by <pid>
-    users: A list of the students who are enrolled in <course>
-
-  Forms handled: None
-  '''
-  try:
-    p = Problem.objects.get(id=pid)
-    c,a = p.getParents()
-    #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
-
-    #Get the students for this course
-    students = User.objects.filter(courseStudent=c)
-
-    return render_template("grutor/problems.html", \
-                            course=c, problem=p, assignment=a, users=students)
-  except Exception as e:
-    raise e
 
 @app.route('/grutor/grade/<pid>/random')
 @login_required
@@ -311,94 +248,3 @@ def grutorMakeBlank(pid, uid):
     return redirect(url_for('grutorGradeSubmission', uid=uid, pid=pid, subnum=1))
   except Course.DoesNotExist as e:
     raise e
-
-
-
-'''
-Callbacks for Javascript
-'''
-
-@app.route('/grutor/grade/<pid>/<uid>/<subnum>/savegrade', methods=['POST'])
-@login_required
-def grutorSaveGrades(pid, uid, subnum):
-  try:
-    p = Problem.objects.get(id=pid)
-    c,a = p.getParents()
-
-    #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.gradingCourses()):
-      return jsonify(res=False)
-
-    #Try to get the contents
-    content = request.get_json()
-
-    #make sure we got the contents
-    if content == None:
-      return jsonify(res=False)
-
-    #Define function for applying scores to a submission
-    def score(sub):
-      for section in content:
-        sub.grade.scores[section] = content[section]
-
-      sub.grade.save()
-      sub.save()
-    #End definition
-
-    user = User.objects.get(id=uid)
-    sub = p.getSubmission(user, subnum)
-
-    score(sub)
-    if sub.partnerInfo != None:
-      score(sub.partnerInfo.submission)
-
-    return jsonify(res=True)
-
-  except Exception as e:
-    return jsonify(res="Exception raised: "+ str(e))
-
-@app.route('/grutor/grade/preview', methods=['POST'])
-@login_required
-def grutorPreview():
-  content = request.get_json()
-  html = markdown.markdown(content["text"])
-  return jsonify(res=html)
-
-@app.route('/grutor/grade/<pid>/<uid>/<subnum>/savecomment', methods=['POST'])
-@login_required
-def grutorSaveComment(pid, uid, subnum):
-  try:
-    p = Problem.objects.get(id=pid)
-    c,a = p.getParents()
-
-    #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.gradingCourses()):
-      return jsonify(res=False)
-
-    #Try to get the contents
-    content = request.get_json()
-
-    #make sure we got the contents
-    if content == None:
-      return jsonify(res=False)
-
-    #Define function for saving comments
-    def comment(sub):
-      sub.comments = content['text']
-      sub.save()
-
-    user = User.objects.get(id=uid)
-    sub = p.getSubmission(user, subnum)
-
-    comment(sub)
-    if sub.partnerInfo != None:
-      comment(sub.partnerInfo.submission)
-
-
-    #Save changes to the problem
-    p.save(cascade=True)
-
-    return jsonify(res=True)
-
-  except Exception as e:
-    return jsonify(res="Exception raised: "+ str(e))
