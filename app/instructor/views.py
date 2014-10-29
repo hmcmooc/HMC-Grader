@@ -26,7 +26,7 @@ def administerCourse(cid):
   Function Type: View Function
   Template: instructor/course.html
   Purpose: Allows an instructor to manipulate the assignemnts of a course.
-  Course settings, and the users and graders for a course. 
+  Course settings, and the users and graders for a course.
 
   Inputs:
     cid: The object ID of the course being administered
@@ -196,6 +196,17 @@ def addProblem(cid,aid):
 @app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
 @login_required
 def remProblem(cid,aid,pid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Remove a problem from a specified assignment.
+
+  Inputs:
+    cid: The object ID of the course the assignment is in
+    aid: The object ID of the assignment group to add the problem to
+    pid: The object ID of the problem to remove
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or
@@ -219,6 +230,16 @@ def remProblem(cid,aid,pid):
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required
 def delAssignment(cid, aid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Delete an assignment and all problems in that assignment.
+
+  Inputs:
+    cid: The object ID of the course the assignment is in
+    aid: The object ID of the assignment group to add the problem to
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or
@@ -247,6 +268,19 @@ Adding and removing users from the course
 @app.route('/editcourse/<cid>/adduser', methods=['POST'])
 @login_required
 def addUserCourse(cid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Add a user to the specified course. What type of user (Student,
+  grutor, or instructor) is determined by the value of the submit button of the
+  form.
+
+  Inputs:
+    cid: The object ID of the course to add the user to
+
+  Forms Handled:
+    AddUserCourseForm: Read in the username and determine which type of user
+    based on the value of the submit button.
+  '''
   try:
     c = Course.objects.get(id=cid)
 
@@ -275,6 +309,17 @@ def addUserCourse(cid):
 @app.route('/editcourse/<cid>/remuser/<uid>/<t>')
 @login_required
 def remUserCourse(cid, uid, t):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Remove a user of the specified type from the course.
+
+  Inputs:
+    cid: The object ID of the course to remove the user from
+    uid: The object ID of the user to remove
+    t: The type of user (Student, Grutor, Instructor) to remove the user from
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
 
