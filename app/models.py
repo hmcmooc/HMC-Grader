@@ -2,11 +2,13 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import NULLIFY, PULL
 
-
-'''
-Grade book models
-'''
 class GradeBook(db.EmbeddedDocument):
+  '''
+  The gradebook class is designed to contain all the information regarding
+  grades for a course. Each Course has one Gradebook. A gradebook can be
+  divided into Categories which contain Entries and then Columns. This is to
+  facilitate good layout of the information.
+  '''
   categories = db.ListField(db.EmbeddedDocumentField('GBCategory'))
 
   def getCategoryByName(self, name):
@@ -20,6 +22,10 @@ class GradeBook(db.EmbeddedDocument):
       c.cleanup()
 
 class GBCategory(db.EmbeddedDocument):
+  '''
+  A category is designed to group common items together (eg assignments,
+  participation, tests)
+  '''
   name = db.StringField(required=True)
   entries = db.ListField(db.ReferenceField('GBEntry'))
 
@@ -33,6 +39,11 @@ class GBCategory(db.EmbeddedDocument):
       e.delete()
 
 class GBEntry(db.Document):
+  '''
+  Entries are designed to contain columns that are temporall related. Such as
+  all of the problems in a certain week. (This level of granularity isn't
+  accessible in the manual gradebook, this may be a source of a refactor)
+  '''
   name = db.StringField(required=True)
   columns = db.ListField(db.ReferenceField('GBColumn'))
 
@@ -46,6 +57,10 @@ class GBEntry(db.Document):
       c.delete()
 
 class GBColumn(db.Document):
+  '''
+  A column represents a single list of entries. It can be a single problem or
+  one days participation, or one test.
+  '''
   name = db.StringField()
   maxScore = db.DecimalField(default=0)
 
@@ -61,15 +76,15 @@ class GBColumn(db.Document):
     pass
 
 class GBGrade(db.Document):
+  '''
+  A grade contains a dictionary mapping rubric sections to scores. Additionally
+  it contains booleans which determines if a score is supposed to be visible yet
+  (This may be factored out as it is redundant with the status of the
+  student's submission)
+  '''
   #Map score name (eg. GrutorScore or TestScore) to scores
   scores = db.MapField(db.DecimalField())
   visible = db.MapField(db.BooleanField())
-
-'''
-Settings models
-'''
-class Settings(db.EmbeddedDocument):
-  pass
 
 '''
 Course and submission models
@@ -85,6 +100,10 @@ class PartnerInfo(db.Document):
   submission = db.ReferenceField('Submission')
 
 class Submission(db.Document):
+  '''
+  A submission contains all the information about one attempt at a given problem
+  by a student.
+  '''
   submissionTime = db.DateTimeField(required=True)
   isLate = db.BooleanField(default=False)
   filePath = db.StringField(required=True)
@@ -110,6 +129,7 @@ class Submission(db.Document):
     except:
       pass
 
+  #TODO: Don't store absolute path
   def getFiles(self):
     from os import listdir
     from os.path import isfile, join
@@ -128,6 +148,9 @@ class Submission(db.Document):
       return "success", "Graded"
 
 class StudentSubmissionList(db.EmbeddedDocument):
+  '''
+  A list of all the submissions a student has made for a specific problem.
+  '''
   submissions = db.ListField(db.ReferenceField('Submission'))
 
   meta = {"cascade": True}
@@ -139,6 +162,9 @@ class StudentSubmissionList(db.EmbeddedDocument):
     self.submissions = []
 
 class Problem(db.Document):
+  '''
+  One problem that a student can submit files to.
+  '''
   name = db.StringField()
   gradeColumn = db.ReferenceField('GBColumn', reverse_delete_rule=NULLIFY)
   duedate = db.DateTimeField()
@@ -191,6 +217,9 @@ class Problem(db.Document):
     return c,a
 
 class AssignmentGroup(db.Document):
+  '''
+  A logical grouping of problems (e.g. One week's homework)
+  '''
   name = db.StringField(required=True)
   gradeEntry = db.ReferenceField('GBEntry', reverse_delete_rule=NULLIFY)
   problems = db.ListField(db.ReferenceField('Problem', reverse_delete_rule=PULL))
@@ -209,6 +238,9 @@ class AssignmentGroup(db.Document):
       p.delete()
 
 class Course(db.Document):
+  '''
+  One sememsters class
+  '''
   #Identification information
   name = db.StringField(required=True)
   semester = db.StringField(required=True)
@@ -236,6 +268,9 @@ class Course(db.Document):
 User model(s)
 '''
 class User(db.Document):
+  '''
+  The information for one user of the system (Student, Grader, or Instructor)
+  '''
   #General user information
   firstName = db.StringField()
   lastName = db.StringField()
