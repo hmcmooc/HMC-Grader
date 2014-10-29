@@ -84,9 +84,9 @@ def adminCourses():
   return render_template('admin/courses.html', form=CreateCourseForm(), active_page="courses", courses=Course.objects)
 
 
-@app.route('/admindeactivatecourse/<id>')
+@app.route('/admindeactivatecourse/<cid>')
 @login_required
-def deactivateCourse(id):
+def deactivateCourse(cid):
   '''
   Function Type: Callback-Redirect Function
   Purpose: Deactivate the course specified by <cid> and return to the admin
@@ -103,7 +103,7 @@ def deactivateCourse(id):
     return redirect(url_for('index'))
 
   try:
-    course = Course.objects.get(id=id)
+    course = Course.objects.get(id=cid)
     course.isActive = False
     course.save()
     return redirect(url_for('adminCourses'))

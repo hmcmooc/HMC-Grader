@@ -1,0 +1,91 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module app.grutor.ajax</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="app.html"><font color="#ffffff">app</font></a>.<a href="app.grutor.html"><font color="#ffffff">grutor</font></a>.ajax</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/plenk/SubSite/app/grutor/ajax.py">/home/plenk/SubSite/app/grutor/ajax.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;supports&nbsp;all&nbsp;of&nbsp;the&nbsp;view&nbsp;and&nbsp;callback&nbsp;functions&nbsp;that&nbsp;can&nbsp;be&nbsp;used&nbsp;by<br>
+grutors&nbsp;and&nbsp;instructors&nbsp;performing&nbsp;a&nbsp;grutor&nbsp;role.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="fcntl.html">fcntl</a><br>
+</td><td width="25%" valign=top><a href="markdown.html">markdown</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="random.html">random</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-grutorPreview"><strong>grutorPreview</strong></a>(*args, **kwargs)</dt><dd><tt>Funcion&nbsp;Type:&nbsp;Callback-AJAX&nbsp;Function<br>
+Called&nbsp;By:&nbsp;grutor/gradesubmission.html:$("#previewBtn").click(...)<br>
+Purpose:&nbsp;Produce&nbsp;HTML&nbsp;from&nbsp;a&nbsp;given&nbsp;markdown&nbsp;string.<br>
+&nbsp;<br>
+Inputs:&nbsp;None<br>
+&nbsp;<br>
+POST&nbsp;Values:&nbsp;A&nbsp;json&nbsp;object&nbsp;containing&nbsp;one&nbsp;field&nbsp;called&nbsp;"text"&nbsp;which&nbsp;contains<br>
+the&nbsp;markdown&nbsp;formatted&nbsp;string.<br>
+&nbsp;<br>
+Outputs:<br>
+&nbsp;&nbsp;res:&nbsp;The&nbsp;resulting&nbsp;html&nbsp;generated&nbsp;from&nbsp;the&nbsp;markdown</tt></dd></dl>
+ <dl><dt><a name="-grutorSaveComment"><strong>grutorSaveComment</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-AJAX&nbsp;Function<br>
+Called&nbsp;By:&nbsp;grutor/gradesubmission.html:saveComments()<br>
+Purpose:&nbsp;Recieves&nbsp;a&nbsp;markdown&nbsp;formatted&nbsp;string&nbsp;and&nbsp;saves&nbsp;it&nbsp;as&nbsp;a&nbsp;grader&nbsp;<br>
+comment&nbsp;for&nbsp;a&nbsp;specified&nbsp;submission<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;problem&nbsp;that&nbsp;this&nbsp;grade&nbsp;is&nbsp;for<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;user&nbsp;whose&nbsp;grade&nbsp;this&nbsp;is<br>
+&nbsp;&nbsp;subnum:&nbsp;The&nbsp;submission&nbsp;number&nbsp;that&nbsp;is&nbsp;currently&nbsp;being&nbsp;graded<br>
+&nbsp;<br>
+POST&nbsp;Values:&nbsp;A&nbsp;json&nbsp;object&nbsp;containing&nbsp;one&nbsp;field&nbsp;called&nbsp;"text"&nbsp;which&nbsp;contains<br>
+the&nbsp;markdown&nbsp;formatted&nbsp;string<br>
+&nbsp;<br>
+Outputs:<br>
+&nbsp;&nbsp;res:&nbsp;The&nbsp;result.&nbsp;True&nbsp;if&nbsp;it&nbsp;succeeded,&nbsp;False&nbsp;if&nbsp;it&nbsp;failed,&nbsp;and&nbsp;a&nbsp;string<br>
+&nbsp;&nbsp;if&nbsp;there&nbsp;was&nbsp;an&nbsp;exception.</tt></dd></dl>
+ <dl><dt><a name="-grutorSaveGrades"><strong>grutorSaveGrades</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-AJAX&nbsp;Function<br>
+Called&nbsp;By:&nbsp;grutor/gradesubmission.html:saveGrades()<br>
+Purpose:&nbsp;Recieves&nbsp;a&nbsp;list&nbsp;of&nbsp;grades&nbsp;from&nbsp;the&nbsp;page&nbsp;and&nbsp;puts&nbsp;them&nbsp;into&nbsp;the&nbsp;grade<br>
+for&nbsp;this&nbsp;submission.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;problem&nbsp;that&nbsp;this&nbsp;grade&nbsp;is&nbsp;for<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;user&nbsp;whose&nbsp;grade&nbsp;this&nbsp;is<br>
+&nbsp;&nbsp;subnum:&nbsp;The&nbsp;submission&nbsp;number&nbsp;that&nbsp;is&nbsp;currently&nbsp;being&nbsp;graded<br>
+&nbsp;<br>
+POST&nbsp;Values:&nbsp;A&nbsp;dictionary&nbsp;mapping&nbsp;names&nbsp;of&nbsp;rubric&nbsp;sections&nbsp;to&nbsp;numbers.<br>
+&nbsp;<br>
+Outputs:<br>
+&nbsp;&nbsp;res:&nbsp;The&nbsp;result.&nbsp;True&nbsp;if&nbsp;it&nbsp;succeeded,&nbsp;False&nbsp;if&nbsp;it&nbsp;failed,&nbsp;and&nbsp;a&nbsp;string<br>
+&nbsp;&nbsp;if&nbsp;there&nbsp;was&nbsp;an&nbsp;exception.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NULLIFY</strong> = 1<br>
+<strong>PULL</strong> = 4<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>current_user</strong> = None<br>
+<strong>db</strong> = &lt;flask_mongoengine.MongoEngine object&gt;<br>
+<strong>g</strong> = &lt;LocalProxy unbound&gt;<br>
+<strong>loginManager</strong> = &lt;flask_login.LoginManager object&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

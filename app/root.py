@@ -8,4 +8,17 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 
 @app.route('/')
 def index():
+  '''
+  Function Type: View Function
+  Template: index.html
+  Purpose: Display the index of the site to the useers with a little welcome
+  message.
+
+  Inputs: None
+
+  Template Parameters:
+  	active_page: A string indicating which page should be active in the nav-bar
+
+  Forms Handled: None
+  '''
   return render_template("index.html", active_page="index")

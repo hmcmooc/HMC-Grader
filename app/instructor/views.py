@@ -12,8 +12,8 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 
 from flask.ext.mongoengine import DoesNotExist
 
-from models import *
-from forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
+from app.models import *
+from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
 
 import traceback, StringIO, sys
 import dateutil.parser
@@ -30,6 +30,18 @@ def administerCourse(cid):
 
   Inputs:
     cid: The object ID of the course being administered
+
+  Template Parameters:
+    course: The course specified by <cid> to be administered
+    students: A list of user objects who are enrolled as students
+    grutors: A list of user objects who are enrolled as grutors
+    instrs: A list of user objects who are enrolled as instructorSaveSettings
+    guserform: An AddUserCourseForm for adding grutors
+    suserform: An AddUserCourseForm for adding students
+    iuserform: An AddUserCourseForm for adding instructors
+    settingsForm: A CourseSettingsForm for changing the settings of the course
+
+  Forms Handled: None
   '''
   try:
     c = Course.objects.get(id=cid)
@@ -41,13 +53,14 @@ def administerCourse(cid):
     grutor = User.objects.filter(courseGrutor=c)
     i = User.objects.filter(courseInstructor=c)
 
+    #TODO: Refactor user forms to use javascript/AJAX
     return render_template("instructor/course.html",\
      course=c, students=s, grutors=grutor, instrs=i,\
      form=CreateAssignmentForm(), suserform=AddUserCourseForm(),\
      guserform=AddUserCourseForm(), iuserform=AddUserCourseForm(),
      settingsForm=CourseSettingsForm())
   except Course.DoesNotExist:
-    return redirect(url_for('adminIndex'))
+    return redirect(url_for('index'))
 
 '''
 Saving the settings
@@ -55,6 +68,20 @@ Saving the settings
 @app.route('/assignment/<cid>/settings', methods=['POST'])
 @login_required
 def instructorSaveSettings(cid):
+  '''
+  Function Type: Callback-AJAX Function
+  Called By: instructor/course.html:saveSettings()
+  Purpose: Recieves the current state of the settings form and applies those
+  settings to the course.
+
+  Inputs:
+    cid: The object ID of the course to apply the settings to
+
+  POST Values: A dictionary of settings names to values
+
+  Outputs:
+    res: True if the operation succeeded otherwise False
+  '''
   try:
     c = Course.objects.get(id=cid)
     if not (g.user.isAdmin or c in current_user.courseInstructor):
@@ -65,7 +92,7 @@ def instructorSaveSettings(cid):
     c.save()
     return jsonify(res=True)
   except:
-    return jsonify(res=False, stuff="error")
+    return jsonify(res=False)
 
 '''
 Modifying assignments
@@ -74,6 +101,19 @@ Modifying assignments
 @app.route('/assignment/<cid>/create', methods=['POST', 'GET'])
 @login_required
 def createAssignment(cid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Creates a new assignment group with information specified in
+  the CreateAssignmentForm.
+
+  Inputs:
+    cid: The object ID of the course to add the assignment group to
+
+  Forms Handled:
+    CreateAssignmentForm: Verify that an assignment of the same name doesn't
+    already exists and then create a new assignment in the course specified by
+    <cid>.
+  '''
   if request.method == "POST":
     form = CreateAssignmentForm(request.form)
     if form.validate():
@@ -116,6 +156,17 @@ def createAssignment(cid):
 @app.route('/assignment/<cid>/<aid>/addproblem')
 @login_required
 def addProblem(cid,aid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Add a problem to the specified assignment in a course. When
+  added it redirects to a page to edit the problem settings.
+
+  Inputs:
+    cid: The object ID of the course the assignment is in
+    aid: The object ID of the assignment group to add the problem to
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or

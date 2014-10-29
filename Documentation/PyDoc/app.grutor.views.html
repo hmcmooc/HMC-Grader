@@ -1,0 +1,96 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module app.grutor.views</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="app.html"><font color="#ffffff">app</font></a>.<a href="app.grutor.html"><font color="#ffffff">grutor</font></a>.views</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/plenk/SubSite/app/grutor/views.py">/home/plenk/SubSite/app/grutor/views.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;the&nbsp;view&nbsp;functions&nbsp;for&nbsp;the&nbsp;grutor&nbsp;module</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="fcntl.html">fcntl</a><br>
+</td><td width="25%" valign=top><a href="markdown.html">markdown</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="random.html">random</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-grutorAssignments"><strong>grutorAssignments</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;grutor/assignments.html<br>
+Purpose:&nbsp;Display&nbsp;all&nbsp;of&nbsp;the&nbsp;assignment&nbsp;groups&nbsp;and&nbsp;problems&nbsp;in&nbsp;those&nbsp;groups<br>
+for&nbsp;the&nbsp;course&nbsp;specified&nbsp;by&nbsp;&lt;cid&gt;.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;A&nbsp;course&nbsp;object&nbsp;ID<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;course:&nbsp;The&nbsp;course&nbsp;object&nbsp;specified&nbsp;by&nbsp;&lt;cid&gt;<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-grutorGradeSubmission"><strong>grutorGradeSubmission</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;grutor/gradesubmission.html<br>
+Purpose:&nbsp;Display&nbsp;to&nbsp;the&nbsp;grader&nbsp;forms&nbsp;that&nbsp;will&nbsp;allow&nbsp;the&nbsp;grader&nbsp;to&nbsp;assign<br>
+grades&nbsp;and&nbsp;give&nbsp;comments&nbsp;on&nbsp;a&nbsp;submission.&nbsp;Additionally&nbsp;allows&nbsp;the&nbsp;grader&nbsp;to<br>
+download&nbsp;the&nbsp;files&nbsp;for&nbsp;the&nbsp;submission.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;problem&nbsp;being&nbsp;graded<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;user&nbsp;whose&nbsp;submission&nbsp;is&nbsp;being&nbsp;graded<br>
+&nbsp;&nbsp;subnum:&nbsp;Which&nbsp;submission&nbsp;of&nbsp;the&nbsp;user&nbsp;is&nbsp;being&nbsp;graded<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;course:&nbsp;The&nbsp;course&nbsp;this&nbsp;problem&nbsp;is&nbsp;contained&nbsp;in<br>
+&nbsp;&nbsp;assignment:&nbsp;The&nbsp;assignment&nbsp;group&nbsp;this&nbsp;problem&nbsp;is&nbsp;contained&nbsp;in<br>
+&nbsp;&nbsp;problem:&nbsp;The&nbsp;problem&nbsp;with&nbsp;ID&nbsp;&lt;pid&gt;<br>
+&nbsp;&nbsp;subnum:&nbsp;The&nbsp;submission&nbsp;number&nbsp;that&nbsp;is&nbsp;being&nbsp;graded<br>
+&nbsp;&nbsp;user:&nbsp;The&nbsp;user&nbsp;object&nbsp;specified&nbsp;by&nbsp;&lt;uid&gt;<br>
+&nbsp;&nbsp;submission:&nbsp;The&nbsp;submission&nbsp;object&nbsp;specified&nbsp;by&nbsp;the&nbsp;user,&nbsp;problem,&nbsp;and<br>
+&nbsp;&nbsp;subnum<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-grutorGradelistProblem"><strong>grutorGradelistProblem</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;grutor/problems.html<br>
+Purpose:&nbsp;Display&nbsp;all&nbsp;of&nbsp;the&nbsp;student&nbsp;submissions&nbsp;for&nbsp;the&nbsp;problem&nbsp;specified&nbsp;by<br>
+&lt;pid&gt;.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;A&nbsp;problem&nbsp;object&nbsp;ID<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;course:&nbsp;The&nbsp;course&nbsp;which&nbsp;contains&nbsp;the&nbsp;problem&nbsp;specified&nbsp;by&nbsp;&lt;pid&gt;<br>
+&nbsp;&nbsp;assignment:&nbsp;The&nbsp;assignment&nbsp;group&nbsp;containing&nbsp;the&nbsp;problem&nbsp;specified&nbsp;by&nbsp;&lt;pid&gt;<br>
+&nbsp;&nbsp;problem:&nbsp;The&nbsp;problem&nbsp;specified&nbsp;by&nbsp;&lt;pid&gt;<br>
+&nbsp;&nbsp;users:&nbsp;A&nbsp;list&nbsp;of&nbsp;the&nbsp;students&nbsp;who&nbsp;are&nbsp;enrolled&nbsp;in&nbsp;&lt;course&gt;<br>
+&nbsp;<br>
+Forms&nbsp;handled:&nbsp;None</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NULLIFY</strong> = 1<br>
+<strong>PULL</strong> = 4<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>current_user</strong> = None<br>
+<strong>db</strong> = &lt;flask_mongoengine.MongoEngine object&gt;<br>
+<strong>g</strong> = &lt;LocalProxy unbound&gt;<br>
+<strong>loginManager</strong> = &lt;flask_login.LoginManager object&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

@@ -1,0 +1,102 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module app.instructor</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="app.html"><font color="#ffffff">app</font></a>.instructor</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/plenk/SubSite/app/instructor.py">/home/plenk/SubSite/app/instructor.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;supports&nbsp;operations&nbsp;for&nbsp;instructors&nbsp;to&nbsp;manage&nbsp;courses&nbsp;and&nbsp;assignments</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="StringIO.html">StringIO</a><br>
+</td><td width="25%" valign=top><a href="dateutil.html">dateutil</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="traceback.html">traceback</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-addProblem"><strong>addProblem</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Add&nbsp;a&nbsp;problem&nbsp;to&nbsp;the&nbsp;specified&nbsp;assignment&nbsp;in&nbsp;a&nbsp;course.&nbsp;When<br>
+added&nbsp;it&nbsp;redirects&nbsp;to&nbsp;a&nbsp;page&nbsp;to&nbsp;edit&nbsp;the&nbsp;problem&nbsp;settings.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;course&nbsp;the&nbsp;assignment&nbsp;is&nbsp;in<br>
+&nbsp;&nbsp;aid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;assignment&nbsp;group&nbsp;to&nbsp;add&nbsp;the&nbsp;problem&nbsp;to<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-addUserCourse"><strong>addUserCourse</strong></a>(*args, **kwargs)</dt></dl>
+ <dl><dt><a name="-administerCourse"><strong>administerCourse</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;instructor/course.html<br>
+Purpose:&nbsp;Allows&nbsp;an&nbsp;instructor&nbsp;to&nbsp;manipulate&nbsp;the&nbsp;assignemnts&nbsp;of&nbsp;a&nbsp;course.<br>
+Course&nbsp;settings,&nbsp;and&nbsp;the&nbsp;users&nbsp;and&nbsp;graders&nbsp;for&nbsp;a&nbsp;course.&nbsp;<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;course&nbsp;being&nbsp;administered<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;course:&nbsp;The&nbsp;course&nbsp;specified&nbsp;by&nbsp;&lt;cid&gt;&nbsp;to&nbsp;be&nbsp;administered<br>
+&nbsp;&nbsp;students:&nbsp;A&nbsp;list&nbsp;of&nbsp;user&nbsp;objects&nbsp;who&nbsp;are&nbsp;enrolled&nbsp;as&nbsp;students<br>
+&nbsp;&nbsp;grutors:&nbsp;A&nbsp;list&nbsp;of&nbsp;user&nbsp;objects&nbsp;who&nbsp;are&nbsp;enrolled&nbsp;as&nbsp;grutors<br>
+&nbsp;&nbsp;instrs:&nbsp;A&nbsp;list&nbsp;of&nbsp;user&nbsp;objects&nbsp;who&nbsp;are&nbsp;enrolled&nbsp;as&nbsp;instructorSaveSettings<br>
+&nbsp;&nbsp;guserform:&nbsp;An&nbsp;AddUserCourseForm&nbsp;for&nbsp;adding&nbsp;grutors<br>
+&nbsp;&nbsp;suserform:&nbsp;An&nbsp;AddUserCourseForm&nbsp;for&nbsp;adding&nbsp;students<br>
+&nbsp;&nbsp;iuserform:&nbsp;An&nbsp;AddUserCourseForm&nbsp;for&nbsp;adding&nbsp;instructors<br>
+&nbsp;&nbsp;settingsForm:&nbsp;A&nbsp;CourseSettingsForm&nbsp;for&nbsp;changing&nbsp;the&nbsp;settings&nbsp;of&nbsp;the&nbsp;course<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-createAssignment"><strong>createAssignment</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Creates&nbsp;a&nbsp;new&nbsp;assignment&nbsp;group&nbsp;with&nbsp;information&nbsp;specified&nbsp;in<br>
+the&nbsp;CreateAssignmentForm.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;course&nbsp;to&nbsp;add&nbsp;the&nbsp;assignment&nbsp;group&nbsp;to<br>
+&nbsp;<br>
+Forms&nbsp;Handled:<br>
+&nbsp;&nbsp;CreateAssignmentForm:&nbsp;Verify&nbsp;that&nbsp;an&nbsp;assignment&nbsp;of&nbsp;the&nbsp;same&nbsp;name&nbsp;doesn't<br>
+&nbsp;&nbsp;already&nbsp;exists&nbsp;and&nbsp;then&nbsp;create&nbsp;a&nbsp;new&nbsp;assignment&nbsp;in&nbsp;the&nbsp;course&nbsp;specified&nbsp;by<br>
+&nbsp;&nbsp;&lt;cid&gt;.</tt></dd></dl>
+ <dl><dt><a name="-delAssignment"><strong>delAssignment</strong></a>(*args, **kwargs)</dt></dl>
+ <dl><dt><a name="-instructorSaveSettings"><strong>instructorSaveSettings</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-AJAX&nbsp;Function<br>
+Called&nbsp;By:&nbsp;instructor/course.html:saveSettings()<br>
+Purpose:&nbsp;Recieves&nbsp;the&nbsp;current&nbsp;state&nbsp;of&nbsp;the&nbsp;settings&nbsp;form&nbsp;and&nbsp;applies&nbsp;those<br>
+settings&nbsp;to&nbsp;the&nbsp;course.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;course&nbsp;to&nbsp;apply&nbsp;the&nbsp;settings&nbsp;to<br>
+&nbsp;<br>
+POST&nbsp;Values:&nbsp;A&nbsp;dictionary&nbsp;of&nbsp;settings&nbsp;names&nbsp;to&nbsp;values<br>
+&nbsp;<br>
+Outputs:<br>
+&nbsp;&nbsp;res:&nbsp;True&nbsp;if&nbsp;the&nbsp;operation&nbsp;succeeded&nbsp;otherwise&nbsp;False</tt></dd></dl>
+ <dl><dt><a name="-remProblem"><strong>remProblem</strong></a>(*args, **kwargs)</dt></dl>
+ <dl><dt><a name="-remUserCourse"><strong>remUserCourse</strong></a>(*args, **kwargs)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NULLIFY</strong> = 1<br>
+<strong>PULL</strong> = 4<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>current_user</strong> = None<br>
+<strong>db</strong> = &lt;flask_mongoengine.MongoEngine object&gt;<br>
+<strong>g</strong> = &lt;LocalProxy unbound&gt;<br>
+<strong>loginManager</strong> = &lt;flask_login.LoginManager object&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

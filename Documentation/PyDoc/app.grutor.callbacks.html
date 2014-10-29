@@ -1,0 +1,86 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module app.grutor.callbacks</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="app.html"><font color="#ffffff">app</font></a>.<a href="app.grutor.html"><font color="#ffffff">grutor</font></a>.callbacks</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/plenk/SubSite/app/grutor/callbacks.py">/home/plenk/SubSite/app/grutor/callbacks.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;all&nbsp;the&nbsp;callback&nbsp;functions&nbsp;for&nbsp;the&nbsp;grutor&nbsp;pages</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="fcntl.html">fcntl</a><br>
+</td><td width="25%" valign=top><a href="markdown.html">markdown</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="random.html">random</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-grutorFinishSubmission"><strong>grutorFinishSubmission</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Save&nbsp;all&nbsp;the&nbsp;changes&nbsp;to&nbsp;a&nbsp;given&nbsp;submission&nbsp;and&nbsp;return&nbsp;to&nbsp;the&nbsp;<br>
+list&nbsp;of&nbsp;problems.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;problem&nbsp;this&nbsp;submission&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;user&nbsp;this&nbsp;submission&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;subnum:&nbsp;The&nbsp;submission&nbsp;number&nbsp;for&nbsp;this&nbsp;submission<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-grutorGradeRandom"><strong>grutorGradeRandom</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Select&nbsp;an&nbsp;ungraded&nbsp;student&nbsp;submission&nbsp;and&nbsp;claim&nbsp;it&nbsp;for&nbsp;the&nbsp;current<br>
+grader.&nbsp;If&nbsp;it&nbsp;selects&nbsp;a&nbsp;student&nbsp;without&nbsp;a&nbsp;submission&nbsp;one&nbsp;is&nbsp;created.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;problem&nbsp;that&nbsp;is&nbsp;being&nbsp;graded<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-grutorMakeBlank"><strong>grutorMakeBlank</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;When&nbsp;a&nbsp;student&nbsp;does&nbsp;not&nbsp;have&nbsp;a&nbsp;submission&nbsp;for&nbsp;a&nbsp;given&nbsp;assignment&nbsp;this<br>
+function&nbsp;is&nbsp;called.&nbsp;It&nbsp;creates&nbsp;a&nbsp;blank&nbsp;submission&nbsp;with&nbsp;no&nbsp;files&nbsp;and&nbsp;then<br>
+redirects&nbsp;the&nbsp;grader&nbsp;to&nbsp;the&nbsp;grade&nbsp;submission&nbsp;page.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;for&nbsp;the&nbsp;problem&nbsp;that&nbsp;is&nbsp;being&nbsp;graded.<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;user&nbsp;who&nbsp;is&nbsp;being&nbsp;graded.<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-grutorReleaseSubmission"><strong>grutorReleaseSubmission</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Put&nbsp;the&nbsp;submission&nbsp;back&nbsp;so&nbsp;that&nbsp;it&nbsp;may&nbsp;be&nbsp;chosen&nbsp;by&nbsp;another<br>
+grader.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;pid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;problem&nbsp;this&nbsp;submission&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;uid:&nbsp;The&nbsp;object&nbsp;ID&nbsp;of&nbsp;the&nbsp;user&nbsp;this&nbsp;submission&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;subnum:&nbsp;The&nbsp;submission&nbsp;number&nbsp;for&nbsp;this&nbsp;submission<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NULLIFY</strong> = 1<br>
+<strong>PULL</strong> = 4<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>current_user</strong> = None<br>
+<strong>db</strong> = &lt;flask_mongoengine.MongoEngine object&gt;<br>
+<strong>g</strong> = &lt;LocalProxy unbound&gt;<br>
+<strong>loginManager</strong> = &lt;flask_login.LoginManager object&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

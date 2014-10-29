@@ -1,0 +1,89 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module app.admin</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="app.html"><font color="#ffffff">app</font></a>.admin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/plenk/SubSite/app/admin.py">/home/plenk/SubSite/app/admin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;handles&nbsp;all&nbsp;administrator&nbsp;views&nbsp;and&nbsp;functions.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-addUser"><strong>addUser</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Handle&nbsp;a&nbsp;CreateUserForm&nbsp;and&nbsp;create&nbsp;a&nbsp;new&nbsp;user&nbsp;in&nbsp;the&nbsp;course<br>
+&nbsp;<br>
+Inputs:&nbsp;None<br>
+&nbsp;<br>
+Forms&nbsp;Handled:<br>
+&nbsp;&nbsp;CreateUserForm:&nbsp;Checks&nbsp;if&nbsp;the&nbsp;username&nbsp;exists.&nbsp;If&nbsp;it&nbsp;doesn't&nbsp;exist<br>
+&nbsp;&nbsp;it&nbsp;will&nbsp;create&nbsp;a&nbsp;new&nbsp;user&nbsp;with&nbsp;the&nbsp;specified&nbsp;information.</tt></dd></dl>
+ <dl><dt><a name="-adminCourses"><strong>adminCourses</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;admin/courses.html<br>
+Purpose:&nbsp;Display&nbsp;all&nbsp;courses&nbsp;in&nbsp;the&nbsp;system&nbsp;and&nbsp;facilitate&nbsp;the&nbsp;creation&nbsp;of&nbsp;new<br>
+courses.<br>
+&nbsp;<br>
+Inputs:&nbsp;None<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;active_page:&nbsp;A&nbsp;string&nbsp;for&nbsp;highlighting&nbsp;the&nbsp;active&nbsp;page&nbsp;in&nbsp;the&nbsp;nav-bar.<br>
+&nbsp;&nbsp;form:&nbsp;A&nbsp;CreateCourseForm&nbsp;that&nbsp;is&nbsp;used&nbsp;to&nbsp;allow&nbsp;a&nbsp;user&nbsp;to&nbsp;input&nbsp;new&nbsp;course&nbsp;<br>
+&nbsp;&nbsp;information.<br>
+&nbsp;<br>
+Forms&nbsp;Handled:<br>
+&nbsp;&nbsp;CreateCourseForm:&nbsp;Validates&nbsp;the&nbsp;form&nbsp;and&nbsp;creates&nbsp;a&nbsp;new&nbsp;course&nbsp;with&nbsp;the&nbsp;<br>
+&nbsp;&nbsp;specified&nbsp;name&nbsp;and&nbsp;semester.</tt></dd></dl>
+ <dl><dt><a name="-adminIndex"><strong>adminIndex</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;admin/index.html<br>
+Purpose:&nbsp;Landing&nbsp;page&nbsp;for&nbsp;an&nbsp;administrator.&nbsp;Additionally&nbsp;will&nbsp;display&nbsp;<br>
+statistics&nbsp;about&nbsp;the&nbsp;status&nbsp;of&nbsp;the&nbsp;server.<br>
+&nbsp;<br>
+Inputs:&nbsp;None<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;actvie_page:&nbsp;A&nbsp;string&nbsp;for&nbsp;highlighting&nbsp;the&nbsp;active&nbsp;page&nbsp;in&nbsp;the&nbsp;nav-bar.<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-adminUsers"><strong>adminUsers</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;View&nbsp;Function<br>
+Template:&nbsp;admin/users.html<br>
+Purpose:&nbsp;Display&nbsp;all&nbsp;users&nbsp;in&nbsp;the&nbsp;system&nbsp;and&nbsp;facilitate&nbsp;creation&nbsp;of&nbsp;new&nbsp;users<br>
+&nbsp;<br>
+Inputs:&nbsp;None<br>
+&nbsp;<br>
+Template&nbsp;Parameters:<br>
+&nbsp;&nbsp;form:&nbsp;A&nbsp;CreateUserForm&nbsp;that&nbsp;allows&nbsp;new&nbsp;user&nbsp;information&nbsp;to&nbsp;be&nbsp;entered<br>
+&nbsp;&nbsp;active_page:&nbsp;A&nbsp;string&nbsp;for&nbsp;highlighting&nbsp;the&nbsp;active&nbsp;page&nbsp;in&nbsp;the&nbsp;nav-bar<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-deactivateCourse"><strong>deactivateCourse</strong></a>(*args, **kwargs)</dt><dd><tt>Function&nbsp;Type:&nbsp;Callback-Redirect&nbsp;Function<br>
+Purpose:&nbsp;Deactivate&nbsp;the&nbsp;course&nbsp;specified&nbsp;by&nbsp;&lt;cid&gt;&nbsp;and&nbsp;return&nbsp;to&nbsp;the&nbsp;admin<br>
+course&nbsp;administration&nbsp;page.<br>
+&nbsp;<br>
+Inputs:<br>
+&nbsp;&nbsp;cid:&nbsp;An&nbsp;object&nbsp;ID&nbsp;belonging&nbsp;to&nbsp;the&nbsp;course&nbsp;to&nbsp;deactivate<br>
+&nbsp;<br>
+Forms&nbsp;Handled:&nbsp;None</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>NULLIFY</strong> = 1<br>
+<strong>PULL</strong> = 4<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>current_user</strong> = None<br>
+<strong>db</strong> = &lt;flask_mongoengine.MongoEngine object&gt;<br>
+<strong>g</strong> = &lt;LocalProxy unbound&gt;<br>
+<strong>loginManager</strong> = &lt;flask_login.LoginManager object&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

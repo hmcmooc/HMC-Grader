@@ -6,4 +6,4 @@ Here we make sure that the correct functions get imported from the
 sub-modules
 '''
 
-__all__ = ["views", "callbacks", "ajax"]
+__all__ = ["views", "redirects", "ajax"]
