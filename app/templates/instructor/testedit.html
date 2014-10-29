@@ -10,7 +10,7 @@ Edit Tests
   </div>
   <div class="col-sm-8">
     <ol class="breadcrumb">
-      <li><a href="{{url_for('administerCourse', id=course.id)}}">{{course.name}}</a></li>
+      <li><a href="{{url_for('administerCourse', cid=course.id)}}">{{course.name}}</a></li>
       <li>{{assignment.name}}</li>
       <li><a href="{{url_for('editProblem', pid=problem.id, cid=course.id, aid=assignment.id)}}">{{problem.name}}</a></li>
       <li>{{filename}}</li>

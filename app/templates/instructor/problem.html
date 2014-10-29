@@ -23,7 +23,7 @@ Edit Problem
       {{ form.hidden_tag() }}
       <div class="heading">
         <ol class="breadcrumb">
-          <li><a href="{{url_for('administerCourse', id=course.id)}}">{{course.name}}</a></li>
+          <li><a href="{{url_for('administerCourse', cid=course.id)}}">{{course.name}}</a></li>
           <li>{{assignment.name}}</li>
           <li>{{problem.name}}</li>
         </ol>

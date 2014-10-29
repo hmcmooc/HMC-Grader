@@ -3,5 +3,6 @@
 '''
 This module supports operations for instructors to manage courses and assignments
 '''
+#We need this to import all the submodules of the problem module
 
-__all__ = ["views"]
+__all__ = ["views", "problem"]

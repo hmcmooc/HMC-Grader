@@ -51,8 +51,6 @@ from accounts import *
 
 from admin import *
 
-from problem import *
-
 from instructor import *
 from students import *
 from grutor import *

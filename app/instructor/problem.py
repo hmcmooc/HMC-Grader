@@ -8,8 +8,8 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 
 from flask.ext.mongoengine import DoesNotExist
 
-from models import *
-from forms import ProblemOptionsForm, AddTestForm
+from app.models import *
+from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
 
@@ -18,7 +18,7 @@ import dateutil.parser
 from decimal import *
 import json, os
 
-from autograder.pythongrader import pythonTestParser
+from app.autograder.pythongrader import pythonTestParser
 
 @app.route('/editcourse/<cid>/<aid>/p/<pid>')
 @login_required
