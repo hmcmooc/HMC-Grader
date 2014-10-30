@@ -20,6 +20,20 @@ import os, datetime
 @app.route('/assignments/<cid>')
 @login_required
 def studentAssignments(cid):
+  '''
+  Function Type: View Function
+  Template: student/assignments.html
+  Purpose: Display to a student user all of the assignments which they can
+  submit homework to.
+
+  Inputs:
+    cid: The object ID for the course the student is viewing
+
+  Template Parameters:
+    course: The Course object given by <cid>
+
+  Forms Handled: None
+  '''
   try:
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt in this class to the index
@@ -33,6 +47,23 @@ def studentAssignments(cid):
 @app.route('/assignments/submit/<pid>')
 @login_required
 def submitAssignment(pid):
+  '''
+  Function Type: View Function
+  Template: student/submit.html
+  Purpose: Allow a student to submit files for a homework assignment problem.
+
+  Inputs:
+    pid: The object ID for the problem being submitted to
+
+  Template Parameters:
+    course: The course which contains the problem
+    assignment: The assignment group containing the problem
+    problem: The problem object specified by <pid>
+    form: A SubmitAssignmentForm which has had the partner field filled with
+    the students from course.
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
@@ -52,6 +83,25 @@ def submitAssignment(pid):
 @app.route('/assignments/view/<pid>/<subnum>')
 @login_required
 def viewProblem(pid,subnum):
+  '''
+  Function Type: View Function
+  Template: student/viewsubmission.html
+  Purpose: Allow a student to view their submission and feedback from the
+  autograder and the student graders.
+
+  Inputs:
+    pid: The object ID of the problem that this submission belongs to
+    subnum: Which submission by the student should be viewed
+
+  Template Parameters:
+    course: The course which contains the problem
+    assignment: The assignment group containing the problem
+    problem: The problem object specified by <pid>
+    subnum: The number of the current submission
+    submission: The Submission object for this submission
+
+  Forms Handled: None
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c, a = p.getParents()
@@ -75,6 +125,19 @@ Backend upload/download functions
 @app.route('/assignments/submit/<pid>/upload', methods=['POST'])
 @login_required
 def uploadFiles(pid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Create a new submission and put the files in the backing filesystem.
+  If a partner is specified create the partner's submission as well and link the
+  two submissions.
+
+  Inputs:
+    pid: The object ID for the problem to be submitted to.
+
+  Forms Handled:
+    SubmitAssignmentForm: Contains the files being submitted and the partner
+    choice.
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c, a = p.getParents()
@@ -129,6 +192,16 @@ def uploadFiles(pid):
     raise e
 
 def createSubmission(problem, user, filepath, files):
+  '''
+  Function Type: Helper Function
+  Purpose: Creates a new submission for a specified User.
+
+  Inputs:
+    problem: The problem object for this submission
+    user: The user object for the user this submission is for
+    filepath: The storage location for the files (To be removed)
+    files: A list of files to be added to this assignment
+  '''
   filepath = os.path.join(filepath, user.username)
   #Check for the metasubmission entry and create it if it doesn't exist
   if user.username not in problem.studentSubmissions:
@@ -173,6 +246,16 @@ def createSubmission(problem, user, filepath, files):
 @app.route('/assignments/download/<pid>/<uid>/<subnum>/<filename>')
 @login_required
 def downloadFiles(pid, uid, subnum, filename):
+  '''
+  Function Type: Callback-Download
+  Purpose: Downloads the file specified for the user.
+
+  Inputs:
+    pid: The object ID of the problem that the file belongs to
+    uid: The object ID of the user the file belongs to
+    subnum: The submission number that the file belongs to
+    filename: The filename from the submission to download
+  '''
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
