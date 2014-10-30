@@ -101,7 +101,7 @@ class AddTestForm(Form):
 	This form adds a test to a problem.
 	'''
 	testFile = FileField("File")
-	testType = SelectField("Language", choices=[('python', 'Python')])
+	testType = SelectField("Language")
 
 class CourseSettingsForm(Form):
 	'''

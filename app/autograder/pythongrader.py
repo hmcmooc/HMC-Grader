@@ -4,10 +4,11 @@ from os import environ
 
 import itertools, json
 
+PLUGIN_NAME = "Python"
 
 PYTHON_TEST_REGEX=r"^.*?def (.*?)\(self\):$"
 
-def pythonTestParser(filename):
+def testFileParser(filename):
   '''
   Takes a python pyunit test file and attempts to extract all the tests.
   It may accidentally grab other helper functions you define because it is
@@ -26,10 +27,10 @@ def pythonTestParser(filename):
 
   return testNames
 
-def pythonRunTest():
+def runTests():
   return ""
 
-def pythonResultParser(output, error):
+def testResultParser(output, error):
   failedSections = error.split('='*70)
 
   splitList = []

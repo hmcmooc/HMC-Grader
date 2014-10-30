@@ -18,7 +18,7 @@ import dateutil.parser
 from decimal import *
 import json, os
 
-from app.autograder.pythongrader import pythonTestParser
+from app.autograder import getTestFileParsers
 
 @app.route('/editcourse/<cid>/<aid>/p/<pid>')
 @login_required
@@ -34,16 +34,20 @@ def editProblem(cid, aid, pid):
     p = Problem.objects.get(id=pid)
 
     testFiles = []
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
     for f in p.testfiles:
       testFiles.append(getTestInfo(os.path.join(filepath,f)))
 
+    testForm = AddTestForm()
+    testFileParsers = getTestFileParsers()
+    testForm.testType.choices = [(x,x) for x in testFileParsers.keys()]
+
     return render_template("instructor/problem.html", course=c, problem=p, assignment=a,\
-                           form=ProblemOptionsForm(), testForm=AddTestForm(),\
+                           form=ProblemOptionsForm(), testForm=testForm,\
                            testFiles=testFiles)
   except Exception as e:
     flash(str(e))
-    return redirect(url_for('administerCourse', id=cid))
+    return redirect(url_for('administerCourse', cid=cid))
 
 @app.route('/editcourse/<cid>/<aid>/p/<pid>/update', methods=['POST'])
 @login_required
@@ -127,8 +131,11 @@ def addTestFile(pid):
 
     if request.method == "POST":
       form = AddTestForm(request.form)
+
+      testFileParsers = getTestFileParsers()
+      form.testType.choices = [(x,x) for x in testFileParsers.keys()]
       if form.validate():
-        filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+        filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
 
         if not os.path.isdir(filepath):
           os.makedirs(filepath)
@@ -145,12 +152,13 @@ def addTestFile(pid):
         p.testfiles.append(filename)
         p.save()
 
+
         #Create json spec file
         gradeSpec = {}
 
         gradeSpec['file'] = filename
         gradeSpec['type'] = form.testType.data
-        gradeSpec['tests'] = pythonTestParser(os.path.join(filepath, filename))
+        gradeSpec['tests'] = testFileParsers[form.testType.data](os.path.join(filepath, filename))
         gradeSpec['sections'] = []
 
         filename += ".json"
@@ -177,7 +185,7 @@ def editTestFile(pid, filename):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
     filepath = os.path.join(filepath, filename)
 
     return render_template('instructor/testedit.html', course=c, assignment=a,\
@@ -198,7 +206,7 @@ def remTestFile(pid, filename):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
     filepath = os.path.join(filepath, filename)
 
     os.remove(filepath)
@@ -229,7 +237,7 @@ def saveTestFile(pid, filename):
     if content == None:
       return jsonify(res=False)
 
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
     filepath = os.path.join(filepath, filename+".json")
 
     with open(filepath, 'w') as f:

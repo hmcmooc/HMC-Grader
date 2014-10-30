@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from app import celery, db
+from app import app, celery, db
 from models import User, Problem, GBGrade, Course, AssignmentGroup
 
 import os,shutil, json
@@ -8,7 +8,7 @@ from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
 
-from autograder.pythongrader import pythonResultParser
+from app.autograder import getTestResultParsers
 
 SUBMISSION_HOME = "/home/plenk/GroodyGrader"
 
