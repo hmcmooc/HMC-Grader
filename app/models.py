@@ -257,6 +257,8 @@ class Course(db.Document):
 
   #Do we show usernames during grading
   anonymousGrading = db.BooleanField(default=False)
+  #How do we calculate late grades
+  lateGradePolicy = db.StringField(default="Highlight")
 
   meta = {"cascade": True, 'ordering': ["+semester", "+name"]}
 
