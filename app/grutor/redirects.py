@@ -19,6 +19,8 @@ from app.forms import SubmitAssignmentForm
 import os, datetime, fcntl, random
 import markdown
 
+from app.filestorage import *
+
 @app.route('/grutor/grade/<pid>/random')
 @login_required
 def grutorGradeRandom(pid):
@@ -40,7 +42,7 @@ def grutorGradeRandom(pid):
       return redirect(url_for('index'))
 
     #create a path to the lockfile
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name)
+    filepath = getProblemPath(c, a, p)
     if not os.path.isdir(filepath):
       os.makedirs(filepath)
     filepath = os.path.join(filepath, '.lock')
@@ -108,7 +110,7 @@ def grutorGradeRandom(pid):
 def grutorFinishSubmission(pid, uid, subnum):
   '''
   Function Type: Callback-Redirect Function
-  Purpose: Save all the changes to a given submission and return to the 
+  Purpose: Save all the changes to a given submission and return to the
   list of problems.
 
   Inputs:
@@ -233,8 +235,7 @@ def grutorMakeBlank(pid, uid):
     p.studentSubmissions[user.username] = StudentSubmissionList()
 
     #create a filepath
-    filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name,user.username)
-    filepath = os.path.join(filepath, str(len(p.studentSubmissions[g.user.username].submissions)+1))
+    filepath = getSubmissionPath(c, a, p, user, len(p.studentSubmissions[g.user.username].submissions)+1)
 
     sub = Submission()
     #Initial fields for submission
@@ -245,8 +246,6 @@ def grutorMakeBlank(pid, uid):
     sub.save()
     p.studentSubmissions[user.username].submissions.append(sub)
 
-
-    #TODO handle partners
     #The grader is making this so it isn't late
     sub.isLate = False
 

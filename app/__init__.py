@@ -29,9 +29,6 @@ db = MongoEngine(app)
 #Initialize the markdown engine
 Markdown(app)
 
-#Configure the celery settings
-#TODO: move this to the config file
-app.config.update(CELERY_BROKER_URL="amqp://guest@localhost")
 #Initialize the celery object
 celery = make_celery(app)
 
@@ -48,9 +45,7 @@ from models import *
 #available. If you add another file with view functions you must import it here
 from root import *
 from accounts import *
-
 from admin import *
-
 from instructor import *
 from students import *
 from grutor import *

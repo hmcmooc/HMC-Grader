@@ -14,11 +14,11 @@
       <tbody>
         {% for p in assignment.problems|sort(attribute="name") %}
           {% if p == problem %}
-              {% if p.getSubmission(user, subnum).getFiles()|length != 0 %}
+              {% if p.getFiles(user, subnum)|length != 0 %}
               <tr class="success">
-                <td rowspan="{{p.getSubmission(user, subnum).getFiles()|length+1}}">{{p.name}}</td>
+                <td rowspan="{{p.getFiles(user, subnum)|length+1}}">{{p.name}}</td>
               </tr>
-              {% for f in p.getSubmission(user, subnum).getFiles()|sort %}
+              {% for f in p.getFiles(user, subnum)|sort %}
               <tr>
                 <td>{{f}}</td>
                 <td><a href="{{url_for('downloadFiles', pid=problem.id, uid=user.id, subnum=subnum, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
@@ -29,14 +29,14 @@
               {% endif %}
           {% else %}
             {% if p.getLatestSubmission(user) != None %}
-                {% if p.getLatestSubmission(user).getFiles()|length != 0 %}
+                {% if p.getFiles(user, p.getSubmissionNumber(user))|length != 0 %}
                 <tr>
-                  <td rowspan="{{p.getLatestSubmission(user).getFiles()|length+1}}">{{p.name}}</td>
+                  <td rowspan="{{p.getFiles(user, p.getSubmissionNumber(user))|length+1}}">{{p.name}}</td>
                 </tr>
-                {% for f in p.getLatestSubmission(user).getFiles()|sort %}
+                {% for f in p.getFiles(user, p.getSubmissionNumber(user))|sort %}
                 <tr>
                   <td>{{f}}</td>
-                  <td><a href="{{url_for('downloadFiles', pid=p.id, uid=user.id, subnum=0, filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
+                  <td><a href="{{url_for('downloadFiles', pid=p.id, uid=user.id, subnum=p.getSubmissionNumber(user), filename=f)}}" class="btn btn-primary btn-xs">Download</a></td>
                 </tr>
                 {% endfor %}
                 {% else %}

@@ -3,7 +3,17 @@
 from app import app
 import os
 
-def getFilePath(course, assignment, problem, user, subnum):
+def getProblemPath(course, assignment, problem):
+  #Course path
+  path = os.path.join(app.config['STORAGE_HOME'], course.semester, course.name)
+  #Join assignment and problem
+  path = os.path.join(path, assignment.name, problem.name)
+
+  #TODO: Clean the path by removing spaces and intermediate periods
+
+  return path
+
+def getSubmissionPath(course, assignment, problem, user, subnum):
   #Course path
   path = os.path.join(app.config['STORAGE_HOME'], course.semester, course.name)
   #Join assignment and problem

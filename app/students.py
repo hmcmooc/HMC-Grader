@@ -14,6 +14,8 @@ from models import *
 from forms import SubmitAssignmentForm
 from autograde import gradeSubmission
 
+from app.filestorage import *
+
 
 import os, datetime
 
@@ -149,12 +151,8 @@ def uploadFiles(pid):
       form = SubmitAssignmentForm(request.form)
       form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
       if form.validate():
-
-        #TODO: Possibly reorder path
-        filepath = os.path.join(app.config['GROODY_HOME'],c.semester,c.name,a.name,p.name)
-
+        filepath = getProblemPath(c, a, p)
         userSub = createSubmission(p, g.user, filepath, request.files.getlist("files"))
-
 
         if form.partner.data != "None":
           partner = User.objects.get(id=form.partner.data)
@@ -218,7 +216,6 @@ def createSubmission(problem, user, filepath, files):
   #Make a new submission for the submission list
   sub = Submission()
   #Initial fields for submission
-  sub.filePath = filepath
   sub.grade = problem.gradeColumn.scores[user.username]
   sub.submissionTime = datetime.datetime.utcnow()
 
@@ -267,6 +264,8 @@ def downloadFiles(pid, uid, subnum, filename):
 
     s = p.getSubmission(u, subnum)
 
-    return send_file(os.path.join(s.filePath, filename), as_attachment=True)
+    filepath = getSubmissionPath(c, a, p, u, subnum)
+
+    return send_file(os.path.join(filepath, filename), as_attachment=True)
   except Course.DoesNotExist:
     pass

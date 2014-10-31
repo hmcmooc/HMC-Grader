@@ -10,7 +10,7 @@ from datetime import datetime
 
 from app.autograder import getTestResultParsers
 
-SUBMISSION_HOME = "/home/plenk/GroodyGrader"
+from app.filestorage import *
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):
@@ -43,9 +43,8 @@ def gradeSubmission(pid, uid, subnum):
     os.chdir(testDirPath)
 
     #Get all submitted files and put them in the temp directory
-    submissionDir = os.path.join(SUBMISSION_HOME,course.semester,course.name,assignment.name,problem.name)
-    testsDir = os.path.join(submissionDir, ".tests")
-    submissionDir = os.path.join(submissionDir, user.username, str(subnum))
+    submissionDir = getSubmissionPath(course, assignment, problem, user, subnum)
+    testsDir = getTestPath(course, assignment, problem)
     submittedFiles = [f for f in os.listdir(submissionDir) if os.path.isfile(os.path.join(submissionDir, f))]
 
     #Move the files

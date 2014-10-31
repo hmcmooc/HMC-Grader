@@ -2,6 +2,8 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import NULLIFY, PULL
 
+from app.filestorage import *
+
 class GradeBook(db.EmbeddedDocument):
   '''
   The gradebook class is designed to contain all the information regarding
@@ -106,7 +108,6 @@ class Submission(db.Document):
   '''
   submissionTime = db.DateTimeField(required=True)
   isLate = db.BooleanField(default=False)
-  filePath = db.StringField(required=True)
   grade = db.ReferenceField('GBGrade')
   status = db.IntField(default=0)
 
@@ -128,12 +129,6 @@ class Submission(db.Document):
       self.grade.delete()
     except:
       pass
-
-  #TODO: Don't store absolute path
-  def getFiles(self):
-    from os import listdir
-    from os.path import isfile, join
-    return [ f for f in listdir(self.filePath) if isfile(join(self.filePath,f)) ]
 
   def getStatus(self):
     if self.status == 0:
@@ -215,6 +210,14 @@ class Problem(db.Document):
     a = AssignmentGroup.objects.get(problems=self)
     c = Course.objects.get(assignments=a)
     return c,a
+
+  def getFiles(self, user, subnum):
+    from os import listdir
+    from os.path import isfile, join
+    c, a = self.getParents()
+    filePath = getSubmissionPath(c, a, self, user, subnum)
+    return [ f for f in listdir(filePath) if isfile(join(filePath,f)) ]
+
 
 class AssignmentGroup(db.Document):
   '''

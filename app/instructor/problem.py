@@ -13,6 +13,8 @@ from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
 
+from app.filestorage import *
+
 import traceback, StringIO, sys
 import dateutil.parser
 from decimal import *
@@ -34,7 +36,7 @@ def editProblem(cid, aid, pid):
     p = Problem.objects.get(id=pid)
 
     testFiles = []
-    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = getTestPath(c, a, p)
     for f in p.testfiles:
       testFiles.append(getTestInfo(os.path.join(filepath,f)))
 
@@ -135,7 +137,7 @@ def addTestFile(pid):
       testFileParsers = getTestFileParsers()
       form.testType.choices = [(x,x) for x in testFileParsers.keys()]
       if form.validate():
-        filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+        filepath = getTestPath(c, a, p)
 
         if not os.path.isdir(filepath):
           os.makedirs(filepath)
@@ -185,7 +187,7 @@ def editTestFile(pid, filename):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = getTestPath(c, a, p)
     filepath = os.path.join(filepath, filename)
 
     return render_template('instructor/testedit.html', course=c, assignment=a,\
@@ -206,7 +208,7 @@ def remTestFile(pid, filename):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = getTestPath(c, a, p)
     filepath = os.path.join(filepath, filename)
 
     os.remove(filepath)
@@ -237,7 +239,7 @@ def saveTestFile(pid, filename):
     if content == None:
       return jsonify(res=False)
 
-    filepath = os.path.join(app.config['STORAGE_HOME'],c.semester,c.name,a.name,p.name,'.tests')
+    filepath = getTestPath(c, a, p)
     filepath = os.path.join(filepath, filename+".json")
 
     with open(filepath, 'w') as f:

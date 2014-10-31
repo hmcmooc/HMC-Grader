@@ -22,7 +22,7 @@ body {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="{{url_for('index')}}">HMC Grader</a>
+      <a class="navbar-brand" href="{{url_for('index')}}">CS &gt;</a>
     </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
@@ -70,7 +70,7 @@ body {
         {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="https://github.com/robojeb/groody-grader/issues" target="_blank"><span class="octicon octicon-bug"></span> Report a Bug</a></li>
+        <li><a href="https://github.com/robojeb/HMC-Grader/issues" target="_blank"><span class="octicon octicon-bug"></span> Report a Bug</a></li>
         {% if not g.user.is_authenticated() %}
         <li{% if active_page == "login" %} class="active"{% endif %}><a href="{{url_for('login')}}">Login</a></li>
         {% else %}
