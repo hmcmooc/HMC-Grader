@@ -132,10 +132,6 @@ def grutorFinishSubmission(pid, uid, subnum):
     #Define a function for performing closing operations
     def finish(sub):
       sub.status = max(sub.status, 4)
-      for g in sub.grade.scores:
-        sub.grade.visible[g] = True
-
-      sub.grade.save()
       sub.save()
     #End definition
 

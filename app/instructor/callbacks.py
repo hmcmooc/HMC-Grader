@@ -240,8 +240,13 @@ def addProblem(cid,aid):
     p.gradeColumn = gc
     p.save()
 
+    #Put the problem in the assignment
     a.problems.append(p)
     a.save()
+
+    #Put the column in the gradebook
+    a.gradeEntry.columns.append(gc)
+    a.gradeEntry.save()
 
     #Create the storage space for the problem and its tests
     ensurePathExists(getProblemPath(c,a,p))

@@ -71,7 +71,7 @@ Assignments for {{course.name}}
         <tr>
           <td>{{p[0]}}</td>
           <td>
-            {% if submission.grade.visible.setdefault(p[0], False) %}
+            {% if submission.status == 4 %}
             {{submission.grade.scores.setdefault(p[0], '0.0')}}/{{p[1]}}
             {% else %}
             (N/A)/{{p[1]}}

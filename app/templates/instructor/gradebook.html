@@ -9,7 +9,47 @@ Gradebook
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    TODO
+    <table class="table table-hover table-bordered">
+      <thead>
+        <tr> <!-- This row is for the gradebook groups -->
+          <th rowspan="2">Username</th>
+          {% for a in course.gradeBook.groups() %}
+          <th colspan="{{a.getWidth()}}">{{a.name}}</th>
+          {% endfor %}
+          <th rowspan="2">Total</th>
+        </tr>
+        <tr> <!-- This row is for the gradebook columns -->
+          {% for c in course.gradeBook.columns() %}
+          {% if c == None %}
+          <th>None</th>
+          {% else %}
+          <th>{{c.name}}</th>
+          {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td>{{s.username}}</td>
+          {% for c in course.gradeBook.columns() %}
+          {% if c == None %}
+          <td class="active"></td>
+          {%else %}
+          {% with grade = c.scores.setdefault(s.username, None) %}
+          {% if grade == None %}
+          <td>0.00/{{c.maxScore}}</td>
+          {% else %}
+          <td>{{grade.totalScore()}}/{{c.maxScore}}</td>
+          {% endif %}
+          {% endwith %}
+          {% endif %}
+          {% endfor %}
+          <td>N/A</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   <div class="col-sm-2"></div>
 </div>

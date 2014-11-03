@@ -69,6 +69,8 @@ def updateProblem(pid):
           #We must move the path to accomodate the change
           moveProblemPath(c,a,p, form.name.data)
         p.name = form.name.data
+        p.gradeColumn.name = form.name.data
+        p.gradeColumn.save()
         p.duedate = dateutil.parser.parse(form.hiddentime.data)
         p.allowPartners = form.allowPartners.data
         p.save()

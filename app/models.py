@@ -11,6 +11,9 @@ class GBGrade(db.Document):
   #Map score name (eg. GrutorScore or TestScore) to scores
   scores = db.MapField(db.DecimalField())
 
+  def totalScore(self):
+    return sum(self.scores.values())
+
 class GBColumn(db.Document):
   '''
   A column represents a single list of entries. It can be a single problem or
@@ -72,6 +75,20 @@ class GradeBook(db.EmbeddedDocument):
   def cleanup(self):
     for c in self.categories:
       c.cleanup()
+
+  def groups(self):
+    for a in self.assignmentGrades:
+      yield a
+    for a in self.auxillaryGrades:
+      yield a
+
+  def columns(self):
+    for a in self.groups():
+      if len(a.columns) == 0:
+        yield None
+      else:
+        for c in a.columns:
+          yield c
 
 '''
 Course and submission models

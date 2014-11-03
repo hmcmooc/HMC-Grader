@@ -86,7 +86,7 @@ def viewGradebook(cid):
     #Get the users for this course
     s = User.objects.filter(courseStudent=c)
 
-    return render_template('instructor/gradebook.html', course=c)
+    return render_template('instructor/gradebook.html', course=c, students=s)
   except:
-    return render_template('instructor/gradebook.html', course=c)
+    return render_template('instructor/gradebook.html', course=c, students=s)
     pass
