@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-This module handles all administrator views and functions. 
+This module handles all administrator views and functions.
 '''
 
 #import the app and the login manager
@@ -16,6 +16,8 @@ from flask.ext.mongoengine import DoesNotExist
 from models import *
 from forms import CreateCourseForm, CreateUserForm
 
+from app.filestorage import ensurePathExists, getCoursePath
+
 #TODO: Add the statistics rendering
 @app.route('/adminindex')
 @login_required
@@ -23,7 +25,7 @@ def adminIndex():
   '''
   Function Type: View Function
   Template: admin/index.html
-  Purpose: Landing page for an administrator. Additionally will display 
+  Purpose: Landing page for an administrator. Additionally will display
   statistics about the status of the server.
 
   Inputs: None
@@ -56,11 +58,11 @@ def adminCourses():
 
   Template Parameters:
     active_page: A string for highlighting the active page in the nav-bar.
-    form: A CreateCourseForm that is used to allow a user to input new course 
+    form: A CreateCourseForm that is used to allow a user to input new course
     information.
 
   Forms Handled:
-    CreateCourseForm: Validates the form and creates a new course with the 
+    CreateCourseForm: Validates the form and creates a new course with the
     specified name and semester.
   '''
   #even though we require login if someone gets here and is not admin
@@ -78,8 +80,9 @@ def adminCourses():
       c.name = form.name.data
       c.semester = form.semester.data
       c.gradeBook = GradeBook()
-      c.gradeBook.categories.append(GBCategory("Assignments"))
       c.save()
+      #Create the file backing
+      ensurePathExists(getCoursePath(c))
       return redirect(url_for('adminCourses'))
   return render_template('admin/courses.html', form=CreateCourseForm(), active_page="courses", courses=Course.objects)
 

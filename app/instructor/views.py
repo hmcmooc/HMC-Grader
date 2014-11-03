@@ -61,3 +61,32 @@ def administerCourse(cid):
      settingsForm=CourseSettingsForm())
   except Course.DoesNotExist:
     return redirect(url_for('index'))
+
+@app.route('/gradebook/<cid>')
+@login_required
+def viewGradebook(cid):
+  '''
+  Function Type: View Function
+  Template: instructor/gradebook.html
+  Purpose: Display all of the grades for this course. Allow for creation of
+  arbitrary submission entries.
+
+  Inputs:
+    cid: The object ID of the course to display
+
+  Template Parameters: TODO
+
+  Forms Handled: TODO
+  '''
+  try:
+    c = Course.objects.get(id=cid)
+    if not (g.user.isAdmin or c in current_user.courseInstructor):
+      return redirect(url_for('index'))
+
+    #Get the users for this course
+    s = User.objects.filter(courseStudent=c)
+
+    return render_template('instructor/gradebook.html', course=c)
+  except:
+    return render_template('instructor/gradebook.html', course=c)
+    pass

@@ -21,19 +21,18 @@ from decimal import *
 import json, os
 
 from app.autograder import getTestFileParsers
+from app.filestorage import moveProblemPath, getProblemPath
 
-@app.route('/editcourse/<cid>/<aid>/p/<pid>')
+@app.route('/editproblem/<pid>')
 @login_required
-def editProblem(cid, aid, pid):
+def editProblem(pid):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt an instructor or
     #admin away
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
-
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
 
     testFiles = []
     filepath = getTestPath(c, a, p)
@@ -51,40 +50,42 @@ def editProblem(cid, aid, pid):
     flash(str(e))
     return redirect(url_for('administerCourse', cid=cid))
 
-@app.route('/editcourse/<cid>/<aid>/p/<pid>/update', methods=['POST'])
+@app.route('/editproblem/<pid>/update', methods=['POST'])
 @login_required
-def updateProblem(cid, aid, pid):
+def updateProblem(pid):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt an instructor or
     #admin away
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
-    p = Problem.objects.get(id=pid)
 
     if request.method == "POST":
       form = ProblemOptionsForm(request.form)
       if form.validate():
+        if p.name != form.name.data:
+          #We must move the path to accomodate the change
+          moveProblemPath(c,a,p, form.name.data)
         p.name = form.name.data
         p.duedate = dateutil.parser.parse(form.hiddentime.data)
         p.allowPartners = form.allowPartners.data
         p.save()
   except Exception as e:
     flash(str(e))
-  return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))
+  return redirect(url_for('editProblem', pid=pid))
 
-@app.route('/editcourse/<cid>/<aid>/p/<pid>/addrubricsection', methods=['GET'])
+@app.route('/editproblem/<pid>/addrubricsection', methods=['GET'])
 @login_required
-def addRubricSec(cid, aid, pid):
+def addRubricSec(pid):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt an instructor or
     #admin away
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
-
-    p = Problem.objects.get(id=pid)
 
     p.rubric[request.args['name']] = Decimal(request.args['points'])
 
@@ -95,19 +96,18 @@ def addRubricSec(cid, aid, pid):
     p.save()
   except Exception as e:
     flash(str(e))
-  return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))
+  return redirect(url_for('editProblem', pid=pid))
 
-@app.route('/editcourse/<cid>/<aid>/p/<pid>/delrubricsection/<name>', methods=['GET'])
+@app.route('/editproblem/<pid>/delrubricsection/<name>', methods=['GET'])
 @login_required
-def delRubricSec(cid, aid, pid, name):
+def delRubricSec(pid, name):
   try:
-    c = Course.objects.get(id=cid)
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
     #For security purposes we send anyone who isnt an instructor or
     #admin away
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
-
-    p = Problem.objects.get(id=pid)
 
     del p.rubric[name]
 
@@ -118,9 +118,9 @@ def delRubricSec(cid, aid, pid, name):
     p.save()
   except Exception as e:
     flash(str(e))
-  return redirect(url_for('editProblem', cid=cid, aid=aid, pid=pid))
+  return redirect(url_for('editProblem', pid=pid))
 
-@app.route('/editcourse/problem/<pid>/addTestFile', methods=['POST'])
+@app.route('/editproblem/<pid>/addTestFile', methods=['POST'])
 @login_required
 def addTestFile(pid):
   try:
@@ -146,7 +146,7 @@ def addTestFile(pid):
 
         if os.path.isdir(os.path.join(filepath, filename)):
           flash("This file already exists")
-          return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
+          return redirect(url_for('editProblem', pid=p.id))
 
         request.files[form.testFile.name].save(os.path.join(filepath, filename))
 
@@ -171,12 +171,12 @@ def addTestFile(pid):
       else:
         flash("Form didn't validate", "error")
 
-    return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
+    return redirect(url_for('editProblem', pid=p.id))
   except Exception as e:
     flash(str(e), "error")
     return redirect(url_for('index'))
 
-@app.route('/editcourse/problem/<pid>/editTestFile/<filename>')
+@app.route('/editproblem/<pid>/editTestFile/<filename>')
 @login_required
 def editTestFile(pid, filename):
   try:
@@ -195,9 +195,9 @@ def editTestFile(pid, filename):
                             data=getTestData(filepath))
   except Exception as e:
     flash(str(e), "error")
-    return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
+    return redirect(url_for('editProblem', pid=p.id))
 
-@app.route('/editcourse/problem/<pid>/remTestFile/<filename>')
+@app.route('/editproblem/<pid>/remTestFile/<filename>')
 @login_required
 def remTestFile(pid, filename):
   try:
@@ -216,12 +216,12 @@ def remTestFile(pid, filename):
 
     p.testfiles.remove(filename)
     p.save()
-    return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
+    return redirect(url_for('editProblem', pid=p.id))
   except Exception as e:
     flash(str(e), "error")
-    return redirect(url_for('editProblem', cid=c.id, pid=p.id, aid=a.id))
+    return redirect(url_for('editProblem', pid=p.id))
 
-@app.route('/editcourse/problem/<pid>/saveTestFile/<filename>', methods=['POST'])
+@app.route('/editproblem/<pid>/saveTestFile/<filename>', methods=['POST'])
 @login_required
 def saveTestFile(pid, filename):
   try:

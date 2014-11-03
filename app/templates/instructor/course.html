@@ -45,7 +45,7 @@ Edit Course: {{course.name}}
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
           <td>
-            <a href="{{url_for('editProblem', cid=course.id, aid=a.id, pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
+            <a href="{{url_for('editProblem', pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
             &nbsp;&nbsp;&nbsp;<a href="{{url_for('remProblem', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a>
           </td>
         </tr>

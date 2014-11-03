@@ -19,7 +19,7 @@ Edit Problem
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <form class="form" action="{{url_for('updateProblem', cid=course.id, aid=assignment.id, pid=problem.id)}}" method="POST" role="form">
+    <form class="form" action="{{url_for('updateProblem', pid=problem.id)}}" method="POST" role="form">
       {{ form.hidden_tag() }}
       <div class="heading">
         <ol class="breadcrumb">
@@ -72,13 +72,13 @@ Edit Problem
         <tr>
           <td>{{item[0]}}</td>
           <td>{{item[1]}}</td>
-          <td><a href="{{url_for('delRubricSec', cid=course.id, aid=assignment.id, pid=problem.id, name=item[0])}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td><a href="{{url_for('delRubricSec', pid=problem.id, name=item[0])}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
         {% endfor %}
         <tr>
           <td><b>Total</b></td>
           <td>{{problem.totalPoints()}}</td>
         </tr>
-        <form class="form" role="form" method="GET" action="{{url_for('addRubricSec', cid=course.id, aid=assignment.id, pid=problem.id)}}">
+        <form class="form" role="form" method="GET" action="{{url_for('addRubricSec', pid=problem.id)}}">
         <tr>
           <td><input class="form-control" name="name" type="text"></td>
           <td><input class="form-control" name="points" type="number"></td>

@@ -4,59 +4,12 @@ from mongoengine import NULLIFY, PULL
 
 from app.filestorage import *
 
-class GradeBook(db.EmbeddedDocument):
+class GBGrade(db.Document):
   '''
-  The gradebook class is designed to contain all the information regarding
-  grades for a course. Each Course has one Gradebook. A gradebook can be
-  divided into Categories which contain Entries and then Columns. This is to
-  facilitate good layout of the information.
+  A grade contains a dictionary mapping rubric sections to scores.
   '''
-  categories = db.ListField(db.EmbeddedDocumentField('GBCategory'))
-
-  def getCategoryByName(self, name):
-    for c in self.categories:
-      if c.name == name:
-        return c
-    return None
-
-  def cleanup(self):
-    for c in self.categories:
-      c.cleanup()
-
-class GBCategory(db.EmbeddedDocument):
-  '''
-  A category is designed to group common items together (eg assignments,
-  participation, tests)
-  '''
-  name = db.StringField(required=True)
-  entries = db.ListField(db.ReferenceField('GBEntry'))
-
-  def __init__(self, name, **data):
-    super(GBCategory, self).__init__(**data)
-    self.name = name
-
-  def cleanup(self):
-    for e in self.entries:
-      e.cleanup()
-      e.delete()
-
-class GBEntry(db.Document):
-  '''
-  Entries are designed to contain columns that are temporall related. Such as
-  all of the problems in a certain week. (This level of granularity isn't
-  accessible in the manual gradebook, this may be a source of a refactor)
-  '''
-  name = db.StringField(required=True)
-  columns = db.ListField(db.ReferenceField('GBColumn'))
-
-  def __init__(self, name, **data):
-    super(GBEntry, self).__init__(**data)
-    self.name = name
-
-  def cleanup(self):
-    for c in self.columns:
-      c.cleanup()
-      c.delete()
+  #Map score name (eg. GrutorScore or TestScore) to scores
+  scores = db.MapField(db.DecimalField())
 
 class GBColumn(db.Document):
   '''
@@ -77,16 +30,48 @@ class GBColumn(db.Document):
   def cleanup(self):
     pass
 
-class GBGrade(db.Document):
+class GBGroup(db.Document):
   '''
-  A grade contains a dictionary mapping rubric sections to scores. Additionally
-  it contains booleans which determines if a score is supposed to be visible yet
-  (This may be factored out as it is redundant with the status of the
-  student's submission)
+  Entries are designed to contain columns that are temporall related. Such as
+  all of the problems in a certain week. (This level of granularity isn't
+  accessible in the manual gradebook, this may be a source of a refactor)
   '''
-  #Map score name (eg. GrutorScore or TestScore) to scores
-  scores = db.MapField(db.DecimalField())
-  visible = db.MapField(db.BooleanField())
+  name = db.StringField(required=True)
+  columns = db.ListField(db.ReferenceField('GBColumn', reverse_delete_rule=PULL))
+
+  def __init__(self, name, **data):
+    super(GBGroup, self).__init__(**data)
+    self.name = name
+
+  def cleanup(self):
+    for c in self.columns:
+      c.cleanup()
+      c.delete()
+
+  def getWidth(self):
+    return max(len(self.columns), 1)
+
+
+class GradeBook(db.EmbeddedDocument):
+  '''
+  The gradebook class is designed to contain all the information regarding
+  grades for a course. Each Course has one Gradebook. A gradebook can group
+  columns together with groups and groups are either for assignments or
+  auxillary grades.
+  '''
+
+  assignmentGrades = db.ListField(db.ReferenceField('GBGroup'))
+  auxillaryGrades = db.ListField(db.ReferenceField('GBGroup'))
+
+  def getCategoryByName(self, name):
+    for c in self.categories:
+      if c.name == name:
+        return c
+    return None
+
+  def cleanup(self):
+    for c in self.categories:
+      c.cleanup()
 
 '''
 Course and submission models
@@ -224,7 +209,7 @@ class AssignmentGroup(db.Document):
   A logical grouping of problems (e.g. One week's homework)
   '''
   name = db.StringField(required=True)
-  gradeEntry = db.ReferenceField('GBEntry', reverse_delete_rule=NULLIFY)
+  gradeEntry = db.ReferenceField('GBGroup', reverse_delete_rule=NULLIFY)
   problems = db.ListField(db.ReferenceField('Problem', reverse_delete_rule=PULL))
 
   meta = {"cascade": True}

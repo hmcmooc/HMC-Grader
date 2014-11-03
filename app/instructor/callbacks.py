@@ -14,6 +14,7 @@ from flask.ext.mongoengine import DoesNotExist
 
 from app.models import *
 from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
+from app.filestorage import ensurePathExists, getAssignmentPath, removePath, getProblemPath, getTestPath
 
 import traceback, StringIO, sys
 import dateutil.parser
@@ -46,7 +47,7 @@ def createAssignment(cid):
 
           #If this assignment already exists we want to return now
           if form.name.data in c.assignments:
-            flash("Assignment already exists")
+            flash("Assignment Group already exists")
             return redirect(url_for('administerCourse', id=cid))
 
 
@@ -56,56 +57,25 @@ def createAssignment(cid):
           c.assignments.append(a)
 
           #Create a GBEntry and GBColumn
-          hw = c.gradeBook.getCategoryByName("Assignments")
-          e = GBEntry(form.name.data)
+          e = GBGroup(form.name.data)
           e.save()
-          hw.entries.append(e)
+          c.gradeBook.assignmentGrades.append(e)
           #Give the assignment its entry
           a.gradeEntry = e
 
+          #Make sure there is a location on the drive to store this
+          ensurePathExists(getAssignmentPath(c,a))
+
           #Save the documents
           a.save()
-          e.save()
           c.save()
           flash("Added Assignment Group")
-          return redirect(url_for('administerCourse', id=cid))
-      except Exception as e:
+          return redirect(url_for('administerCourse', cid=cid))
+      except Course.DoesNotExist as e:
         raise e
-  return redirect(url_for('administerCourse', id=cid))
+  return redirect(url_for('administerCourse', cid=cid))
 
-@app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
-@login_required
-def remProblem(cid,aid,pid):
-  '''
-  Function Type: Callback-Redirect Function
-  Purpose: Remove a problem from a specified assignment.
 
-  Inputs:
-    cid: The object ID of the course the assignment is in
-    aid: The object ID of the assignment group to add the problem to
-    pid: The object ID of the problem to remove
-
-  Forms Handled: None
-  '''
-  try:
-    c = Course.objects.get(id=cid)
-    #For security purposes we send anyone who isnt an instructor or
-    #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
-
-    #a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
-
-    p.cleanup()
-    #p.gradeColumn.delete()
-    #a.problems.remove(p)
-    p.delete()
-    #a.save()
-
-    return redirect(url_for('administerCourse', id=cid))
-  except Course.DoesNotExist:
-    pass
 
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required
@@ -127,23 +97,29 @@ def delAssignment(cid, aid):
     if not (g.user.isAdmin or c in current_user.courseInstructor):
       return redirect(url_for('index'))
 
+
     a = AssignmentGroup.objects.get(id=aid)
+
+    #Remove the filestorage
+    removePath(getAssignmentPath(c, a))
+
     c.assignments.remove(a)
 
-    hw = c.gradeBook.getCategoryByName("Assignments")
-    hw.entries.remove(a.gradeEntry)
+    c.gradeBook.assignmentGrades.remove(a.gradeEntry)
 
+    a.gradeEntry.cleanup()
     a.gradeEntry.delete()
+    a.cleanup()
     a.delete()
     c.save()
     flash("Assignment Group Removed")
   except Exception as e:
     raise e
-  return redirect(url_for('administerCourse', id=cid))
+  return redirect(url_for('administerCourse', cid=cid))
 
-'''
-Adding and removing users from the course
-'''
+#
+# Functions for adding and removing users
+#
 
 @app.route('/editcourse/<cid>/adduser', methods=['POST'])
 @login_required
@@ -184,7 +160,7 @@ def addUserCourse(cid):
     flash("Failed to find user", "error")
   except Exception as e:
     raise e
-  return redirect(url_for('administerCourse', id=cid))
+  return redirect(url_for('administerCourse', cid=cid))
 
 @app.route('/editcourse/<cid>/remuser/<uid>/<t>')
 @login_required
@@ -222,7 +198,11 @@ def remUserCourse(cid, uid, t):
     flash("Failed to find user")
   except Exception as e:
     raise e
-  return redirect(url_for('administerCourse', id=cid))
+  return redirect(url_for('administerCourse', cid=cid))
+
+#
+# Functions for adding and removing problems
+#
 
 @app.route('/assignment/<cid>/<aid>/addproblem')
 @login_required
@@ -247,10 +227,14 @@ def addProblem(cid,aid):
 
     a = AssignmentGroup.objects.get(id=aid)
 
-    p = Problem("")
+    problemNumber = len(a.problems)
+    #default problem name
+    problemName = "Problem " + str(problemNumber)
+
+    p = Problem(problemName)
     p.save()
 
-    gc = GBColumn("")
+    gc = GBColumn(problemName)
     gc.save()
 
     p.gradeColumn = gc
@@ -258,7 +242,52 @@ def addProblem(cid,aid):
 
     a.problems.append(p)
     a.save()
+
+    #Create the storage space for the problem and its tests
+    ensurePathExists(getProblemPath(c,a,p))
+    ensurePathExists(getTestPath(c,a,p))
+
     flash("This is your first time creating the problem please fill in all the form fields an hit save")
     return redirect(url_for('editProblem', cid=cid, aid=a.id, pid=p.id))
   except Exception as e:
     raise e
+
+@app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
+@login_required
+def remProblem(cid,aid,pid):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Remove a problem from a specified assignment.
+
+  Inputs:
+    cid: The object ID of the course the assignment is in
+    aid: The object ID of the assignment group to add the problem to
+    pid: The object ID of the problem to remove
+
+  Forms Handled: None
+  '''
+  try:
+    c = Course.objects.get(id=cid)
+    #For security purposes we send anyone who isnt an instructor or
+    #admin away
+    if not (g.user.isAdmin or c in current_user.courseInstructor):
+      return redirect(url_for('index'))
+
+    a = AssignmentGroup.objects.get(id=aid)
+    p = Problem.objects.get(id=pid)
+
+    #Remove storage space
+    removePath(getProblemPath(c, a, p))
+
+    #We leverage mongo's reverse delete rules to remove the problem from the
+    #assignment's problem list
+
+    p.cleanup()
+    #p.gradeColumn.delete()
+    #a.problems.remove(p)
+    p.delete()
+    #a.save()
+
+    return redirect(url_for('administerCourse', cid=cid))
+  except Course.DoesNotExist:
+    pass
