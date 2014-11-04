@@ -14,10 +14,32 @@ from flask.ext.mongoengine import DoesNotExist
 
 from app.models import *
 from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
+from app.latework import getLateCalculators
 
 import traceback, StringIO, sys
-import dateutil.parser
+import dateutil.parser, itertools
 
+def createGradeLists(users, course):
+  gradeLists = {}
+  for u in users:
+    gl = []
+    for a in course.assignments:
+      al = []
+      for p in a.problems:
+        sub = p.getLatestSubmission(u)
+        if not sub == None:
+          gradeData = {}
+          gradeData['rawTotalScore'] = sub.grade.totalScore()
+          gradeData['timeDelta'] = p.duedate - sub.submissionTime
+          gradeData['isLate'] = sub.isLate
+          al.append(gradeData)
+        else:
+          al.append(None)
+      if len(al) == 0:
+        al.append(None)
+      gl.append(al)
+    gradeLists[u.username] = gl
+  return gradeLists
 
 @app.route('/editcourse/<cid>')
 @login_required
@@ -53,12 +75,18 @@ def administerCourse(cid):
     grutor = User.objects.filter(courseGrutor=c)
     i = User.objects.filter(courseInstructor=c)
 
+    settingsForm = CourseSettingsForm()
+
+    lateCalculators = getLateCalculators()
+
+    settingsForm.latePolicy.choices = [(x,x) for x in lateCalculators.keys()]
+
     #TODO: Refactor user forms to use javascript/AJAX
     return render_template("instructor/course.html",\
      course=c, students=s, grutors=grutor, instrs=i,\
      form=CreateAssignmentForm(), suserform=AddUserCourseForm(),\
      guserform=AddUserCourseForm(), iuserform=AddUserCourseForm(),
-     settingsForm=CourseSettingsForm())
+     settingsForm=settingsForm)
   except Course.DoesNotExist:
     return redirect(url_for('index'))
 
@@ -86,7 +114,16 @@ def viewGradebook(cid):
     #Get the users for this course
     s = User.objects.filter(courseStudent=c)
 
-    return render_template('instructor/gradebook.html', course=c, students=s)
-  except:
-    return render_template('instructor/gradebook.html', course=c, students=s)
+    gradeLists = createGradeLists(s, c)
+
+    #perform late calculation
+    lateCalculator = getLateCalculators()[c.lateGradePolicy]
+    #Apply calculator
+    gradeLists = dict(map(lambda (k,v): (k, lateCalculator(v)), gradeLists.iteritems()))
+    #Flatten lists
+    gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
+
+    return render_template('instructor/gradebook.html', course=c, students=s,\
+                          gradeLists=gradeLists)
+  except Course.DoesNotExist:
     pass

@@ -4,12 +4,46 @@
 Gradebook
 {% endblock %}
 
+{# Yes this is ugly be we get terrible spaces without it #}
+{% macro makeScore(gradeSpec) %}{% if 'finalTotalScore' in gradeSpec %}{{gradeSpec['finalTotalScore']}}({{gradeSpec['rawTotalScore']}}){% else %}{{gradeSpec['rawTotalScore']}}{% endif %}{% endmacro %}
+
+{% macro colorCell(gradeSpec, maxScore) %}
+{% if gradeSpec.setdefault('highlight', None) == "red" %}
+<td class='danger'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
+{% elif gradeSpec.setdefault('highlight', None) == "blue" %}
+<td class='info'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
+{% elif gradeSpec.setdefault('highlight', None) == "green" %}
+<td class='success'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
+{% elif gradeSpec.setdefault('highlight', None) == "yellow" %}
+<td class='warning'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
+{% else %}
+<td>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
+{% endif %}
+{% endmacro %}
+
+{% macro createGrade(user, course, grade, index) %}
+  {% with gl = gradeLists[user.username] %}
+  {% if index < gl|length %}
+  {% if gl[index] == None %}
+  <td>0.00/{{course.maxScore}}</td>
+  {% else %}
+  {{colorCell(gl[index], course.maxScore)}}
+  {% endif %}
+  {% else %}
+  {% if grade == None %}
+  <td>0.00/{{course.maxScore}}</td>
+  {% else %}
+  <td>{{grade.totalScore()}}/{{course.maxScore}}</td>
+  {% endif %}
+  {% endif %}
+  {% endwith %}
+{% endmacro %}
+
 {% block rows %}
 <!-- Begin gradebook table -->
 <div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <table class="table table-hover table-bordered">
+  <div class="col-sm-12">
+    <table class="table table-responsive table-hover table-bordered">
       <thead>
         <tr> <!-- This row is for the gradebook groups -->
           <th rowspan="2">Username</th>
@@ -35,13 +69,9 @@ Gradebook
           {% for c in course.gradeBook.columns() %}
           {% if c == None %}
           <td class="active"></td>
-          {%else %}
-          {% with grade = c.scores.setdefault(s.username, None) %}
-          {% if grade == None %}
-          <td>0.00/{{c.maxScore}}</td>
           {% else %}
-          <td>{{grade.totalScore()}}/{{c.maxScore}}</td>
-          {% endif %}
+          {% with grade = c.scores.setdefault(s.username, None) %}
+          {{ createGrade(s, c, grade, loop.index0) }}
           {% endwith %}
           {% endif %}
           {% endfor %}
@@ -51,6 +81,5 @@ Gradebook
       </tbody>
     </table>
   </div>
-  <div class="col-sm-2"></div>
 </div>
 {% endblock %}

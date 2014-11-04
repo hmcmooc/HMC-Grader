@@ -10,6 +10,11 @@ from flask.ext.markdown import Markdown
 #import for celery task manager
 from celeryconfig import make_celery
 
+from decimal import getcontext
+
+#Set decimal precision
+getcontext.prec = 2
+
 app = Flask(__name__)
 
 #Load the configuration file config.py

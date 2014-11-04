@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 PLUGIN_NAME = "Highlighter"
 
 def calculateGrades(gradeList):
@@ -7,6 +9,10 @@ def calculateGrades(gradeList):
   '''
   for assignment in gradeList:
     for problem in assignment:
+      #check for no submission and skip
+      if problem is None:
+        continue
       if problem['isLate']:
-        problem['higlight'] = "red"
+        problem['highlight'] = "red"
+        problem['finalTotalScore'] = Decimal('0.00') #This is so it renders the same
   return gradeList
