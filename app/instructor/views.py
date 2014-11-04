@@ -19,33 +19,7 @@ from app.latework import getLateCalculators
 
 import traceback, StringIO, sys
 import dateutil.parser, itertools
-
-def createGradeLists(users, course):
-  gradeLists = {}
-  for u in users:
-    gl = []
-    for a in course.assignments:
-      al = []
-      for p in a.problems:
-        sub = p.getLatestSubmission(u)
-        if not sub == None:
-          gradeData = {}
-          gradeData['rawTotalScore'] = sub.grade.totalScore()
-          gradeData['timeDelta'] = p.duedate - sub.submissionTime
-          gradeData['isLate'] = sub.isLate
-          gradeData['maxScore'] = p.totalPoints()
-          al.append(gradeData)
-        else:
-          al.append(None)
-      gl.append(al)
-    gradeLists[u.username] = gl
-  return gradeLists
-
-def preventCollapse(gradeList):
-  for a in gradeList:
-    if len(a) == 0:
-      a.append(None)
-  return gradeList
+from decimal import Decimal
 
 @app.route('/editcourse/<cid>')
 @login_required
@@ -96,6 +70,33 @@ def administerCourse(cid):
   except Course.DoesNotExist:
     return redirect(url_for('index'))
 
+def createGradeLists(users, course):
+  gradeLists = {}
+  for u in users:
+    gl = []
+    for a in course.assignments:
+      al = []
+      for p in a.problems:
+        sub = p.getLatestSubmission(u)
+        if not sub == None:
+          gradeData = {}
+          gradeData['rawTotalScore'] = sub.grade.totalScore()
+          gradeData['timeDelta'] = p.duedate - sub.submissionTime
+          gradeData['isLate'] = sub.isLate
+          gradeData['maxScore'] = p.totalPoints()
+          al.append(gradeData)
+        else:
+          al.append(None)
+      gl.append(al)
+    gradeLists[u.username] = gl
+  return gradeLists
+
+def preventCollapse(gradeList):
+  for a in gradeList:
+    if len(a) == 0:
+      a.append(None)
+  return gradeList
+
 @app.route('/gradebook/<cid>')
 @login_required
 def viewGradebook(cid):
@@ -131,6 +132,20 @@ def viewGradebook(cid):
     #Flatten lists
     gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
 
+    #Generate user totals and course total points
+    userScores = {}
+    courseScore = Decimal(0)
+    for u in s:
+      courseScore = Decimal(0)
+      userScores[u.username] = Decimal(0)
+      for i, col in enumerate(c.gradeBook.columns()):
+        if col == None:
+          continue
+        courseScore += col.maxScore
+        if i < len(gradeLists[u.username]):
+          if gradeLists[u.username][i] != None:
+            userScores[u.username] += gradeLists[u.username][i].setdefault('finalTotalScore', gradeLists[u.username][i]['rawTotalScore'])
+
     disableColForm = False
     colForm = CreateGradeColumnForm()
     colForm.group.choices = [(x.id,x.name) for x in c.gradeBook.auxillaryGrades]
@@ -139,7 +154,7 @@ def viewGradebook(cid):
       disableColForm = True
 
     return render_template('instructor/gradebook.html', course=c, students=s,\
-                          gradeLists=gradeLists, \
+                          gradeLists=gradeLists, userScores=userScores, courseScore=courseScore,\
                           groupForm=CreateGradebookGroupForm(),\
                           colForm=colForm, disableColForm=disableColForm)
   except Course.DoesNotExist:
