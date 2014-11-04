@@ -25,7 +25,6 @@ class GBColumn(db.Document):
   #Map usernames to grade entries
   scores = db.MapField(db.ReferenceField('GBGrade'))
 
-
   def __init__(self, name, **data):
     super(GBColumn, self).__init__(**data)
     self.name = name

@@ -103,6 +103,13 @@ class AddTestForm(Form):
 	testFile = FileField("File")
 	testType = SelectField("Language")
 
+class CreateGradebookGroupForm(Form):
+	groupName = TextField("Gradebook Group Name", validators=[Required()])
+
+class CreateGradeColumnForm(Form):
+	name = TextField("Grade Column Name", validators=[Required()])
+	group = SelectField("Gradebook Group")
+
 class CourseSettingsForm(Form):
 	'''
 	This form handles changing course settings. (It may possibly be expanded in

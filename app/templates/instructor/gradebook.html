@@ -4,6 +4,17 @@
 Gradebook
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+<style>
+th a {
+  display:block;
+  width:100%;
+  color:black;
+}
+</style>
+{% endblock %}
+
 {# Yes this is ugly be we get terrible spaces without it #}
 {% macro makeScore(gradeSpec) %}{% if 'finalTotalScore' in gradeSpec %}{{gradeSpec['finalTotalScore']}}({{gradeSpec['rawTotalScore']}}){% else %}{{gradeSpec['rawTotalScore']}}{% endif %}{% endmacro %}
 
@@ -40,6 +51,39 @@ Gradebook
 {% endmacro %}
 
 {% block rows %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Gradebook Administration</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-4">
+    <form class="form" action="{{url_for('addGradeGroup', cid=course.id)}}" method="POST" role="form">
+      {{groupForm.hidden_tag()}}
+      <div class="form-group">
+        {{groupForm.groupName.label}}{{groupForm.groupName(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary">Add Group</button>
+    </form>
+  </div>
+  <div class="col-sm-4">
+    <form class="form" role="form" action="{{url_for('addGradeColumn', cid=course.id)}}" method="POST">
+      {{colForm.hidden_tag()}}
+      <div class="form-group">
+        {{colForm.group.label}}{{colForm.group(class="form-control", disabled=disableColForm)}}
+      </div>
+      <div class="form-group">
+        {{colForm.name.label}}{{colForm.name(class="form-control", disabled=disableColForm)}}
+      </div>
+      <button type="submit" class="btn btn-primary">Add Column</button>
+    </form>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<hr>
 <!-- Begin gradebook table -->
 <div class="row">
   <div class="col-sm-12">
@@ -57,7 +101,7 @@ Gradebook
           {% if c == None %}
           <th>None</th>
           {% else %}
-          <th>{{c.name}}</th>
+          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id)}}">{{c.name}}</a></th>
           {% endif %}
           {% endfor %}
         </tr>

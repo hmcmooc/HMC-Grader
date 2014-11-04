@@ -14,6 +14,7 @@ from flask.ext.mongoengine import DoesNotExist
 
 from app.models import *
 from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
+from app.forms import CreateGradebookGroupForm, CreateGradeColumnForm
 from app.latework import getLateCalculators
 
 import traceback, StringIO, sys
@@ -32,14 +33,19 @@ def createGradeLists(users, course):
           gradeData['rawTotalScore'] = sub.grade.totalScore()
           gradeData['timeDelta'] = p.duedate - sub.submissionTime
           gradeData['isLate'] = sub.isLate
+          gradeData['maxScore'] = p.totalPoints()
           al.append(gradeData)
         else:
           al.append(None)
-      if len(al) == 0:
-        al.append(None)
       gl.append(al)
     gradeLists[u.username] = gl
   return gradeLists
+
+def preventCollapse(gradeList):
+  for a in gradeList:
+    if len(a) == 0:
+      a.append(None)
+  return gradeList
 
 @app.route('/editcourse/<cid>')
 @login_required
@@ -120,10 +126,21 @@ def viewGradebook(cid):
     lateCalculator = getLateCalculators()[c.lateGradePolicy]
     #Apply calculator
     gradeLists = dict(map(lambda (k,v): (k, lateCalculator(v)), gradeLists.iteritems()))
+    #Replace empty lists with None so that they don't collapse during flatten
+    gradeLists = dict(map(lambda (k,v): (k, preventCollapse(v)), gradeLists.iteritems()))
     #Flatten lists
     gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
 
+    disableColForm = False
+    colForm = CreateGradeColumnForm()
+    colForm.group.choices = [(x.id,x.name) for x in c.gradeBook.auxillaryGrades]
+    if len(colForm.group.choices) == 0:
+      colForm.group.choices = [("N/A", "N/A")]
+      disableColForm = True
+
     return render_template('instructor/gradebook.html', course=c, students=s,\
-                          gradeLists=gradeLists)
+                          gradeLists=gradeLists, \
+                          groupForm=CreateGradebookGroupForm(),\
+                          colForm=colForm, disableColForm=disableColForm)
   except Course.DoesNotExist:
     pass
