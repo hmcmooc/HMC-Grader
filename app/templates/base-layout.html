@@ -36,8 +36,8 @@ body {
             {% for c in g.user.courseStudent|sort(attribute='name') %}
             <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
-            <!--<li class="divider"></li>
-            <li><a href="{{url_for('index')}}">My Grades</a></li>-->
+            <li class="divider"></li>
+            <li><a href="{{url_for('index')}}">My Grades</a></li>
           </ul>
         </li>
         {% endif %}

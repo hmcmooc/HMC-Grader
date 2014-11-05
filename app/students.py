@@ -15,7 +15,7 @@ from forms import SubmitAssignmentForm
 from autograde import gradeSubmission
 
 from app.filestorage import *
-
+from app.latework import getLateCalculators
 
 import os, datetime
 
@@ -269,3 +269,26 @@ def downloadFiles(pid, uid, subnum, filename):
     return send_file(os.path.join(filepath, filename), as_attachment=True)
   except Course.DoesNotExist:
     pass
+
+@app.route('/grades')
+@login_required
+def viewGrades():
+  '''
+  Function Type: View Function
+  Purpose: Show the user thier grades
+
+  Inputs: None
+  '''
+  # from app.instructor.views import greateGradeLists, preventCollapse
+  # import itertools
+  #
+  # lateCalculators = getLateCalculators()
+  #
+  # gradeLists = {}
+  # #Create gradelists for all of courses
+  # for c in g.user.courseStudent:
+  #   gl = createGradeLists([g.user], c)[g.user.username]
+  #   gl = lateCalulators[c.lateGradePolicy](gl)
+  #   gl = preventCollapse(gl)
+  #   gl = list(itertools.chain.fromIterable(gl))
+  #   gradeLists[c.id] = gl
