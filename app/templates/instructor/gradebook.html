@@ -107,7 +107,7 @@ th a {
         </tr>
       </thead>
       <tbody>
-        {% for s in students %}
+        {% for s in students|sort(attribute="username") %}
         <tr>
           <td>{{s.username}}</td>
           {% for c in course.gradeBook.columns() %}
