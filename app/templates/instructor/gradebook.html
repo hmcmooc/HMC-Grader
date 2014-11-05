@@ -21,41 +21,6 @@ td a {
 </style>
 {% endblock %}
 
-{# Yes this is ugly be we get terrible spaces without it #}
-{% macro makeScore(gradeSpec) %}{% if 'finalTotalScore' in gradeSpec %}{{gradeSpec['finalTotalScore']}}({{gradeSpec['rawTotalScore']}}){% else %}{{gradeSpec['rawTotalScore']}}{% endif %}{% endmacro %}
-
-{% macro colorCell(gradeSpec, maxScore) %}
-{% if gradeSpec.setdefault('highlight', None) == "red" %}
-<td class='danger'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
-{% elif gradeSpec.setdefault('highlight', None) == "blue" %}
-<td class='info'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
-{% elif gradeSpec.setdefault('highlight', None) == "green" %}
-<td class='success'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
-{% elif gradeSpec.setdefault('highlight', None) == "yellow" %}
-<td class='warning'>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
-{% else %}
-<td>{{makeScore(gradeSpec)}}/{{maxScore}}</td>
-{% endif %}
-{% endmacro %}
-
-{% macro createGrade(user, course, grade, index) %}
-  {% with gl = gradeLists[user.username] %}
-  {% if index < gl|length %}
-  {% if gl[index] == None %}
-  <td>0.00/{{course.maxScore}}</td>
-  {% else %}
-  {{colorCell(gl[index], course.maxScore)}}
-  {% endif %}
-  {% else %}
-  {% if grade == None %}
-  <td>0.00/{{course.maxScore}}</td>
-  {% else %}
-  <td>{{grade.totalScore()}}/{{course.maxScore}}</td>
-  {% endif %}
-  {% endif %}
-  {% endwith %}
-{% endmacro %}
-
 {% block rows %}
 <div class="row">
   <div class="col-sm-2"></div>
@@ -91,47 +56,6 @@ td a {
 </div>
 <hr>
 <!-- Begin gradebook table -->
-{#<div class="row">
-  <div class="col-sm-12">
-    <table class="table table-responsive table-hover table-bordered">
-      <thead>
-        <tr> <!-- This row is for the gradebook groups -->
-          <th rowspan="2">Username</th>
-          {% for a in course.gradeBook.groups() %}
-          <th colspan="{{a.getWidth()}}">{{a.name}}</th>
-          {% endfor %}
-          <th rowspan="2">Total</th>
-        </tr>
-        <tr> <!-- This row is for the gradebook columns -->
-          {% for c in course.gradeBook.columns() %}
-          {% if c == None %}
-          <th>None</th>
-          {% else %}
-          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id)}}">{{c.name}}</a></th>
-          {% endif %}
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in students|sort(attribute="username") %}
-        <tr>
-          <td>{{s.username}}</td>
-          {% for c in course.gradeBook.columns() %}
-          {% if c == None %}
-          <td class="active"></td>
-          {% else %}
-          {% with grade = c.scores.setdefault(s.username, None) %}
-          {{ createGrade(s, c, grade, loop.index0) }}
-          {% endwith %}
-          {% endif %}
-          {% endfor %}
-          <td>{{userScores[s.username]}}/{{courseScore}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>#}
 <div class="row">
   <div class="col-sm-12">
     <table class="table table-responsive table-hover table-bordered" id="{{course.id}}">
@@ -163,13 +87,13 @@ td a {
 {% block scripts %}
 {{super()}}
 <script>
-$( window ).load(function() {
+$(function() {
   students = {{uids|tojson}};
 
   for(var i = 0; i < students.length; i++) {
-    data = {'uid':students[i]};
+    data = {'uid':students[i], 'cid':"{{course.id}}", 'links':true};
     $.ajax({
-      url:"{{url_for('ajaxRenderGrade', cid=course.id)}}",
+      url:"{{url_for('ajaxRenderGrade')}}",
       type:'POST',
       async:true,
       contentType:'application/json',
@@ -177,6 +101,7 @@ $( window ).load(function() {
       dataType: 'json',
       success: function(data) {
         $('#{{course.id}} tbody').append(data.res);
+        $('#{{course.id}} tbody tr:last td:first').before("<td>"+data.username+"</td>")
       }
     });
   }

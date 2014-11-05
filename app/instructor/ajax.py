@@ -82,12 +82,12 @@ def getProblem(course, col):
       if p.gradeColumn == col:
         return p
 
-@app.route('/grades/<cid>/render', methods=['POST'])
+@app.route('/rendergrades', methods=['POST'])
 @login_required
-def ajaxRenderGrade(cid):
+def ajaxRenderGrade():
   '''
   Function Type: Callback-AJAX Function
-  Called By: instructor/gradebook.html:renderGrades()
+  Called By: instructor/gradebook.html:$(), student/viewgrades.html:$()
   Purpose: Render one row of the gradebook asynchronously for to allow the page
   to load quickly.
 
@@ -99,15 +99,13 @@ def ajaxRenderGrade(cid):
     res: An HTML string containing one <tr>...</tr>
   '''
   try:
-    c = Course.objects.get(id=cid)
     content = request.get_json()
+    c = Course.objects.get(id=content['cid'])
     u = User.objects.get(id=content['uid'])
     if not (g.user.isAdmin or c in current_user.courseInstructor or u == g.user):
       return jsonify(res="<tr><td>Permission Denied</td></tr>")
 
     outstring = "<tr>"
-
-    outstring += "<td>"+u.username+"</td>"
 
     # Create a gradelist
     gl = []
@@ -143,12 +141,12 @@ def ajaxRenderGrade(cid):
         if i < len(gl):
           p = getProblem(c, col)
           if gl[i] != None:
-            outstring += "<td " + createHighlight(gl[i]) + "><a href=''"
-            if not u == g.user:
+            outstring += "<td " + createHighlight(gl[i]) + ">"
+            if content['links']:
+              outstring += "<a href=''"
               outstring += url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))
-            else:
-              outstring += "#"
-            outstring += "'>"
+              outstring += "'>"
+
             if 'finalTotalScore' in gl[i]:
               userScore += gl[i]['finalTotalScore']
               outstring += str(gl[i]['finalTotalScore'])
@@ -158,13 +156,12 @@ def ajaxRenderGrade(cid):
             outstring += "/"+str(col.maxScore)
             outstring += "</a></td>"
           else:
-            outstring += "<td class='active'><a href='"
-            if not u == g.user:
+            outstring += "<td class='active'>"
+            if content['links']:
+              outstring += "<a href='"
               outstring += url_for('grutorMakeBlank', pid=p.id, uid=u.id)
-            else:
-              outstring += "#"
+              outstring += "'>"
 
-            outstring += "'>"
             outstring += "0.00/"+str(col.maxScore)+"</a></td>"
         else:
           #We are in an arbitrary column
@@ -180,7 +177,7 @@ def ajaxRenderGrade(cid):
     outstring += "<td>"+str(userScore)+"/"+str(courseScore)+"</td>"
     outstring += "</tr>"
 
-    return jsonify(res=outstring)
+    return jsonify(res=outstring, username=u.username, cid=content['cid'])
 
   except Exception as e:
     return jsonify(res="<tr><td>"+str(e)+"</td></tr>")

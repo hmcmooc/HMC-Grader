@@ -37,7 +37,7 @@ body {
             <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <li class="divider"></li>
-            <li><a href="{{url_for('index')}}">My Grades</a></li>
+            <li><a href="{{url_for('viewGrades')}}">My Grades</a></li>
           </ul>
         </li>
         {% endif %}
