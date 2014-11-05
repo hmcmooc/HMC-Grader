@@ -231,7 +231,7 @@ def grutorMakeBlank(pid, uid):
     p.studentSubmissions[user.username] = StudentSubmissionList()
 
     #create a filepath
-    filepath = getSubmissionPath(c, a, p, user, len(p.studentSubmissions[user].submissions))
+    filepath = getSubmissionPath(c, a, p, user, 1)
 
     sub = Submission()
     #Initial fields for submission
