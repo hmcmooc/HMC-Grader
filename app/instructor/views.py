@@ -162,9 +162,16 @@ def viewGradebook(cid):
       colForm.group.choices = [("N/A", "N/A")]
       disableColForm = True
 
-    return render_template('instructor/gradebook.html', course=c, students=s,\
-                          gradeLists=gradeLists, userScores=userScores, courseScore=courseScore,\
-                          groupForm=CreateGradebookGroupForm(),\
-                          colForm=colForm, disableColForm=disableColForm)
+    # return render_template('instructor/gradebook.html', course=c, students=s,\
+    #                      gradeLists=gradeLists, userScores=userScores, courseScore=courseScore,\
+    #                      groupForm=CreateGradebookGroupForm(),\
+    #                      colForm=colForm, disableColForm=disableColForm)
+    s = list(s)
+    s.sort(key=lambda x:x.username)
+    uids = [str(u.id) for u in s]
+
+    return render_template('instructor/gradebook.html', course=c, uids=uids,\
+                      groupForm=CreateGradebookGroupForm(),\
+                      colForm=colForm, disableColForm=disableColForm)
   except Course.DoesNotExist:
     pass
