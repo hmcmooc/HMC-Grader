@@ -279,16 +279,16 @@ def viewGrades():
 
   Inputs: None
   '''
-  # from app.instructor.views import greateGradeLists, preventCollapse
-  # import itertools
-  #
-  # lateCalculators = getLateCalculators()
-  #
-  # gradeLists = {}
-  # #Create gradelists for all of courses
-  # for c in g.user.courseStudent:
-  #   gl = createGradeLists([g.user], c)[g.user.username]
-  #   gl = lateCalulators[c.lateGradePolicy](gl)
-  #   gl = preventCollapse(gl)
-  #   gl = list(itertools.chain.fromIterable(gl))
-  #   gradeLists[c.id] = gl
+  from app.instructor.views import greateGradeLists, preventCollapse
+  import itertools
+
+  lateCalculators = getLateCalculators()
+
+  gradeLists = {}
+  #Create gradelists for all of courses
+  for c in g.user.courseStudent:
+    gl = createGradeLists([g.user], c)[g.user.username]
+    gl = lateCalulators[c.lateGradePolicy](gl)
+    gl = preventCollapse(gl)
+    gl = list(itertools.chain.fromIterable(gl))
+    gradeLists[c.id] = gl

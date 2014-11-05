@@ -144,7 +144,10 @@ def viewGradebook(cid):
         courseScore += col.maxScore
         if i < len(gradeLists[u.username]):
           if gradeLists[u.username][i] != None:
-            userScores[u.username] += gradeLists[u.username][i].setdefault('finalTotalScore', gradeLists[u.username][i]['rawTotalScore'])
+            if 'finalTotalScore' in gradeLists[u.username][i]:
+              userScores[u.username] += gradeLists[u.username][i]['finalTotalScore']
+            else:
+              userScores[u.username] += gradeLists[u.username][i]['rawTotalScore']
 
     disableColForm = False
     colForm = CreateGradeColumnForm()
