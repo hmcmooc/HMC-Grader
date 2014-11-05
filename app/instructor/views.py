@@ -97,6 +97,12 @@ def preventCollapse(gradeList):
       a.append(None)
   return gradeList
 
+def processGradelist(gradeList, lateCalculator):
+  gl = lateCalculator(gradeList)
+  gl = preventCollapse(gl)
+  gl = list(itertools.chain.from_iterable(gl))
+  return gl
+
 @app.route('/gradebook/<cid>')
 @login_required
 def viewGradebook(cid):
@@ -126,11 +132,11 @@ def viewGradebook(cid):
     #perform late calculation
     lateCalculator = getLateCalculators()[c.lateGradePolicy]
     #Apply calculator
-    gradeLists = dict(map(lambda (k,v): (k, lateCalculator(v)), gradeLists.iteritems()))
+    gradeLists = dict(map(lambda (k,v): (k, processGradelist(v, lateCalculator)), gradeLists.iteritems()))
     #Replace empty lists with None so that they don't collapse during flatten
-    gradeLists = dict(map(lambda (k,v): (k, preventCollapse(v)), gradeLists.iteritems()))
+    #gradeLists = dict(map(lambda (k,v): (k, preventCollapse(v)), gradeLists.iteritems()))
     #Flatten lists
-    gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
+    #gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
 
     #Generate user totals and course total points
     userScores = {}
