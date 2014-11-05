@@ -257,7 +257,7 @@ def downloadFiles(pid, uid, subnum, filename):
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.courseStudent):
+    if not ( c in current_user.courseStudent or c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
     u = User.objects.get(id=uid)
