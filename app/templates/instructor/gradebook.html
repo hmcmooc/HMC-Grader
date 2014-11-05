@@ -168,7 +168,6 @@ $( window ).load(function() {
 
   for(var i = 0; i < students.length; i++) {
     data = {'uid':students[i]};
-    console.log(students[i]);
     $.ajax({
       url:"{{url_for('ajaxRenderGrade', cid=course.id)}}",
       type:'POST',
@@ -177,7 +176,6 @@ $( window ).load(function() {
       data: JSON.stringify(data),
       dataType: 'json',
       success: function(data) {
-        console.log(data)
         $('#{{course.id}} tbody').append(data.res);
       }
     });

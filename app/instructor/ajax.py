@@ -143,8 +143,12 @@ def ajaxRenderGrade(cid):
         if i < len(gl):
           p = getProblem(c, col)
           if gl[i] != None:
-            outstring += "<td " + createHighlight(gl[i]) + "><a href="
-            outstring += "'"+ url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))+"'>"
+            outstring += "<td " + createHighlight(gl[i]) + "><a href=''"
+            if not u == g.user:
+              outstring += url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))
+            else:
+              outstring += "#"
+            outstring += "'>"
             if 'finalTotalScore' in gl[i]:
               userScore += gl[i]['finalTotalScore']
               outstring += str(gl[i]['finalTotalScore'])
@@ -155,7 +159,12 @@ def ajaxRenderGrade(cid):
             outstring += "</a></td>"
           else:
             outstring += "<td class='active'><a href='"
-            outstring += url_for('grutorMakeBlank', pid=p.id, uid=u.id) + "'>"
+            if not u == g.user:
+              outstring += url_for('grutorMakeBlank', pid=p.id, uid=u.id)
+            else:
+              outstring += "#"
+
+            outstring += "'>"
             outstring += "0.00/"+str(col.maxScore)+"</a></td>"
         else:
           #We are in an arbitrary column
