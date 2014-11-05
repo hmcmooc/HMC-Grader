@@ -32,6 +32,7 @@ Submissions for grading
         <tr>
           <th>{% if not course.anonymousGrading %}Username{% else %}User Identifier{% endif %}</th>
           <th>Submission Status</th>
+          <th>Submission Time</th>
           <th>Grade Submission</th>
         </tr>
       </thead>
@@ -42,11 +43,13 @@ Submissions for grading
           {% with sub = problem.getLatestSubmission(user) %}
           {% if sub == None %}
             <td>No Submission</td>
+            <td>N/A</td>
             <td><a href="{{url_for('grutorMakeBlank', pid=problem.id, uid=user.id)}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% else %}
             {% with c,text = sub.getStatus() %}
             <td class="{{c}}">{{text}}</td>
             {% endwith %}
+            <td class="time {% if sub.isLate %}danger{% endif %}">{{sub.submissionTime.isoformat()}}</td>
             <td><a href="{{url_for('grutorGradeSubmission', pid=problem.id, uid=user.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% endif %}
           {% endwith %}
@@ -58,4 +61,16 @@ Submissions for grading
   <div class="col-sm-2">
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text(d.format("lll"))
+})
+</script>
 {% endblock %}
