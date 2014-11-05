@@ -76,6 +76,12 @@ def createHighlight(d):
   else:
     return ""
 
+def getProblem(course, col):
+  for a in course.assignments:
+    for p in a.problems:
+      if p.gradeColumn == col:
+        return p
+
 @app.route('/grades/<cid>/render', methods=['POST'])
 @login_required
 def ajaxRenderGrade(cid):
@@ -135,8 +141,10 @@ def ajaxRenderGrade(cid):
 
         #Check if we are still in a submission grade column
         if i < len(gl):
+          p = getProblem(c, col)
           if gl[i] != None:
-            outstring += "<td " + createHighlight(gl[i]) + ">"
+            outstring += "<td " + createHighlight(gl[i]) + "><a href="
+            outstring += "'"+ url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))+"'>"
             if 'finalTotalScore' in gl[i]:
               userScore += gl[i]['finalTotalScore']
               outstring += str(gl[i]['finalTotalScore'])
@@ -144,9 +152,11 @@ def ajaxRenderGrade(cid):
               userScore += gl[i]['rawTotalScore']
               outstring += str(gl[i]['rawTotalScore'])
             outstring += "/"+str(col.maxScore)
-            outstring += "</td>"
+            outstring += "</a></td>"
           else:
-            outstring += "<td>0.00/"+str(col.maxScore)+"</td>"
+            outstring += "<td><a href='"
+            outstring += url_for('grutorMakeBlank', pid=p.id, uid=u.id) + "'>"
+            outstring += "0.00/"+str(col.maxScore)+"</a></td>"
         else:
           #We are in an arbitrary column
           outstring += "<td>"
