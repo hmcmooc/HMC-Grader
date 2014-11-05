@@ -154,7 +154,7 @@ def ajaxRenderGrade(cid):
             outstring += "/"+str(col.maxScore)
             outstring += "</a></td>"
           else:
-            outstring += "<td><a href='"
+            outstring += "<td class='active'><a href='"
             outstring += url_for('grutorMakeBlank', pid=p.id, uid=u.id) + "'>"
             outstring += "0.00/"+str(col.maxScore)+"</a></td>"
         else:
