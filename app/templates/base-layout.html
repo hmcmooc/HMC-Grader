@@ -45,8 +45,13 @@ body {
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grader<b class="caret"></b></a>
           <ul class="dropdown-menu">
+            <li class="dropdown-header">Grading</li>
             {% for c in g.user.gradingCourses()|sort(attribute='name') %}
             <li><a href="{{url_for('grutorAssignments', cid=c.id)}}">{{c.name}}</a></li>
+            {% endfor %}
+            <li class="dropdown-header">Grade Books</li>
+            {% for c in g.user.gradingCourses()|sort(attribute='name') %}
+            <li><a href="{{url_for('viewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>

@@ -79,7 +79,7 @@ def grutorGradelistProblem(pid):
 
     return render_template("grutor/problems.html", \
                             course=c, problem=p, assignment=a, users=students)
-  except Exception as e:
+  except Course.DoesNotExist as e:
     raise e
 
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>')
@@ -134,5 +134,5 @@ def grutorGradeSubmission(pid, uid, subnum):
     return render_template("grutor/gradesubmission.html", \
                             course=c, problem=p, assignment=a, subnum=subnum,
                             user=user, submission=submission)
-  except Exception as e:
+  except Course.DoesNotExist as e:
     raise e

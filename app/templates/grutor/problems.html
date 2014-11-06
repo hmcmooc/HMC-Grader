@@ -18,11 +18,38 @@ Submissions for grading
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="text-align:center">Not Graded</th>
+          <th style="text-align:center">In Progress</th>
+          <th style="text-align:center">Done Grading</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          {% with ungraded, ip, done = problem.getStatusCount() %}
+          <td style="text-align:center">{{ungraded}}</td>
+          <td style="text-align:center">{{ip}}</td>
+          <td style="text-align:center">{{done}}</td>
+          {% endwith %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
     <a href="{{url_for('grutorGradeRandom', pid=problem.id)}}" class="btn btn-primary"><span class="glyphicon glyphicon-random"></span> Random Grade</a>
   </div>
   <div class="col-sm-2">
   </div>
 </div>
+<hr>
 <div class="row">
   <div class="col-sm-2">
   </div>

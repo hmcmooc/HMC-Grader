@@ -25,6 +25,14 @@ td a {
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
+    <h2>Gradebook: {{course.semester}}/{{course.name}}</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% if g.user.isAdmin or course in g.user.courseInstructor %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
     <h2>Gradebook Administration</h2>
   </div>
   <div class="col-sm-2"></div>
@@ -55,6 +63,7 @@ td a {
   <div class="col-sm-2"></div>
 </div>
 <hr>
+{% endif %}
 <!-- Begin gradebook table -->
 <div class="row">
   <div class="col-sm-12">

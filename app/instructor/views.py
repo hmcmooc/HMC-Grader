@@ -121,39 +121,12 @@ def viewGradebook(cid):
   '''
   try:
     c = Course.objects.get(id=cid)
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
+    if not (g.user.isAdmin or c in current_user.gradingCourses()):
       return redirect(url_for('index'))
 
     #Get the users for this course
     s = User.objects.filter(courseStudent=c)
 
-    gradeLists = createGradeLists(s, c)
-
-    #perform late calculation
-    lateCalculator = getLateCalculators()[c.lateGradePolicy]
-    #Apply calculator
-    gradeLists = dict(map(lambda (k,v): (k, processGradelist(v, lateCalculator)), gradeLists.iteritems()))
-    #Replace empty lists with None so that they don't collapse during flatten
-    #gradeLists = dict(map(lambda (k,v): (k, preventCollapse(v)), gradeLists.iteritems()))
-    #Flatten lists
-    #gradeLists = dict(map(lambda (k,v): (k, list(itertools.chain.from_iterable(v))), gradeLists.iteritems()))
-
-    #Generate user totals and course total points
-    userScores = {}
-    courseScore = Decimal(0)
-    for u in s:
-      courseScore = Decimal(0)
-      userScores[u.username] = Decimal(0)
-      for i, col in enumerate(c.gradeBook.columns()):
-        if col == None:
-          continue
-        courseScore += col.maxScore
-        if i < len(gradeLists[u.username]):
-          if gradeLists[u.username][i] != None:
-            if 'finalTotalScore' in gradeLists[u.username][i]:
-              userScores[u.username] += gradeLists[u.username][i]['finalTotalScore']
-            else:
-              userScores[u.username] += gradeLists[u.username][i]['rawTotalScore']
 
     disableColForm = False
     colForm = CreateGradeColumnForm()
@@ -162,10 +135,7 @@ def viewGradebook(cid):
       colForm.group.choices = [("N/A", "N/A")]
       disableColForm = True
 
-    # return render_template('instructor/gradebook.html', course=c, students=s,\
-    #                      gradeLists=gradeLists, userScores=userScores, courseScore=courseScore,\
-    #                      groupForm=CreateGradebookGroupForm(),\
-    #                      colForm=colForm, disableColForm=disableColForm)
+    
     s = list(s)
     s.sort(key=lambda x:x.username)
     uids = [str(u.id) for u in s]

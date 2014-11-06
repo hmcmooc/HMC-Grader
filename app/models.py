@@ -137,7 +137,7 @@ class Submission(db.Document):
     elif self.status == 1:
       return "warning", "Autograde in progress"
     elif self.status == 2:
-      return "info", "Submitted (Ungraded)"
+      return "info", "Submitted (Tested, Ungraded)"
     elif self.status == 3:
       return "warning", "Grading in progress"
     elif self.status == 4:
@@ -176,6 +176,23 @@ class Problem(db.Document):
   def __init__(self, name, **data):
     super(Problem, self).__init__(**data)
     self.name = name
+
+  def getStatusCount(self):
+    c,a = self.getParents()
+    users = User.objects.filter(courseStudent=c)
+    ungraded = 0
+    ip = 0
+    done = 0
+    for u in users:
+      sub = self.getLatestSubmission(u)
+      if sub == None or sub.status < 3:
+        ungraded += 1
+      elif sub.status == 3:
+        ip += 1
+      else:
+        done += 1
+    return ungraded, ip, done
+
 
   def cleanup(self):
     if self.gradeColumn != None:
