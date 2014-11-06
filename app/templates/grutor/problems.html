@@ -47,9 +47,9 @@ Submissions for grading
             <td><a href="{{url_for('grutorMakeBlank', pid=problem.id, uid=user.id)}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% else %}
             {% with c,text = sub.getStatus() %}
-            <td class="{{c}}">{{text}}</td>
+            <td class="{{c}}">{% if sub.isLate %}<span style="color:red">[Late] </span>{% endif %}{{text}}</td>
             {% endwith %}
-            <td class="time {% if sub.isLate %}danger{% endif %}">{{sub.submissionTime.isoformat()}}</td>
+            <td class="time">{{sub.submissionTime.isoformat()}}</td>
             <td><a href="{{url_for('grutorGradeSubmission', pid=problem.id, uid=user.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% endif %}
           {% endwith %}

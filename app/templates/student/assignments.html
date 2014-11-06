@@ -27,21 +27,23 @@ Assignments for {{course.name}}
         </tr>
         {% for p in a.problems|sort(attribute="name") %}
         <tr>
+          {% with sub = p.getLatestSubmission(g.user) %}
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
           {% if p.getSubmissionNumber(g.user) == 0 %}
           <td>Unsubmitted</td>
           {% else %}
-          {% with c,text = p.getLatestSubmission(g.user).getStatus() %}
+          {% with c,text = sub.getStatus() %}
           <td class="{{c}}">
-          {{text}} <a href="{{url_for('viewProblem', pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
+          {% if sub.isLate %}<span style="color:red">[Late] </span>{%endif%}{{text}}<a href="{{url_for('viewProblem', pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
           </td>
           {% endwith %}
           {% endif %}
           <td>
             <a href="{{url_for('submitAssignment', pid=p.id)}}" class="btn btn-primary btn-xs">Submit</a>
           </td>
+          {% endwith %}
         </tr>
         {% endfor %}
         {% endfor %}

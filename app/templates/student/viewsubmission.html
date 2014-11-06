@@ -52,7 +52,7 @@ Assignments for {{course.name}}
       <tr>
         <th>Submission Status</th>
         {% with c,text = submission.getStatus() %}
-        <td class="{{c}}">{{text}}</td>
+        <td class="{{c}}">{% if submission.isLate %}<span style="color:red">[Late] </span>{%endif%}{{text}}</td>
         {% endwith %}
       </tr>
     </table>
