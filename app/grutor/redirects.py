@@ -252,3 +252,45 @@ def grutorMakeBlank(pid, uid):
     return redirect(url_for('grutorGradeSubmission', uid=uid, pid=pid, subnum=1))
   except Course.DoesNotExist as e:
     raise e
+
+@app.route('/grutor/toggleLate/<pid>/<uid>/<subnum>')
+@login_required
+def grutorToggleLate(pid, uid, subnum):
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Toggle the isLate flag for an assignment
+
+  Inputs:
+    pid: The object ID of the problem this submission belongs to
+    uid: The object ID of the user this submission belongs to
+    subnum: The submission number for this submission
+
+  Forms Handled: None
+  '''
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    user = User.objects.get(id=uid)
+
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    #Define function for releasing submissions
+    def toggle(sub):
+      sub.isLate = not sub.isLate
+      sub.save()
+    #End definition
+
+    submission = p.getSubmission(user, subnum)
+    #if not submission.status == 4:
+    toggle(submission)
+
+    if submission.partnerInfo != None:
+      toggle(submission.partnerInfo.submission)
+
+    p.save()
+
+    return redirect(url_for('grutorGradeSubmission', pid=pid, uid=uid, subnum=subnum))
+  except Exception as e:
+    raise e

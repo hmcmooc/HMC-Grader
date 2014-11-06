@@ -143,7 +143,7 @@ def ajaxRenderGrade():
           if gl[i] != None:
             outstring += "<td " + createHighlight(gl[i]) + ">"
             if content['links']:
-              outstring += "<a href=''"
+              outstring += "<a href='"
               outstring += url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))
               outstring += "'>"
 
