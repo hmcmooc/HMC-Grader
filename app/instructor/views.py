@@ -61,6 +61,10 @@ def administerCourse(cid):
 
     settingsForm.latePolicy.choices = [(x,x) for x in lateCalculators.keys()]
 
+    #Make sure all users have anonIds
+    if c.anonymousGrading:
+      c.ensureIDs()
+
     #TODO: Refactor user forms to use javascript/AJAX
     return render_template("instructor/course.html",\
      course=c, students=s, grutors=grutor, instrs=i,\
@@ -70,38 +74,38 @@ def administerCourse(cid):
   except Course.DoesNotExist:
     return redirect(url_for('index'))
 
-def createGradeLists(users, course):
-  gradeLists = {}
-  for u in users:
-    gl = []
-    for a in course.assignments:
-      al = []
-      for p in a.problems:
-        sub = p.getLatestSubmission(u)
-        if not sub == None:
-          gradeData = {}
-          gradeData['rawTotalScore'] = sub.grade.totalScore()
-          gradeData['timeDelta'] = p.duedate - sub.submissionTime
-          gradeData['isLate'] = sub.isLate
-          gradeData['maxScore'] = p.totalPoints()
-          al.append(gradeData)
-        else:
-          al.append(None)
-      gl.append(al)
-    gradeLists[u.username] = gl
-  return gradeLists
-
-def preventCollapse(gradeList):
-  for a in gradeList:
-    if len(a) == 0:
-      a.append(None)
-  return gradeList
-
-def processGradelist(gradeList, lateCalculator):
-  gl = lateCalculator(gradeList)
-  gl = preventCollapse(gl)
-  gl = list(itertools.chain.from_iterable(gl))
-  return gl
+# def createGradeLists(users, course):
+#   gradeLists = {}
+#   for u in users:
+#     gl = []
+#     for a in course.assignments:
+#       al = []
+#       for p in a.problems:
+#         sub = p.getLatestSubmission(u)
+#         if not sub == None:
+#           gradeData = {}
+#           gradeData['rawTotalScore'] = sub.grade.totalScore()
+#           gradeData['timeDelta'] = p.duedate - sub.submissionTime
+#           gradeData['isLate'] = sub.isLate
+#           gradeData['maxScore'] = p.totalPoints()
+#           al.append(gradeData)
+#         else:
+#           al.append(None)
+#       gl.append(al)
+#     gradeLists[u.username] = gl
+#   return gradeLists
+#
+# def preventCollapse(gradeList):
+#   for a in gradeList:
+#     if len(a) == 0:
+#       a.append(None)
+#   return gradeList
+#
+# def processGradelist(gradeList, lateCalculator):
+#   gl = lateCalculator(gradeList)
+#   gl = preventCollapse(gl)
+#   gl = list(itertools.chain.from_iterable(gl))
+#   return gl
 
 @app.route('/gradebook/<cid>')
 @login_required
@@ -135,7 +139,7 @@ def viewGradebook(cid):
       colForm.group.choices = [("N/A", "N/A")]
       disableColForm = True
 
-    
+
     s = list(s)
     s.sort(key=lambda x:x.username)
     uids = [str(u.id) for u in s]
@@ -145,3 +149,40 @@ def viewGradebook(cid):
                       colForm=colForm, disableColForm=disableColForm)
   except Course.DoesNotExist:
     pass
+
+@app.route('/gradebook/<cid>/<col>')
+@login_required
+def editGradebook(cid, col):
+  '''
+  Function Type: View Function
+  Template: grutor/editcolumn.html
+  Purpose: Allows the grutor to edit one column of the gradebook manually
+
+  Inputs:
+    cid: The object ID of the course to authenticate the grader
+    col: The object ID of the column to be edited
+
+  Template Parameters: TODO
+  '''
+  try:
+    course = Course.objects.get(id=cid)
+    column = GBColumn.objects.get(id=col)
+
+    if not (course in current_user.gradingCourses() or current_user.isAdmin):
+      return redirect(url_for('index'))
+
+    users = User.objects.filter(courseStudent=course)
+
+    for u in users:
+      if not u.username in column.scores:
+        flash("Creating")
+        grade = GBGrade()
+        grade.scores['score'] = 0
+        grade.save()
+        column.scores[u.username] = grade
+
+    column.save()
+
+    return render_template("instructor/editcolumn.html", course = course, col=column, users=users)
+  except Exception as e:
+    raise e

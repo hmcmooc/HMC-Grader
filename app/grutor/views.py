@@ -136,3 +136,74 @@ def grutorGradeSubmission(pid, uid, subnum):
                             user=user, submission=submission)
   except Course.DoesNotExist as e:
     raise e
+
+@app.route('/grutor/gradebook/<cid>')
+@login_required
+def grutorViewGradebook(cid):
+  '''
+  Function Type: View Function
+  Template: instructor/gradebook.html
+  Purpose: Display all of the grades for this course. Allow for creation of
+  arbitrary submission entries.
+
+  Inputs:
+    cid: The object ID of the course to display
+
+  Template Parameters: TODO
+
+  Forms Handled: TODO
+  '''
+  try:
+    c = Course.objects.get(id=cid)
+    if not (g.user.isAdmin or c in current_user.gradingCourses()):
+      return redirect(url_for('index'))
+
+    #Get the users for this course
+    s = User.objects.filter(courseStudent=c)
+
+
+    s = list(s)
+    s.sort(key=lambda x:x.username)
+    uids = [str(u.id) for u in s]
+
+    return render_template('grutor/gradebook.html', course=c, uids=uids)
+  except Course.DoesNotExist:
+    pass
+
+@app.route('/grutor/gradebook/<cid>/<col>')
+@login_required
+def grutorEditGradebook(cid, col):
+  '''
+  Function Type: View Function
+  Template: grutor/editcolumn.html
+  Purpose: Allows the grutor to edit one column of the gradebook manually
+
+  Inputs:
+    cid: The object ID of the course to authenticate the grader
+    col: The object ID of the column to be edited
+
+  Template Parameters: TODO
+  '''
+
+  try:
+    course = Course.objects.get(id=cid)
+    column = GBColumn.objects.get(id=col)
+
+    if not (course in current_user.gradingCourses() or current_user.isAdmin):
+      return redirect(url_for('index'))
+
+    users = User.objects.filter(courseStudent=course)
+
+    for u in users:
+      if not u.username in column.scores:
+        flash("Creating")
+        grade = GBGrade()
+        grade.scores['score'] = 0
+        grade.save()
+        column.scores[u.username] = grade
+
+    column.save()
+
+    return render_template("grutor/editcolumn.html", course = course, col=column, users=users)
+  except Exception as e:
+    raise e

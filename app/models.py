@@ -275,6 +275,8 @@ class Course(db.Document):
 
   #Do we show usernames during grading
   anonymousGrading = db.BooleanField(default=False)
+  #Map real usernames to identifiers
+  anonIds = db.MapField(db.StringField())
   #How do we calculate late grades (Defaults to one that just highlights late grades)
   lateGradePolicy = db.StringField(default="Highlighter")
 
@@ -286,6 +288,26 @@ class Course(db.Document):
     for a in self.assignments:
       a.cleanup()
       a.delete()
+
+  def ensureIDs(self):
+    users = User.objects.filter(courseStudent=self)
+    for u in users:
+      if u.username in self.anonIds:
+        continue
+      else:
+        from random import choice, randint
+        from string import ascii_lowercase
+        while True:
+          ID = choice(ascii_lowercase) + choice(ascii_lowercase)+ str(randint(0,9))
+          if not ID in self.anonIds.values():
+            self.anonIds[u.username] = ID
+            break
+    self.save()
+
+  def getIdentifier(self, username):
+    if not username in self.anonIds:
+      self.ensureIDs()
+    return self.anonIds[username]
 
 '''
 User model(s)

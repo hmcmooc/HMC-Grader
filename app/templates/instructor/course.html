@@ -98,7 +98,7 @@ Edit Course: {{course.name}}
       <tbody>
         {% for s in students %}
         <tr>
-        <td>{{s.username}}</td>
+        <td>{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
         <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
         <tr>
         {% endfor %}

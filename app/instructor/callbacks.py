@@ -384,9 +384,9 @@ def addGradeColumn(cid):
 # Gradebook redirect function
 #
 
-@app.route('/gradebook/<cid>/edit/<col>')
+@app.route('/gradebook/<cid>/edit/<col>/<instr>')
 @login_required
-def redirectGradebook(cid, col):
+def redirectGradebook(cid, col, instr):
   '''
   Function Type: Callback-Redirect Function
   Purpose: Given a gradebook column redirect to either the problem editing page
@@ -405,5 +405,7 @@ def redirectGradebook(cid, col):
     for p in a.problems:
       if p.gradeColumn == col:
         return redirect(url_for('grutorGradelistProblem', pid=p.id))
-  flash("Arbitrary Grade editing not implemented yet")
-  return redirect(url_for('viewGradebook', cid=cid))
+  if instr == "true":
+    return redirect(url_for('editGradebook', cid=c.id, col=col.id))
+  else:
+    return redirect(url_for('grutorEditGradebook', cid=c.id, col=col.id))

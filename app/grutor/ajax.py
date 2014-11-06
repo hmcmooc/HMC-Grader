@@ -34,7 +34,7 @@ def grutorSaveGrades(pid, uid, subnum):
     pid: The problem that this grade is for
     uid: The user whose grade this is
     subnum: The submission number that is currently being graded
-  
+
   POST Values: A dictionary mapping names of rubric sections to numbers.
 
   Outputs:
@@ -103,14 +103,14 @@ def grutorSaveComment(pid, uid, subnum):
   '''
   Function Type: Callback-AJAX Function
   Called By: grutor/gradesubmission.html:saveComments()
-  Purpose: Recieves a markdown formatted string and saves it as a grader 
+  Purpose: Recieves a markdown formatted string and saves it as a grader
   comment for a specified submission
 
   Inputs:
     pid: The problem that this grade is for
     uid: The user whose grade this is
     subnum: The submission number that is currently being graded
-  
+
   POST Values: A json object containing one field called "text" which contains
   the markdown formatted string
 
@@ -153,3 +153,29 @@ def grutorSaveComment(pid, uid, subnum):
 
   except Exception as e:
     return jsonify(res="Exception raised: "+ str(e))
+
+@app.route('/gradebook/<cid>/<col>/save', methods=['POST'])
+@login_required
+def saveGradeColumn(cid,col):
+  try:
+    course = Course.objects.get(id=cid)
+    column = GBColumn.objects.get(id=col)
+
+    if not (course in current_user.gradingCourses() or current_user.isAdmin):
+      return jsonify(res=False)
+
+    content = request.get_json()
+
+    column.maxScore = content['maxScore']
+
+    for id in content['scores']:
+      u = User.objects.get(id=id)
+      column.scores[u.username].scores['score'] = content['scores'][id]
+      column.scores[u.username].save()
+
+    column.save()
+
+    return jsonify(res=True)
+
+  except Exception as e:
+    return jsonify(res=False, exeption=str(e))

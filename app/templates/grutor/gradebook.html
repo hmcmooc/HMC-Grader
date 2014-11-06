@@ -29,41 +29,6 @@ td a {
   </div>
   <div class="col-sm-2"></div>
 </div>
-{% if g.user.isAdmin or course in g.user.courseInstructor %}
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <h2>Gradebook Administration</h2>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-4">
-    <form class="form" action="{{url_for('addGradeGroup', cid=course.id)}}" method="POST" role="form">
-      {{groupForm.hidden_tag()}}
-      <div class="form-group">
-        {{groupForm.groupName.label}}{{groupForm.groupName(class="form-control")}}
-      </div>
-      <button type="submit" class="btn btn-primary">Add Group</button>
-    </form>
-  </div>
-  <div class="col-sm-4">
-    <form class="form" role="form" action="{{url_for('addGradeColumn', cid=course.id)}}" method="POST">
-      {{colForm.hidden_tag()}}
-      <div class="form-group">
-        {{colForm.group.label}}{{colForm.group(class="form-control", disabled=disableColForm)}}
-      </div>
-      <div class="form-group">
-        {{colForm.name.label}}{{colForm.name(class="form-control", disabled=disableColForm)}}
-      </div>
-      <button type="submit" class="btn btn-primary">Add Column</button>
-    </form>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<hr>
-{% endif %}
 <!-- Begin gradebook table -->
 <div class="row">
   <div class="col-sm-12">
@@ -81,7 +46,7 @@ td a {
           {% if c == None %}
           <th>None</th>
           {% else %}
-          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id, instr="true")}}">{{c.name}}</a></th>
+          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id, instr="false")}}">{{c.name}}</a></th>
           {% endif %}
           {% endfor %}
         </tr>
@@ -110,7 +75,7 @@ $(function() {
       dataType: 'json',
       success: function(data) {
         $('#{{course.id}} tbody').append(data.res);
-        $('#{{course.id}} tbody tr:last td:first').before("<td>"+data.username{% if course.anonymousGrading %}+" ("+ data.id+")"{%endif%}+"</td>")
+        $('#{{course.id}} tbody tr:last td:first').before("<td>"+{% if not course.anonymousGrading %}data.username{%else%}data.id{%endif%}+"</td>")
       }
     });
   }

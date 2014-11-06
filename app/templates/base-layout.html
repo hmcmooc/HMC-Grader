@@ -52,7 +52,7 @@ body {
             <li class="divider"></li>
             <li class="dropdown-header">Grade Books</li>
             {% for c in g.user.gradingCourses()|sort(attribute='name') %}
-            <li><a href="{{url_for('viewGradebook', cid=c.id)}}">{{c.name}}</a></li>
+            <li><a href="{{url_for('grutorViewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>

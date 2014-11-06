@@ -169,7 +169,7 @@ def ajaxRenderGrade():
           if u.username in col.scores:
             grade = col.scores[u.username]
             userScore += grade.totalScore()
-            outstring += str(g.totalScore())
+            outstring += str(grade.totalScore())
           else:
             outstring += "0.00"
           outstring += "/"+str(col.maxScore)+"</td>"
@@ -177,7 +177,12 @@ def ajaxRenderGrade():
     outstring += "<td>"+str(userScore)+"/"+str(courseScore)+"</td>"
     outstring += "</tr>"
 
-    return jsonify(res=outstring, username=u.username, cid=content['cid'])
+    if c.anonymousGrading:
+      return jsonify(res=outstring, username=u.username,\
+       cid=content['cid'], id=c.getIdentifier(u.username))
+    else:
+      return jsonify(res=outstring, username=u.username, cid=content['cid'])
 
   except Exception as e:
+
     return jsonify(res="<tr><td>"+str(e)+"</td></tr>")
