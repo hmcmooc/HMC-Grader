@@ -15,6 +15,7 @@ Assignments for {{course.name}}
           <th>Assignment Group</th>
           <th>Problem</th>
           <th>Due Date</th>
+          <th>Status (TODO - IP - DONE)</th>
           <th>Grade</th>
         </tr>
       </thead>
@@ -27,6 +28,11 @@ Assignments for {{course.name}}
         <tr>
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
+          <td>
+            {% with u,ip,d = p.getStatusCount() %}
+            {{u}} - {{ip}} - {{d}}
+            {% endwith %}
+          </td>
           <td>
             <a href="{{url_for('grutorGradelistProblem', pid=p.id)}}" class="btn btn-primary btn-xs">Grade</a>
           </td>
