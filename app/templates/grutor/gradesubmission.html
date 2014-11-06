@@ -61,6 +61,10 @@ Assignments for {{course.name}}
         <td><a href="{{url_for('grutorToggleLate', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-warning btn-xs">Toggle</a></td>
       </tr>
       <tr>
+        <th>Grade Nodes (Temporary)</th>
+        <td><a href="https://docs.google.com/document/d/1b_XANeSEQ_T1vd5gQumi8hkqmUoxHkbaJql_aZo4WSg/edit" target="_blank">Grading Notes</a></td>
+      </tr>
+      <tr>
         <td colspan="2" style="text-align:right">
           <a href="{{url_for('grutorReleaseSubmission', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-danger btn-xs">Cancel Grade</a>
           <a href="{{url_for('grutorFinishSubmission', pid=problem.id, uid=user.id, subnum=subnum)}}" id="finishGrading" class="btn btn-success btn-xs">Finish Grading</a>
