@@ -81,7 +81,7 @@ function getQueues(){
     success:function(data){
       $("#queues").empty()
       for (var i= 0; i < data.queue.length; ++i){
-        $("#queues").append("<li class='list-group-item'><b>"+data.queue[i][0]+"</b>: "+data.queue[i][1].length+"</li>")
+        $("#queues").append("<li class='list-group-item'><span class='badge'>"+data.queue[i][1].length+"</span>\n"+data.queue[i][0]+"</li>")
       }
       setTimeout(getQueues, minutes(5));
     }
