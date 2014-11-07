@@ -6,9 +6,9 @@ This module handles all administrator views and functions.
 '''
 
 #import the app and the login manager
-from app import app, loginManager
+from app import app, loginManager, celery
 
-from flask import g, request, render_template, redirect, url_for, flash
+from flask import g, request, render_template, redirect, url_for, flash, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -17,6 +17,8 @@ from models import *
 from forms import CreateCourseForm, CreateUserForm
 
 from app.filestorage import ensurePathExists, getCoursePath
+
+import psutil
 
 #TODO: Add the statistics rendering
 @app.route('/adminindex')
@@ -42,7 +44,9 @@ def adminIndex():
 
   #eventually we will compute statistics about the state of the system to be
   #put here
-  return render_template('admin/index.html', active_page="index")
+  return render_template('admin/index.html', active_page="index",\
+                          diskUsage=psutil.disk_usage(app.config['STORAGE_HOME']),\
+                          memory=psutil.virtual_memory())
 
 
 @app.route('/admincourses', methods=['POST', 'GET'])
@@ -165,3 +169,21 @@ def addUser():
           u.setPassword(form.password.data)
         u.save()
   return redirect(url_for('adminUsers'))
+
+
+#
+# Admin AJAX functions
+#
+
+@app.route('/admin/data/celery', methods=['GET'])
+@login_required
+def adminDataCelery():
+  try:
+    i = celery.control.inspect()
+    queueDict = i.reserved()
+    queue = []
+    for k in queueDict:
+      queue.append([k, queueDict[k]])
+    return jsonify(queue=queue)
+  except Exception as e:
+    return jsonify(queue=str(e))
