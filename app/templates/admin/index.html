@@ -49,8 +49,14 @@ Admin Panel: Statistics
       <div class="panel-heading">Grading Workers</div>
       <div class="panel-body">
         <h4>Queue Lengths:</h4>
-        <ul id="queues">
-          <li>Loading</li>
+        <ul id="queues" class="list-group">
+          <li class="list-group-item">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                Loading
+              </div>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -75,7 +81,7 @@ function getQueues(){
     success:function(data){
       $("#queues").empty()
       for (var i= 0; i < data.queue.length; ++i){
-        $("#queues").append("<li><b>"+data.queue[i][0]+"</b>: "+data.queue[i][1].length+"</li>")
+        $("#queues").append("<li class='list-group-item'><b>"+data.queue[i][0]+"</b>: "+data.queue[i][1].length+"</li>")
       }
       setTimeout(getQueues, minutes(5));
     }
