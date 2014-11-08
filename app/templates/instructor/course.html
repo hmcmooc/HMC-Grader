@@ -88,22 +88,26 @@ Edit Course: {{course.name}}
       </div>
       <button type="submit" class="btn btn-primary" value="student" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
     </form>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in students %}
-        <tr>
-        <td>{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
-        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
-        <tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <hr>
+    <div id="studentUsers">
+      <input class="search form-control" type="search" placeholder="Search"/>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody class="list">
+          {% for s in students %}
+          <tr>
+          <td class="name">{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
+          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="col-sm-2">
     <h1>Grutors</h2>
@@ -114,22 +118,26 @@ Edit Course: {{course.name}}
       </div>
       <button type="submit" class="btn btn-primary" value="grutor" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
     </form>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in grutors %}
-        <tr>
-        <td>{{s.username}}</td>
-        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
-        <tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <hr>
+    <div id="graderUsers">
+      <input class="search form-control" type="search" placeholder="Search"/>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody class="list">
+          {% for s in grutors %}
+          <tr>
+          <td class="name">{{s.username}}</td>
+          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="col-sm-2">
     <h1>Instructors</h2>
@@ -140,22 +148,26 @@ Edit Course: {{course.name}}
       </div>
       <button type="submit" class="btn btn-primary" value="instructor" name="btn"><span class="glyphicon glyphicon-plus"></span></button>
     </form>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in instrs %}
-        <tr>
-        <td>{{s.username}}</td>
-        <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
-        <tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <hr>
+    <div id="instrUsers">
+      <input class="search form-control" type="search" placeholder="Search"/>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody class="list">
+          {% for s in instrs %}
+          <tr>
+          <td class="name">{{s.username}}</td>
+          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="col-sm-3">
   </div>
@@ -164,6 +176,12 @@ Edit Course: {{course.name}}
 
 {% block scripts %}
 {{super()}}
+<script src="{{url_for('static', filename='list.js')}}"></script>
+<script>
+var grutorList = new List('graderUsers', {valueNames:['name']})
+var studentList = new List('studentUsers', {valueNames:['name']})
+var instrList = new List('instrUsers', {valueNames:['name']})
+</script>
 <script src="{{url_for('static', filename='moment.js')}}"></script>
 <script>
 $(".time").each(function(){
