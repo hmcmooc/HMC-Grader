@@ -102,7 +102,7 @@ def ajaxRenderGrade():
     content = request.get_json()
     c = Course.objects.get(id=content['cid'])
     u = User.objects.get(id=content['uid'])
-    if not (g.user.isAdmin or c in current_user.gradingCourses() or u == g.user):
+    if not (g.user.isAdmin or c in current_user.gradingCourses() or u.id == current_user.id):
       return jsonify(res="<tr><td>Permission Denied</td></tr>", cid=content['cid'])
 
     outstring = "<tr>"
