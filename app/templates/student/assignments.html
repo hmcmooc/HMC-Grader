@@ -4,6 +4,10 @@
 Assignments for {{course.name}}
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+{% endblock %}
+
 {% block rows %}
 <div class="row">
   <div class="col-sm-2">
@@ -28,7 +32,7 @@ Assignments for {{course.name}}
         {% for p in a.problems|sort(attribute="name") %}
         <tr>
           {% with sub = p.getLatestSubmission(g.user) %}
-          <td>{{p.name}}</td>
+          <td>{% if p.problemPage != None %}<a href="{{p.problemPage}}" target="_blank">{% endif %}{{p.name}}{% if p.problemPage != None %}</a>{% endif %}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
           {% if p.getSubmissionNumber(g.user) == 0 %}

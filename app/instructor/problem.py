@@ -73,6 +73,18 @@ def updateProblem(pid):
         p.gradeColumn.save()
         p.duedate = dateutil.parser.parse(form.hiddentime.data)
         p.allowPartners = form.allowPartners.data
+
+        #Assign gradenotes
+        if len(form.gradeNotes.data) > 0:
+          p.gradeNotes = form.gradeNotes.data
+        else:
+          p.gradeNotes = None
+
+        if len(form.problemPage.data) > 0:
+          p.problemPage = form.problemPage.data
+        else:
+          p.problemPage = None
+
         p.save()
   except Exception as e:
     flash(str(e))

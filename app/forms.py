@@ -93,6 +93,8 @@ class ProblemOptionsForm(Form):
 	name = TextField("Problem Name")
 	date = TextField("Due Date")
 	time = TextField("Due Time")
+	gradeNotes = TextField("Grading Notes URL")
+	problemPage = TextField("Problem Description URL")
 	allowPartners = BooleanField("Allow Partners")
 	hiddentime = TextField("")
 

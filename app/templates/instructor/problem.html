@@ -41,6 +41,14 @@ Edit Problem
         {{form.time(placeholder="eg. 11:59 PM", class="form-control")}}
       </div>
       <div class="form-group">
+        {{form.problemPage.label}}
+        {{form.problemPage(placeholder="eg. cs.hmc.edu/cs5/hw3.html", class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{form.gradeNotes.label}}
+        {{form.gradeNotes(placeholder="eg. cs.hmc.edu/cs5/hw3grading.html", class="form-control")}}
+      </div>
+      <div class="form-group">
         <label>
         {{form.allowPartners()}} {{form.allowPartners.label}}
         </label>
@@ -156,6 +164,14 @@ $(function(){
   var m = new moment("{{problem.duedate.isoformat()}}" + "Z");
   $('#date').val(m.format('L'))
   $('#time').val(m.format('h:mm a'))
+  {% endif %}
+
+  {% if problem.gradeNotes != None %}
+  $('#gradeNotes').val("{{problem.gradeNotes}}")
+  {% endif %}
+
+  {% if problem.problemPage != None %}
+  $('#problemPage').val("{{problem.problemPage}}")
   {% endif %}
 
   //Turn the forms into a date picker and time picker

@@ -61,8 +61,12 @@ Assignments for {{course.name}}
         <td><a href="{{url_for('grutorToggleLate', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-warning btn-xs">Toggle</a></td>
       </tr>
       <tr>
-        <th>Grade Nodes (Temporary)</th>
-        <td><a href="https://docs.google.com/document/d/1b_XANeSEQ_T1vd5gQumi8hkqmUoxHkbaJql_aZo4WSg/edit" target="_blank">Grading Notes</a></td>
+        <th>Grade Nodes</th>
+        {% if problem.gradeNotes != None %}
+        <td><a href="{{problem.gradeNotes}}" target="_blank" class="btn btn-primary btn-xs">Grading Notes</a></td>
+        {% else %}
+        <td>None</td>
+        {% endif %}
       </tr>
       <tr>
         <td colspan="2" style="text-align:right">

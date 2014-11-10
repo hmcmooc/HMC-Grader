@@ -168,6 +168,10 @@ class Problem(db.Document):
   testfiles = db.ListField(db.StringField())
   allowPartners = db.BooleanField(default=True)
 
+  #URLs for grader notes and for problem specification
+  gradeNotes = db.URLField()
+  problemPage = db.URLField()
+
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))
 
