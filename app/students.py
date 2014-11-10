@@ -17,7 +17,7 @@ from autograde import gradeSubmission
 from app.filestorage import *
 from app.latework import getLateCalculators
 
-import os, datetime
+import os, datetime, shutil
 
 @app.route('/assignments/<cid>')
 @login_required
@@ -189,6 +189,52 @@ def uploadFiles(pid):
   except (Course.DoesNotExist):
     raise e
 
+#
+# Helpers for making submissions
+#
+
+def flatten(path):
+  for root, dirs, files in os.walk(path, topdown=False):
+    if root == path: continue
+    for name in files:
+      shutil.move(os.path.join(root, name), path)
+    for name in dirs:
+      os.rmdir(os.path.join(root, name))
+
+def makePathList(path):
+  folders=[]
+  while 1:
+    path,folder=os.path.split(path)
+
+    if folder!="":
+      folders.append(folder)
+    else:
+      if path!="":
+        folders.append(path)
+      break
+
+  folders.reverse()
+  return folders
+
+def processZip(filepath, filename):
+  from zipfile import ZipFile, is_zipfile
+  if not is_zipfile(os.path.join(filepath, filename)):
+    return #We are done processing if it isn't a zipfile
+
+  z = ZipFile(os.path.join(filepath, filename))
+
+  for member in z.infolist():
+    if member.filename[-1] != "/": #Is not a directory
+      pathList = makePathList(member.filename)
+      if not any(map(lambda x: x[0] == "_" or x[0] == ".", pathList)):
+        print member.filename
+	z.extract(member, filepath)
+  flatten(filepath)
+
+#
+# End helpers for making submissions
+#
+
 def createSubmission(problem, user, filepath, files):
   '''
   Function Type: Helper Function
@@ -235,6 +281,7 @@ def createSubmission(problem, user, filepath, files):
     if filename == "":
       continue
     f.save(os.path.join(filepath, filename))
+    processZip(filepath, filename)
 
   sub.save()
 
