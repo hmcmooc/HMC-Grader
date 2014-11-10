@@ -7,7 +7,7 @@ This module handles login, logout, and settings for user accounts
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for
+from flask import g, request, render_template, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -50,6 +50,7 @@ def login():
   '''
   #If the user is already authenticated we are done here just go to the index
   if g.user is not None and g.user.is_authenticated():
+    flash("User is alread logged in", "warning")
     return redirect(url_for('index'))
 
   #If the form is being submitted (we get a POST request) handle the login
@@ -61,7 +62,7 @@ def login():
         passMatch = user.checkPassword(form.password.data)
         #Check for matching password hashes
         if not passMatch:
-          form.password.errors.append(LOGIN_ERROR_MSG)
+          flash(LOGIN_ERROR_MSG, "error")
           return render_template("accounts/login.html", form=form, \
                                   active_page="login")
 
@@ -73,7 +74,7 @@ def login():
         return redirect(url_for('index'))
 
       except User.DoesNotExist:
-        form.password.errors.append(LOGIN_ERROR_MSG)
+        flash(LOGIN_ERROR_MSG, "error")
         return render_template("accounts/login.html", form=form, \
                                 active_page="login")
 
@@ -94,6 +95,7 @@ def logout():
   '''
   logout_user()
   g.user = current_user
+  flash("You have been logged out", "success")
   return redirect(url_for('index'))
 
 #TODO refactor this. possibly use javascript and a smaller callback rather than this large elif mess

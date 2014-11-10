@@ -111,11 +111,10 @@ body {
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       {% for category, message in messages %}
-      {% if category == "error" %}
-      <div class="alert alert-danger">{{message}}</div>
-      {% else %}
-      <div class="alert alert-info">{{message}}</div>
-      {% endif %}
+      <div class="alert {% if category == "error" %}alert-danger{% elif category == "warning" %}alert-warning{% elif category == "success" %}alert-success{% else %}alert-info{% endif %}" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        {{message}}
+      </div>
       {% endfor %}
       {% endif %}
       {% endwith %}
