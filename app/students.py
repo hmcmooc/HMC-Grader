@@ -195,9 +195,9 @@ def uploadFiles(pid):
 
 def flatten(path):
   for root, dirs, files in os.walk(path, topdown=False):
-    if root == path: continue
-    for name in files:
-      shutil.move(os.path.join(root, name), path)
+    if root != path: continue
+      for name in files:
+        shutil.move(os.path.join(root, name), path)
     for name in dirs:
       os.rmdir(os.path.join(root, name))
 
