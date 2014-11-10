@@ -195,7 +195,7 @@ def uploadFiles(pid):
 
 def flatten(path):
   for root, dirs, files in os.walk(path, topdown=False):
-    if root != path: continue
+    if root != path:
       for name in files:
         shutil.move(os.path.join(root, name), path)
     for name in dirs:
