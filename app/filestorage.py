@@ -18,7 +18,8 @@ def cleanPath(path):
 #
 
 def getCoursePath(course):
-  path = os.path.join(app.config['STORAGE_HOME'], course.semester, course.name)
+  path = os.path.join(app.config['STORAGE_HOME'], "submissions")
+  path = os.path.join(path, course.semester, course.name)
   #Make sure the filepath is clean
   path = cleanPath(path)
 
