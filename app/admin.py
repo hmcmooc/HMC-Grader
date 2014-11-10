@@ -170,6 +170,17 @@ def addUser():
         u.save()
   return redirect(url_for('adminUsers'))
 
+@app.route('/admin/switch/<uid>')
+@login_required
+def adminSwitch(uid):
+  if not g.user.isAdmin:
+    return redirect(url_for('index'))
+
+  user = User.objects.get(id=uid)
+  logout_user()
+  login_user(user)
+  g.user = current_user
+  return redirect(url_for('index'))
 
 #
 # Admin AJAX functions
