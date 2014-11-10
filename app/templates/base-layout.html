@@ -90,6 +90,7 @@ body {
           <ul class="dropdown-menu">
             {% if g.user.isAdmin %}
             <li><a href="{{url_for('adminIndex')}}">Admin Dashboard</a></li>
+            <li class="divider"></li>
             {% endif %}
             <li{% if active_page == "userSettings" %} class="active"{% endif %}><a href="{{url_for('userSettings')}}">Settings</a></li>
             <li><a href="{{url_for('logout')}}">Logout</a></li>
