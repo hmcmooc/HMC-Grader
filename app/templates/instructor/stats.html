@@ -77,7 +77,7 @@ data = data.map(adjustTime);
 
 function makeChart(data, divID){
   var colorScale = d3.scale.quantile()
-    .domain([0, buckets - 1, d3.max(data, function (d) { return d[3] })])
+    .domain([0, buckets - 1, d3.max(data, function (d) { return d[2] })])
     .range(colors);
 
   var svg = d3.select(divID).append("svg")
