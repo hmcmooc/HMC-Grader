@@ -21,6 +21,16 @@ function adjustTime(d){
 
   if (hour < 0) {
     hour = 24 + hour;
+    day = day - 1;
+    if (day < 0) {
+      day = 6;
+    }
+  } else if (hour > 24) {
+    hour = hour - 24
+    day = day + 1;
+    if (day > 6) {
+      day = 0;
+    }
   }
 
   return [day, hour, val];
