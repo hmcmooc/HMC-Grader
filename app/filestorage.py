@@ -17,6 +17,15 @@ def cleanPath(path):
 # Functions for creating filepaths
 #
 
+def getPhotoDir():
+  path = os.path.join(app.config['STORAGE_HOME'], "photos")
+  return path
+
+def getPhotoPath(user):
+  path = os.path.join(getPhotoDir(), user.photoName)
+
+  return path
+
 def getCoursePath(course):
   path = os.path.join(app.config['STORAGE_HOME'], "submissions")
   path = os.path.join(path, course.semester, course.name)

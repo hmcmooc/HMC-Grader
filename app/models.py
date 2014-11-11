@@ -117,7 +117,7 @@ class Submission(db.Document):
   # 2 = Autograde complete
   # 3 = Manual grading in progress
   # 4 = Manual grade complete
-  comments = db.StringField(default="No Comments")
+  comments = db.StringField(default="")
 
   partnerInfo = db.ReferenceField("PartnerInfo", reverse_delete_rule=NULLIFY, default=None)
 
@@ -326,6 +326,7 @@ class User(db.Document):
   username = db.StringField(required=True)
   email = db.EmailField()
   passHash = db.StringField(max_length=512)
+  photoName = db.StringField()
 
   #What courses are they teaching/in
   courseStudent    = db.ListField(db.ReferenceField('Course', reverse_delete_rule=PULL))

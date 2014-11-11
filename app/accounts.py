@@ -7,14 +7,20 @@ This module handles login, logout, and settings for user accounts
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash
+from flask import g, request, render_template, redirect, url_for, flash, send_file
 from flask.ext.login import login_user, logout_user, current_user, login_required
+
+from werkzeug import secure_filename
 
 from flask.ext.mongoengine import DoesNotExist
 
 from models import User
 from forms import SignInForm, ChangePasswordForm, ChangeFirstNameForm\
-                  ,ChangeLastNameForm, ChangeEmailForm
+                  ,ChangeLastNameForm, ChangeEmailForm, UserSettingsForm
+
+from app.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
+
+import os
 
 LOGIN_ERROR_MSG = "Invalid Username/Password"
 
@@ -145,27 +151,49 @@ def userSettings():
           user.setPassword(form.newPassword.data)
           user.save()
           return redirect(url_for('userSettings'))
-    elif request.form['btn'] == 'changefn':
-      form = ChangeFirstNameForm()
+  return render_template("accounts/settings.html", pwform=ChangePasswordForm(),\
+                          fnform=ChangeFirstNameForm(), lnform=ChangeLastNameForm(),\
+                          eform=ChangeEmailForm(), active_page="userSettings", \
+                          settingsForm=UserSettingsForm())
+
+@app.route('/settings/image/<uid>')
+def sendProfilePicture(uid):
+  try:
+    user = User.objects.get(id=uid)
+    if user.photoName != None:
+      return send_file(getPhotoPath(user))
+    else:
+      return redirect(url_for('static', filename='images/defaultUser.png'))
+  except Exception as e:
+    return redirect(url_for('static', filename='images/defaultUser.png'))
+
+@app.route('/settings/update', methods=['POST'])
+@login_required
+def userUpdateSettings():
+  try:
+    if request.method == 'POST':
+      form = UserSettingsForm(request.form)
       if form.validate():
         user = current_user
         user.firstName = form.firstName.data
-        user.save()
-        return redirect(url_for('userSettings'))
-    elif request.form['btn'] == 'changeln':
-      form = ChangeLastNameForm()
-      if form.validate():
-        user = current_user
         user.lastName = form.lastName.data
+        if form.email.data == "None":
+          user.email = None
+        else:
+          user.email = form.email.data
+
+        if len(request.files.getlist('photo')) > 0:
+          f = request.files.getlist('photo')[0]
+          #We have to upload a new photo
+          photoName = secure_filename(f.filename)
+          name, extension = os.path.splitext(photoName)
+          ensurePathExists(getPhotoDir())
+          f.save(os.path.join(getPhotoDir(), str(g.user.id)+extension))
+          user.photoName = str(g.user.id)+extension
+
         user.save()
+        flash("Updated user information", "success")
         return redirect(url_for('userSettings'))
-    elif request.form['btn'] == 'changeemail':
-      form = ChangeEmailForm()
-      if form.validate():
-        user = current_user
-        user.email = form.email.data
-        user.save()
-        return redirect(url_for('userSettings'))
-  return render_template("accounts/settings.html", pwform=ChangePasswordForm(),\
-                          fnform=ChangeFirstNameForm(), lnform=ChangeLastNameForm(),\
-                          eform=ChangeEmailForm(), active_page="userSettings")
+  except Exception as e:
+    flash(str(e), "error")
+    return redirect(url_for('userSettings'))

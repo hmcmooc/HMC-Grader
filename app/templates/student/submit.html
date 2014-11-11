@@ -10,7 +10,7 @@ Submit to {{course.name}}->{{assignment.name}}->{{problem.name}}
   </div>
   <div class="col-sm-8">
     <h3>{{course.name}}/{{assignment.name}}/{{problem.name}}</h3>
-    <form class="form-" enctype="multipart/form-data" action="{{url_for('uploadFiles', pid=problem.id)}}" method="POST" role="form">
+    <form class="form" enctype="multipart/form-data" action="{{url_for('uploadFiles', pid=problem.id)}}" method="POST" role="form">
       {{ form.hidden_tag() }}
       <div class="form-group">
         {{ form.files.label }}

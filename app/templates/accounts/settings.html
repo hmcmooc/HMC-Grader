@@ -8,51 +8,63 @@ Settings Panel
 <div class="row">
   <div class="col-sm-2">
   </div>
-  <div class="col-sm-8">
-      <h4>Account Information</h4>
-      <table class="table table-condensed table-bordered table-responsive">
-        <tbody>
-          <tr>
-            <td>Username</td>
-            <td>{{g.user.username}}</td>
-          </tr>
-          <tr>
-            <td>Name</td>
-            <td>{{g.user.firstName}} {{g.user.lastName}}</td>
-            <td>
-              <form class="form form-inline" action="{{url_for('userSettings')}}" method="POST" role="form">
-                {{ fnform.hidden_tag() }}
-                <div class="form-group">
-                  {{ fnform.firstName(placeholder="First Name", class="form-control")}}
-                </div>
-                <button type="submit" class="btn btn-primary" value="changefn" name="btn">Change</button>
-              </form>
-            </td>
-            <td>
-              <form class="form form-inline" action="{{url_for('userSettings')}}" method="POST" role="form">
-                {{ lnform.hidden_tag() }}
-                <div class="form-group">
-                  {{ lnform.lastName(placeholder="Last Name", class="form-control")}}
-                </div>
-                <button type="submit" class="btn btn-primary" value="changeln" name="btn">Change</button>
-              </form>
-            </td>
-          </tr>
-          <tr>
-            <td>Email</td>
-            <td>{{g.user.email}}</td>
-            <td>
-              <form class="form form-inline" action="{{url_for('userSettings')}}" method="POST" role="form">
-                {{ eform.hidden_tag() }}
-                <div class="form-group">
-                  {{ eform.email(placeholder="Email", class="form-control")}}
-                </div>
-                <button type="submit" class="btn btn-primary" value="changeemail" name="btn">Change</button>
-              </form>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="col-sm-2">
+    <img src="{{url_for('sendProfilePicture', uid=g.user.id)}}" class="img-rounded"></br>
+  </div>
+  <div class="col-sm-3">
+    <form class="form" enctype="multipart/form-data" action="{{url_for('userUpdateSettings')}}" method="POST" role="form">
+      <div class="heading">
+          <h2 class="form-heading">User: {{g.user.username}}</h2>
+      </div>
+      {{ settingsForm.hidden_tag() }}
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            {{ settingsForm.firstName.label }}
+            {{ settingsForm.firstName(class="form-control", value=g.user.firstName)}}
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            {{ settingsForm.lastName.label }}
+            {{ settingsForm.lastName(class="form-control", value=g.user.lastName)}}
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        {{ settingsForm.email.label }}
+        {{ settingsForm.email(class="form-control", value=g.user.email)}}
+      </div>
+      <div class="form-group">
+        {{ settingsForm.photo.label }}
+        {{ settingsForm.photo(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary" value="updateUser" name="btn">Save</button>
+    </form>
+  </div>
+  <div class="col-sm-3">
+    <form class="form" action="{{url_for('userSettings')}}" method="POST" role="form">
+        {{ pwform.hidden_tag() }}
+        <div class="heading">
+            <h2 class="form-heading">Change Password</h2>
+        </div>
+        <div class="form-group {% if pwform.oldPassword.errors %} has-error {% endif %}">
+            {{pwform.oldPassword.label}}
+            {{ pwform.oldPassword(placeholder="Old Password", class="form-control") }}
+            <p class="help-block">{{ pwform.oldPassword.errors[0] }}</p>
+        </div>
+        <div class="form-group {% if pwform.newPassword.errors %} has-error {% endif %}">
+            {{pwform.newPassword.label}}
+            {{ pwform.newPassword(placeholder="New Password", class="form-control") }}
+            <p class="help-block">{{ pwform.newPassword.errors[0] }}</p>
+        </div>
+        <div class="form-group {% if pwform.newPasswordConf.errors %} has-error {% endif %}">
+            {{pwform.newPasswordConf.label}}
+            {{ pwform.newPasswordConf(placeholder="Confirm New Password", class="form-control") }}
+            <p class="help-block">{{ pwform.newPasswordConf.errors[0] }}</p>
+        </div>
+        <button type="submit" class="btn btn-primary" value="changepasswd" name="btn">Change Password</button>
+    </form>
   </div>
   <div class="col-sm-2">
   </div>
@@ -61,28 +73,7 @@ Settings Panel
     <div class="col-sm-2">
     </div>
     <div class="col-sm-8">
-        <form class="form" action="{{url_for('userSettings')}}" method="POST" role="form">
-            {{ pwform.hidden_tag() }}
-            <div class="heading">
-                <h4 class="form-heading">Change Password</h4>
-            </div>
-            <div class="form-group {% if pwform.oldPassword.errors %} has-error {% endif %}">
-                {{pwform.oldPassword.label}}
-                {{ pwform.oldPassword(placeholder="Old Password", class="form-control") }}
-                <p class="help-block">{{ pwform.oldPassword.errors[0] }}</p>
-            </div>
-            <div class="form-group {% if pwform.newPassword.errors %} has-error {% endif %}">
-                {{pwform.newPassword.label}}
-                {{ pwform.newPassword(placeholder="New Password", class="form-control") }}
-                <p class="help-block">{{ pwform.newPassword.errors[0] }}</p>
-            </div>
-            <div class="form-group {% if pwform.newPasswordConf.errors %} has-error {% endif %}">
-                {{pwform.newPasswordConf.label}}
-                {{ pwform.newPasswordConf(placeholder="Confirm New Password", class="form-control") }}
-                <p class="help-block">{{ pwform.newPasswordConf.errors[0] }}</p>
-            </div>
-            <button type="submit" class="btn btn-primary" value="changepasswd" name="btn">Change Password</button>
-        </form>
+
     </div>
     <div class="col-sm-2">
     </div>
@@ -99,20 +90,20 @@ Settings Panel
   </div>
   <div class="col-sm-4">
     <h4>Enrolled:</h4>
-    <ul>
+    <ul class="list-group">
       {% for c in g.user.courseStudent %}
         {% if c.isActive %}
-        <li>{{c.code}}</li>
+        <li class="list-group-item">{{c.name}}</li>
         {% endif %}
       {% endfor %}
     </ul>
   </div>
   <div class="col-sm-4">
     <h4>Grutoring:</h4>
-    <ul>
+    <ul class="list-group">
       {% for c in g.user.courseGrutor %}
         {% if c.isActive %}
-        <li>{{c.code}}</li>
+        <li class="list-group-item">{{c.name}}</li>
         {% endif %}
       {% endfor %}
     </ul>
@@ -132,20 +123,20 @@ Settings Panel
   </div>
   <div class="col-sm-4">
     <h4>Enrolled:</h4>
-    <ul>
+    <ul class="list-group">
       {% for c in g.user.courseStudent %}
         {% if not c.isActive %}
-        <li>{{c.code}}</li>
+        <li class="list-group-item">{{c.name}}</li>
         {% endif %}
       {% endfor %}
     </ul>
   </div>
   <div class="col-sm-4">
     <h4>Grutoring:</h4>
-    <ul>
+    <ul class="list-group">
       {% for c in g.user.courseGrutor %}
         {% if not c.isActive %}
-        <li>{{c.code}}</li>
+        <li class="list-group-item">{{c.name}}</li>
         {% endif %}
       {% endfor %}
     </ul>
