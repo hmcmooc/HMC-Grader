@@ -158,7 +158,7 @@ def viewGradebook(cid):
 def editGradebook(cid, col):
   '''
   Function Type: View Function
-  Template: grutor/editcolumn.html
+  Template: instructor/editcolumn.html
   Purpose: Allows the grutor to edit one column of the gradebook manually
 
   Inputs:
@@ -188,4 +188,33 @@ def editGradebook(cid, col):
 
     return render_template("instructor/editcolumn.html", course = course, col=column, users=users)
   except Exception as e:
+    raise e
+
+@app.route('/stats/<cid>')
+@login_required
+def viewCourseStats(cid):
+  '''
+  Function Type: View Function
+  Template: instructor/stats.html
+  Purpose:Display statistics about submission grader attendance and student use
+  of tutoring hours
+
+  Inputs:
+    cid: The object ID for the course being viewed
+
+  Template Parameters: TODO
+  '''
+
+  try:
+    c = Course.objects.get(id=cid)
+
+    if not(c in current_user.gradingCourses() or current_user.isAdmin):
+      return redirect(url_for('index'))
+
+    from helpers import submissionBuckets
+
+    submissionData = submissionBuckets(c)
+
+    return render_template("instructor/stats.html", submissionData=submissionData)
+  except Course.DoesNotExist as e:
     raise e

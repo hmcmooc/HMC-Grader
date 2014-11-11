@@ -75,6 +75,11 @@ body {
             {% for c in g.user.courseInstructor|sort(attribute='name') %}
             <li><a href="{{url_for('viewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
+            <li class="divider"></li>
+            <li class="dropdown-header">Statistics</li>
+            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            <li><a href="{{url_for('viewCourseStats', cid=c.id)}}">{{c.name}}</a></li>
+            {% endfor %}
           </ul>
         </li>
         {% endif %}

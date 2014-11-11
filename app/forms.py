@@ -137,3 +137,7 @@ class SubmitAssignmentForm(Form):
   '''
   files = FileField("Files")
   partner = SelectField("Partner")
+
+# '''
+# Stat tracking forms
+# '''

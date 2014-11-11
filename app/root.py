@@ -6,6 +6,8 @@ from app import app, loginManager
 from flask import g, request, render_template, redirect, url_for
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
+from models.stats import *
+
 @app.route('/')
 def index():
   '''
