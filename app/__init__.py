@@ -43,7 +43,10 @@ celery = make_celery(app)
 def beforeRequest():
   g.user = current_user
 
-from models import *
+
+from models.gradebook import *
+from models.course import *
+from models.user import *
 
 #We perform imports here for all the other files which contain pages
 #By importing these here the decorators execute and the view functions become

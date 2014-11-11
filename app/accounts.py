@@ -14,7 +14,7 @@ from werkzeug import secure_filename
 
 from flask.ext.mongoengine import DoesNotExist
 
-from models import User
+from models.user import User
 from forms import SignInForm, ChangePasswordForm, ChangeFirstNameForm\
                   ,ChangeLastNameForm, ChangeEmailForm, UserSettingsForm
 

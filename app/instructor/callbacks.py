@@ -12,7 +12,10 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 
 from flask.ext.mongoengine import DoesNotExist
 
-from app.models import *
+from app.models.user import *
+from app.models.gradebook import *
+from app.models.course import *
+
 from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
 from app.forms import CreateGradebookGroupForm, CreateGradeColumnForm
 from app.filestorage import ensurePathExists, getAssignmentPath, removePath, getProblemPath, getTestPath

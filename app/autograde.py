@@ -1,7 +1,9 @@
 # coding=utf-8
 
 from app import app, celery, db
-from models import User, Problem, GBGrade, Course, AssignmentGroup
+from models.user import User
+from models.course import Problem , Course, AssignmentGroup
+from models.gradebook import GBGrade
 
 import os,shutil, json
 from decimal import *

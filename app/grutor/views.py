@@ -14,7 +14,10 @@ from flask.ext.mongoengine import DoesNotExist
 
 from werkzeug import secure_filename
 
-from app.models import *
+from app.models.user import *
+from app.models.gradebook import *
+from app.models.course import *
+
 from app.forms import SubmitAssignmentForm
 
 import os, datetime, fcntl, random
@@ -44,7 +47,7 @@ def grutorAssignments(cid):
       return redirect(url_for('index'))
 
     return render_template("grutor/assignments.html", course=c)
-  except Exception as e:
+  except Course.DoesNotExist as e:
     raise e
 
 @app.route('/grutor/gradelist/problem/<pid>')

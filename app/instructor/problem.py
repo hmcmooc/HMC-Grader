@@ -8,7 +8,10 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 
 from flask.ext.mongoengine import DoesNotExist
 
-from app.models import *
+from app.models.user import *
+from app.models.gradebook import *
+from app.models.course import *
+
 from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
