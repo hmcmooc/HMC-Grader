@@ -183,6 +183,9 @@ def userUpdateSettings():
           user.email = form.email.data
 
         if len(request.files.getlist('photo')) > 0:
+          if user.photoName != None:
+            #Remove the existing photo
+            os.remove(getPhotoPath(user))
           f = request.files.getlist('photo')[0]
           #We have to upload a new photo
           photoName = secure_filename(f.filename)

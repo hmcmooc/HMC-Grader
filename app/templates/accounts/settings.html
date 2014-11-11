@@ -9,7 +9,7 @@ Settings Panel
   <div class="col-sm-2">
   </div>
   <div class="col-sm-2">
-    <img src="{{url_for('sendProfilePicture', uid=g.user.id)}}" class="img-rounded"></br>
+    <img src="{{url_for('sendProfilePicture', uid=g.user.id)}}" class="img-rounded" style="width:200px; height:200px;"></br>
   </div>
   <div class="col-sm-3">
     <form class="form" enctype="multipart/form-data" action="{{url_for('userUpdateSettings')}}" method="POST" role="form">
