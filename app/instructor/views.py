@@ -211,10 +211,6 @@ def viewCourseStats(cid):
     if not(c in current_user.gradingCourses() or current_user.isAdmin):
       return redirect(url_for('index'))
 
-    from helpers import submissionBuckets
-
-    submissionData = submissionBuckets(c)
-
-    return render_template("instructor/stats.html", submissionData=submissionData)
+    return render_template("instructor/stats.html", course = c)
   except Course.DoesNotExist as e:
     raise e

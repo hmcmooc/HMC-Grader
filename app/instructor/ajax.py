@@ -189,3 +189,23 @@ def ajaxRenderGrade():
   except Exception as e:
 
     return jsonify(res="<tr><td>"+str(e)+"</td></tr>")
+
+@app.route('/stats/<cid>/submissions', methods=['POST'])
+@login_required
+def ajaxSubmissionStats(cid):
+  try:
+    c = Course.objects.get(id = cid)
+    if not (g.user.isAdmin or c in current_user.gradingCourses()):
+      return jsonify(error="permission denied")
+
+    from helpers import submissionData
+    import dateutil.parser
+    content = request.get_json()
+    startTime = dateutil.parser.parse(content['start'][:-1])
+    startTime.replace(tzinfo=None)
+    endTime = dateutil.parser.parse(content['end'][:-1])
+    endTime.replace(tzinfo=None)
+
+    return jsonify(data=submissionData(c, startTime, endTime), error=False)
+  except Exception as e:
+    return jsonify(error=str(e) +" " +str(startTime) + " " + content['start'])
