@@ -95,7 +95,6 @@ function setupSection(name, dataUrl) {
         if (data.error){
           $("#"+name+"Chart").text(data.error)
         } else {
-          console.log(data.data)
           values = data.data
           values = values.map(adjustTime)
           makeChart(values, "#"+name+"Chart")
