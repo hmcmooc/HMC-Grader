@@ -63,20 +63,17 @@ function adjustTime(d){
   var hour = d[1];
   var val = d[2];
 
-  hour += offset;
-  console.log(hour);
+  hour -= offset;
+  hour = hour % 24;
+
   if (hour < 0) {
-    hour = 24 - hour;
-  }
-  if (hour >= 24) {
-    hour = hour - 24;
+    hour = 24 + hour;
   }
 
   return [day, hour, val];
 }
 
 data = data.map(adjustTime);
-console.log(data);
 
 function makeChart(data, divID){
   var colorScale = d3.scale.quantile()
