@@ -1,0 +1,51 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Submission Site
+{% endblock %}
+
+{% block rows %}
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h1>Welcome to the <b>CS &gt;</b> Submission Site</h1>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+
+{% if g.user.studentActive()|length > 0%}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Help us improve grutoring and lab time!</h2>
+    <p>Help us improve our grutoring and lab hours be telling us which hours you
+      use. Simply sign in using the form below! Additionally signing in below
+      during lab hours we will give you <em><b>full credit</b></em> on your lab
+      assignment.</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <b>Sign in to tutoring or lab!<b>
+      </div>
+      <div class="panel-body">
+        <form class="form" method="POST" action="{{url_for('studentSignin')}}">
+          {{ attendForm.hidden_tag() }}
+          <div class="form-group">
+            {{attendForm.course.label}}
+            {{attendForm.course(class="form-control")}}
+          </div>
+          <button type="submit" class="btn btn-primary">Sign In!</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endif %}
+{% endblock %}

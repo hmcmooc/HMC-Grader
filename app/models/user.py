@@ -51,3 +51,6 @@ class User(db.Document):
     out = self.courseGrutor + self.courseInstructor
     out = list(set(out))
     return out
+
+  def studentActive(self):
+    return [x for x in self.courseStudent if x.isActive]

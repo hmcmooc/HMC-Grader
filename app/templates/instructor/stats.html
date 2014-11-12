@@ -60,6 +60,35 @@ Course Statistics
   </div>
   <div class="col-sm-2"></div>
 </div>
+
+<hr>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Tutoring Attendance</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-4">
+    <b>Start Date:</b>
+    <input id="attendStart" name="subStart" class="form-control" type="text"></input>
+  </div>
+  <div class="col-sm-4">
+    <b>End Date:</b>
+    <input id="attendEnd" name="subEnd" class="form-control" type="text"></input>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8" style="text-align:center;">
+    <div id="attendChart"></div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -109,6 +138,7 @@ function setupSection(name, dataUrl) {
 }
 $(function() {
   setupSection("sub", "{{url_for('ajaxSubmissionStats', cid=course.id)}}")
+  setupSection("attend", "{{url_for('ajaxAttendanceStats', cid=course.id)}}")
 });
 </script>
 {% endblock %}

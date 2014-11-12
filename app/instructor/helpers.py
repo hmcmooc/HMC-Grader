@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from datetime import *
-import copy
+from app.models.stats import *
 
 def submissionData(course, start=datetime.min, end=datetime.max):
   buckets = {}
@@ -22,5 +22,17 @@ def submissionData(course, start=datetime.min, end=datetime.max):
   return outList
 
 
-def attendanceBuckets(course, start=datetime.min, end=datetime.max):
-  pass
+def attendanceData(course, start=datetime.min, end=datetime.max):
+  stats = StudentStats.objects.filter(course=course, clockIn__gte=start, clockIn__lte=end)
+  buckets = {}
+  for d in range(7):
+    for h in range(24):
+      buckets[(d,h)] = 0
+  for s in stats:
+    key = (s.clockIn.weekday(), s.clockIn.hour)
+    buckets[key] += 1
+
+  outList = []
+  for k, v in buckets.iteritems():
+    outList.append([k[0], k[1], v])
+  return outList

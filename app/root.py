@@ -7,6 +7,7 @@ from flask import g, request, render_template, redirect, url_for
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from models.stats import *
+from app.forms import AttendanceForm
 
 @app.route('/')
 def index():
@@ -23,4 +24,8 @@ def index():
 
   Forms Handled: None
   '''
+  if g.user.is_authenticated():
+    attendForm = AttendanceForm()
+    attendForm.course.choices = [(str(x.id), x.name) for x in g.user.courseStudent]
+    return render_template("userindex.html", active_page="index", attendForm=attendForm)
   return render_template("index.html", active_page="index")

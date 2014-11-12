@@ -13,8 +13,9 @@ from werkzeug import secure_filename
 from app.models.user import *
 from app.models.gradebook import *
 from app.models.course import *
+from app.models.stats import StudentStats
 
-from forms import SubmitAssignmentForm
+from forms import SubmitAssignmentForm, AttendanceForm
 from autograde import gradeSubmission
 
 from app.filestorage import *
@@ -333,3 +334,32 @@ def viewGrades():
   courses = [str(c.id) for c in g.user.courseStudent]
 
   return render_template('student/viewgrades.html', courses=courses)
+
+@app.route('/student/signin', methods=['POST'])
+@login_required
+def studentSignin():
+  if request.method == 'POST':
+    form = AttendanceForm(request.form)
+    form.course.choices = [(str(x.id), x.name) for x in g.user.courseStudent]
+    if form.validate():
+      cid = form.course.data
+      c = Course.objects.get(id=cid)
+      u = User.objects.get(id=current_user.id)
+
+      now = datetime.datetime.utcnow()
+      diff = datetime.timedelta(hours=-1)
+      then = now - diff
+      s = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+
+      if len(s) != 0:
+        s = StudentStats()
+        s.user = u
+        s.course = c
+        s.clockIn = datetime.datetime.utcnow()
+        s.save()
+        flash("You have been signed in")
+      else:
+        flash("You already signed in within the past hour", "warning")
+    else:
+      flash("Form validation failed " + str(form.course.errors), "error")
+  return redirect(url_for('index'))

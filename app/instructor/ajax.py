@@ -208,4 +208,24 @@ def ajaxSubmissionStats(cid):
 
     return jsonify(data=submissionData(c, startTime, endTime), error=False)
   except Exception as e:
-    return jsonify(error=str(e) +" " +str(startTime) + " " + content['start'])
+    return jsonify(error=str(e))
+
+@app.route('/stats/<cid>/attendance', methods=['POST'])
+@login_required
+def ajaxAttendanceStats(cid):
+  try:
+    c = Course.objects.get(id = cid)
+    if not (g.user.isAdmin or c in current_user.gradingCourses()):
+      return jsonify(error="permission denied")
+
+    from helpers import attendanceData
+    import dateutil.parser
+    content = request.get_json()
+    startTime = dateutil.parser.parse(content['start'][:-1])
+    startTime.replace(tzinfo=None)
+    endTime = dateutil.parser.parse(content['end'][:-1])
+    endTime.replace(tzinfo=None)
+
+    return jsonify(data=attendanceData(c, startTime, endTime), error=False)
+  except Exception as e:
+    return jsonify(error=str(e))
