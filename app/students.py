@@ -340,24 +340,24 @@ def viewGrades():
 def studentSignin():
   if request.method == 'POST':
     form = AttendanceForm(request.form)
-    form.course.choices = [(str(x.id), x.name) for x in g.user.courseStudent]
+    form.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
     if form.validate():
       cid = form.course.data
       c = Course.objects.get(id=cid)
       u = User.objects.get(id=current_user.id)
 
       now = datetime.datetime.utcnow()
-      diff = datetime.timedelta(hours=-1)
+      diff = datetime.timedelta(hours=1)
       then = now - diff
-      s = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+      sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
 
-      if len(s) != 0:
+      if len(sl) == 0:
         s = StudentStats()
         s.user = u
         s.course = c
         s.clockIn = datetime.datetime.utcnow()
         s.save()
-        flash("You have been signed in")
+        flash("You have been signed in " + str(u.id) + " " + str(c.id), "success")
       else:
         flash("You already signed in within the past hour", "warning")
     else:

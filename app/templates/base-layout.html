@@ -33,12 +33,12 @@ body {
       <ul class="nav navbar-nav">
         <li{% if active_page == "index" %} class="active"{% endif %}><a href="{{url_for('index')}}">Home</a></li>
         {% if g.user.is_authenticated() %}
-        {% if g.user.courseStudent|length > 0 %}
+        {% if g.user.studentActive()|length > 0 %}
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Student<b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li class="dropdown-header">Assignments</li>
-            {% for c in g.user.courseStudent|sort(attribute='name') %}
+            {% for c in g.user.studentActive()|sort(attribute='name') %}
             <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <li class="divider"></li>
@@ -51,33 +51,33 @@ body {
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grader<b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li class="dropdown-header">Grading</li>
-            {% for c in g.user.gradingCourses()|sort(attribute='name') %}
+            {% for c in g.user.gradingActive()|sort(attribute='name') %}
             <li><a href="{{url_for('grutorAssignments', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <li class="divider"></li>
-            <li class="dropdown-header">Grade Books</li>
-            {% for c in g.user.gradingCourses()|sort(attribute='name') %}
+            <li class="dropdown-header">Grade Book</li>
+            {% for c in g.user.gradingActive()|sort(attribute='name') %}
             <li><a href="{{url_for('grutorViewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
         {% endif %}
-        {% if g.user.courseInstructor|length > 0 %}
+        {% if g.user.instructorActive()|length > 0 %}
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Instructor<b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li class="dropdown-header">Course Properties</li>
-            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            {% for c in g.user.instructorActive()|sort(attribute='name') %}
             <li><a href="{{url_for('administerCourse', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <li class="divider"></li>
             <li class="dropdown-header">Grade Book</li>
-            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            {% for c in g.user.instructorActive()|sort(attribute='name') %}
             <li><a href="{{url_for('viewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
             <li class="divider"></li>
             <li class="dropdown-header">Statistics</li>
-            {% for c in g.user.courseInstructor|sort(attribute='name') %}
+            {% for c in g.user.instructorActive()|sort(attribute='name') %}
             <li><a href="{{url_for('viewCourseStats', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>

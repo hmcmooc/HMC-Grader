@@ -15,8 +15,7 @@ from werkzeug import secure_filename
 from flask.ext.mongoengine import DoesNotExist
 
 from models.user import User
-from forms import SignInForm, ChangePasswordForm, ChangeFirstNameForm\
-                  ,ChangeLastNameForm, ChangeEmailForm, UserSettingsForm
+from forms import SignInForm, ChangePasswordForm, UserSettingsForm
 
 from app.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
 
@@ -140,20 +139,19 @@ def userSettings():
         if not pass_match:
           form.oldPassword.errors.append("Please confirm your old password")
           return render_template("accounts/settings.html", pwform=form,\
-                                  fnform=ChangeFirstNameForm(), lnform=ChangeLastNameForm(),\
-                                  eform=ChangeEmailForm(), active_page="userSettings")
+                                  active_page="userSettings",\
+                                  settingsForm=UserSettingsForm())
         elif form.newPassword.data != form.newPasswordConf.data:
           form.newPasswordConf.errors.append("Passwords must match")
           return render_template("accounts/settings.html", pwform=form,\
-                                  fnform=ChangeFirstNameForm(), lnform=ChangeLastNameForm(),\
-                                  eform=ChangeEmailForm(), active_page="userSettings")
+                                  active_page="userSettings",\
+                                  settingsForm=UserSettingsForm())
         else:
           user.setPassword(form.newPassword.data)
           user.save()
           return redirect(url_for('userSettings'))
   return render_template("accounts/settings.html", pwform=ChangePasswordForm(),\
-                          fnform=ChangeFirstNameForm(), lnform=ChangeLastNameForm(),\
-                          eform=ChangeEmailForm(), active_page="userSettings", \
+                          active_page="userSettings", \
                           settingsForm=UserSettingsForm())
 
 @app.route('/settings/image/<uid>')

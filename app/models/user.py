@@ -52,5 +52,16 @@ class User(db.Document):
     out = list(set(out))
     return out
 
+  def gradingActive(self):
+    out = self.grutorActive() + self.instructorActive()
+    out = list(set(out))
+    return out
+
   def studentActive(self):
     return [x for x in self.courseStudent if x.isActive]
+
+  def grutorActive(self):
+    return [x for x in self.courseGrutor if x.isActive]
+
+  def instructorActive(self):
+    return [x for x in self.courseInstructor if x.isActive]

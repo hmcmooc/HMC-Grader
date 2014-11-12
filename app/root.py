@@ -3,11 +3,11 @@
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for
+from flask import g, request, render_template, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from models.stats import *
-from app.forms import AttendanceForm
+from app.forms import AttendanceForm, ClockInForm
 
 @app.route('/')
 def index():
@@ -26,6 +26,17 @@ def index():
   '''
   if g.user.is_authenticated():
     attendForm = AttendanceForm()
-    attendForm.course.choices = [(str(x.id), x.name) for x in g.user.courseStudent]
-    return render_template("userindex.html", active_page="index", attendForm=attendForm)
+    attendForm.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
+
+    clockForm = ClockInForm()
+    clockForm.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
+
+    activeHours = GraderStats.objects.filter(user=g.user.id, clockOut=None)
+    return render_template("userindex.html", active_page="index", \
+                            attendForm=attendForm, clockForm=clockForm,\
+                            activeHours=activeHours)
   return render_template("index.html", active_page="index")
+
+@app.route('/error')
+def error():
+  return render_template("error.html")

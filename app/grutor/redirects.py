@@ -16,8 +16,9 @@ from werkzeug import secure_filename
 from app.models.user import *
 from app.models.gradebook import *
 from app.models.course import *
+from app.models.stats import GraderStats
 
-from app.forms import SubmitAssignmentForm
+from app.forms import SubmitAssignmentForm, ClockInForm
 
 import os, datetime, fcntl, random
 import markdown
@@ -297,3 +298,50 @@ def grutorToggleLate(pid, uid, subnum):
     return redirect(url_for('grutorGradeSubmission', pid=pid, uid=uid, subnum=subnum))
   except Exception as e:
     raise e
+
+@app.route('/grutor/clockin', methods=['POST'])
+@login_required
+def grutorClockIn():
+  if request.method == 'POST':
+    form = ClockInForm(request.form)
+    form.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
+    if form.validate():
+      if form.location.data != "Other" or len(form.other.data) > 0:
+        cid = form.course.data
+        c = Course.objects.get(id=cid)
+        u = User.objects.get(id=current_user.id)
+
+        s = GraderStats.objects.filter(user=u, course=c, clockOut=None)
+
+        if len(s) == 0:
+          s = GraderStats()
+          s.user = u
+          s.course = c
+          s.clockIn = datetime.datetime.utcnow()
+          s.clockOut = None
+          if form.location.data == "Other":
+            s.location = form.other.data
+          else:
+            s.location = form.location.data
+          s.save()
+          flash("You have been signed in", "success")
+        else:
+          flash("You are already signed in", "warning")
+      else:
+        flash("You must provide a location if you select Other", "warning")
+    else:
+      flash("Form validation failed " + str(form.course.errors), "error")
+  return redirect(url_for('index'))
+
+@app.route('/grutor/clockout/<sid>')
+@login_required
+def grutorClockOut(sid):
+  try:
+    gs = GraderStats.objects.get(id=sid)
+    gs.clockOut = datetime.datetime.utcnow()
+    gs.save()
+    flash("You have been signed out", "success")
+    return redirect(url_for('index'))
+  except Exception as e:
+    flash(str(e))
+    return redirect(url_for('error'))

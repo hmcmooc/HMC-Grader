@@ -1,0 +1,24 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Submission Site
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8" style="text-align:center">
+    <h1><span class="mega-octicon octicon-bug" style="font-size:128px"></h1>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8" style="text-align:center">
+    <h1><b>Oh No!</b></h1>
+    <p>It looks like there has been an error with the system.</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{{super()}}
+{% endblock %}

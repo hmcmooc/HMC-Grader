@@ -48,4 +48,63 @@ Submission Site
   <div class="col-sm-2"></div>
 </div>
 {% endif %}
+{% if g.user.gradingActive()|length > 0%}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Grutors! Clock in for grutoring hours!</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <b>Sign in to tutoring or lab!<b>
+      </div>
+      <div class="panel-body">
+        <form class="form" method="POST" action="{{url_for('grutorClockIn')}}">
+          {{ clockForm.hidden_tag() }}
+          <div class="form-group">
+            {{clockForm.course.label}}
+            {{clockForm.course(class="form-control")}}
+          </div>
+          <div class="form-group">
+            {{clockForm.location.label}}
+            {{clockForm.location(class="form-control")}}
+          </div>
+          <div class="form-group">
+            {{clockForm.other.label}}
+            {{clockForm.other(class="form-control", placeholder="e.g. SHAN 1430")}}
+          </div>
+          <button type="submit" class="btn btn-primary">Clock In!</button>
+        </form>
+      </div>
+
+      <!-- Table here -->
+      {% if activeHours|length > 0 %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Active Course</th>
+            <th>Clock Out</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hour in activeHours %}
+          <tr>
+            <td>{{hour.course.name}}</td>
+            <td><a href="{{url_for('grutorClockOut', sid=hour.id)}}" class="btn btn-primary">Sign Out</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endif %}
 {% endblock %}

@@ -12,7 +12,7 @@ class GraderStats(db.Document):
   tutoring hours
   '''
   user = db.ReferenceField('User')
-  courses = db.ListField(db.ReferenceField('Course'))
+  course = db.ReferenceField('Course')
   clockIn = db.DateTimeField()
   clockOut = db.DateTimeField()
   location = db.StringField()

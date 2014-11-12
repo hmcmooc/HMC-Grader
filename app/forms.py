@@ -40,16 +40,6 @@ class UserSettingsForm(Form):
   email = TextField('Email')
   photo = FileField('Profile Photo')
 
-#TODO: Refactor to remove these forms
-class ChangeFirstNameForm(Form):
-  firstName = TextField('First Name')
-
-class ChangeLastNameForm(Form):
-  lastName = TextField('Last Name')
-
-class ChangeEmailForm(Form):
-  email = TextField('Email', validators=[Email()])
-
 
 # '''
 # Admin panel forms
@@ -126,6 +116,19 @@ class CourseSettingsForm(Form):
   anonymousGrading = BooleanField("Use anonymous grading")
   latePolicy = SelectField("Late Work Policy")
 
+# '''
+# Grutor forms
+# '''
+
+class ClockInForm(Form):
+  course = SelectField("Course")
+  location = SelectField("Location", choices=[\
+  ("LAC Labs", "LAC Labs"),\
+  ("Balloon/Birch Labs", "Ballon/Birch Labs"),
+  ("Platt Lounge", "Platt Lounge"),
+  ("Other", "Other")])
+  other = TextField("Other")
+
 
 # '''
 # Student forms
@@ -143,8 +146,3 @@ class AttendanceForm(Form):
   This form allows a student to sign into the system for lab
   '''
   course = SelectField("Course")
-  
-
-# '''
-# Stat tracking forms
-# '''
