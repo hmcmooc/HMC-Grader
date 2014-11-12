@@ -33,6 +33,7 @@ body {
       <ul class="nav navbar-nav">
         <li{% if active_page == "index" %} class="active"{% endif %}><a href="{{url_for('index')}}">Home</a></li>
         {% if g.user.is_authenticated() %}
+        <li{% if active_page == "grutorList"%} class="active" {% endif %}><a href="{{url_for('viewActiveGrutors')}}">Active Grutors</a></li>
         {% if g.user.studentActive()|length > 0 %}
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Student<b class="caret"></b></a>

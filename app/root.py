@@ -40,3 +40,12 @@ def index():
 @app.route('/error')
 def error():
   return render_template("error.html")
+
+@app.route('/activegrutors')
+def viewActiveGrutors():
+  courses = list(set(g.user.studentActive()+g.user.gradingActive()))
+  grutorLists = {}
+  for c in courses:
+    grutorLists[c.id] = GraderStats.objects.filter(course=c, clockOut=None) 
+  return render_template("activeGrutors.html", courses=courses, \
+                          grutorLists=grutorLists)

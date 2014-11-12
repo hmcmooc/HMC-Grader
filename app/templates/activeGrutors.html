@@ -1,0 +1,54 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Submission Site
+{% endblock %}
+
+{% block rows %}
+{% if courses|length == 0%}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <p>You are not registerd for any courses</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endif %}
+{% for c in courses %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        {{c.name}}
+      </div>
+      {% if grutorLists[c.id]|length == 0 %}
+      <div class="panel-body">
+        <p>No grutors are currently active for this course</p>
+      </div>
+      {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Picture</th>
+            <th>Name</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for grader in grutorLists[c.id] %}
+          <tr>
+            <td style="width:210px;"><img src="{{url_for('sendProfilePicture', uid=grader.user.id)}}" class="img-rounded" style="max-width:200px; max-height:200px; margin-left:auto; margin-right:auto; display:block;"></td>
+            <td>{{grader.user.firstName}} {{grader.user.lastName}}</td>
+            <td>{{grader.location}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endfor %}
+{% endblock %}
