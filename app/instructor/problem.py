@@ -24,7 +24,7 @@ from decimal import *
 import json, os
 
 from app.autograder import getTestFileParsers
-from app.filestorage import moveProblemPath, getProblemPath
+from app.helpers.filestorage import moveProblemPath, getProblemPath
 
 @app.route('/editproblem/<pid>')
 @login_required

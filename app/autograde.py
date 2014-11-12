@@ -12,7 +12,7 @@ from datetime import datetime
 
 from app.autograder import getTestResultParsers
 
-from app.filestorage import *
+from app.helpers.filestorage import *
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):

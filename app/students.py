@@ -3,7 +3,7 @@
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file
+from flask import g, request, render_template, redirect, url_for, flash, send_file, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -18,7 +18,7 @@ from app.models.stats import StudentStats
 from forms import SubmitAssignmentForm, AttendanceForm
 from autograde import gradeSubmission
 
-from app.filestorage import *
+from app.helpers.filestorage import *
 from app.latework import getLateCalculators
 
 import os, datetime, shutil
@@ -47,8 +47,9 @@ def studentAssignments(cid):
       return redirect(url_for('index'))
 
     return render_template("student/assignments.html", course=c)
-  except Exception as e:
-    raise e
+  except Course.DoesNotExist:
+    #If the course can't be found then 404
+    abort(404)
 
 @app.route('/assignments/submit/<pid>')
 @login_required
@@ -83,8 +84,9 @@ def submitAssignment(pid):
     return render_template("student/submit.html", \
                             course=c, assignment=a, problem=p,\
                             form=saf)
-  except Exception as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/assignments/view/<pid>/<subnum>')
 @login_required
@@ -120,8 +122,9 @@ def viewProblem(pid,subnum):
     return render_template("student/viewsubmission.html", \
                             course=c, assignment=a, problem=p,\
                              subnum=subnum, submission=submission)
-  except Course.DoesNotExist:
-    pass
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
   return redirect(url_for('studentAssignments', cid=cid))
 
 '''
@@ -188,10 +191,12 @@ def uploadFiles(pid):
         gradeSubmission.delay(p.id, g.user.id, p.getSubmissionNumber(g.user))
         if form.partner.data != "None":
           gradeSubmission.delay(p.id, partner.id, p.getSubmissionNumber(partner))
-
+      else:
+        flash("We could not validate your submission. If this keeps occuring please contact a professor.", "warning")
     return redirect(url_for('studentAssignments', cid=c.id))
-  except (Course.DoesNotExist):
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 #
 # Helpers for making submissions
@@ -318,8 +323,9 @@ def downloadFiles(pid, uid, subnum, filename):
     filepath = getSubmissionPath(c, a, p, u, subnum)
 
     return send_file(os.path.join(filepath, filename), as_attachment=True)
-  except Course.DoesNotExist:
-    pass
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grades')
 @login_required
@@ -332,34 +338,43 @@ def viewGrades():
   '''
 
   courses = [str(c.id) for c in g.user.courseStudent]
-
   return render_template('student/viewgrades.html', courses=courses)
 
 @app.route('/student/signin', methods=['POST'])
 @login_required
 def studentSignin():
-  if request.method == 'POST':
-    form = AttendanceForm(request.form)
-    form.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
-    if form.validate():
-      cid = form.course.data
-      c = Course.objects.get(id=cid)
-      u = User.objects.get(id=current_user.id)
+  '''
+  Function Type: Callback-Redirect Function
+  Purpose: Allow a student to say that they are at tutoring or lab time
 
-      now = datetime.datetime.utcnow()
-      diff = datetime.timedelta(hours=1)
-      then = now - diff
-      sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+  Inputs: None
+  '''
+  try:
+    if request.method == 'POST':
+      form = AttendanceForm(request.form)
+      form.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
+      if form.validate():
+        cid = form.course.data
+        c = Course.objects.get(id=cid)
+        u = User.objects.get(id=current_user.id)
 
-      if len(sl) == 0:
-        s = StudentStats()
-        s.user = u
-        s.course = c
-        s.clockIn = datetime.datetime.utcnow()
-        s.save()
-        flash("You have been signed in " + str(u.id) + " " + str(c.id), "success")
+        now = datetime.datetime.utcnow()
+        diff = datetime.timedelta(hours=1)
+        then = now - diff
+        sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+
+        if len(sl) == 0:
+          s = StudentStats()
+          s.user = u
+          s.course = c
+          s.clockIn = datetime.datetime.utcnow()
+          s.save()
+          flash("You have been signed in " + str(u.id) + " " + str(c.id), "success")
+        else:
+          flash("You already signed in within the past hour", "warning")
       else:
-        flash("You already signed in within the past hour", "warning")
-    else:
-      flash("Form validation failed " + str(form.course.errors), "error")
+        flash("Form validation failed " + str(form.course.errors), "error")
+  except Course.DoesNotExist:
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
   return redirect(url_for('index'))

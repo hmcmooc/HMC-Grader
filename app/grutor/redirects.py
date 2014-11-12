@@ -23,7 +23,7 @@ from app.forms import SubmitAssignmentForm, ClockInForm
 import os, datetime, fcntl, random
 import markdown
 
-from app.filestorage import *
+from app.helpers.filestorage import *
 
 @app.route('/grutor/grade/<pid>/random')
 @login_required

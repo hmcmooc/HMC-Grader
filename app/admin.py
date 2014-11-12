@@ -19,7 +19,7 @@ from app.models.course import *
 
 from forms import CreateCourseForm, CreateUserForm
 
-from app.filestorage import ensurePathExists, getCoursePath
+from app.helpers.filestorage import ensurePathExists, getCoursePath
 
 import psutil
 

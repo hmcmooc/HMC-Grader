@@ -18,7 +18,7 @@ from app.models.course import *
 
 from app.forms import CreateAssignmentForm, AddUserCourseForm, ProblemOptionsForm, CourseSettingsForm
 from app.forms import CreateGradebookGroupForm, CreateGradeColumnForm
-from app.filestorage import ensurePathExists, getAssignmentPath, removePath, getProblemPath, getTestPath
+from app.helpers.filestorage import ensurePathExists, getAssignmentPath, removePath, getProblemPath, getTestPath
 
 import traceback, StringIO, sys
 import dateutil.parser

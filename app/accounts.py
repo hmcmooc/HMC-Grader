@@ -17,7 +17,7 @@ from flask.ext.mongoengine import DoesNotExist
 from models.user import User
 from forms import SignInForm, ChangePasswordForm, UserSettingsForm
 
-from app.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
+from app.helpers.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
 
 import os
 

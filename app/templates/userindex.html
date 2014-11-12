@@ -96,7 +96,7 @@ Submission Site
           {% for hour in activeHours %}
           <tr>
             <td>{{hour.course.name}}</td>
-            <td><a href="{{url_for('grutorClockOut', sid=hour.id)}}" class="btn btn-primary">Sign Out</a></td>
+            <td><a href="{{url_for('grutorClockOut', sid=hour.id)}}" class="btn btn-primary">Clock Out</a></td>
           </tr>
           {% endfor %}
         </tbody>
