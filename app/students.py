@@ -44,7 +44,7 @@ def studentAssignments(cid):
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
-      return redirect(url_for('index'))
+      abort(403)
 
     return render_template("student/assignments.html", course=c)
   except Course.DoesNotExist:
@@ -76,7 +76,7 @@ def submitAssignment(pid):
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
-      return redirect(url_for('index'))
+      abort(403)
 
     saf = SubmitAssignmentForm()
     saf.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
@@ -115,7 +115,7 @@ def viewProblem(pid,subnum):
     c, a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
-      return redirect(url_for('index'))
+      abort(403)
 
     submission = p.getSubmission(current_user, subnum)
 
@@ -152,7 +152,7 @@ def uploadFiles(pid):
     c, a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent):
-      return redirect(url_for('index'))
+      abort(403)
 
     if request.method == "POST":
       form = SubmitAssignmentForm(request.form)
@@ -314,7 +314,7 @@ def downloadFiles(pid, uid, subnum, filename):
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.courseStudent or c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     u = User.objects.get(id=uid)
 
@@ -356,6 +356,10 @@ def studentSignin():
       if form.validate():
         cid = form.course.data
         c = Course.objects.get(id=cid)
+
+        if not c in current_user.courseStudent:
+          abort(403)
+
         u = User.objects.get(id=current_user.id)
 
         now = datetime.datetime.utcnow()
