@@ -46,6 +46,10 @@ def viewActiveGrutors():
   return render_template("activeGrutors.html", courses=courses, \
                           grutorLists=grutorLists)
 
+@app.errorhandler(403)
+def forbidden(e):
+  return render_template("common/permission.html")
+
 @app.errorhandler(404)
 def pageNotFound(e):
   return render_template("common/notfound.html")

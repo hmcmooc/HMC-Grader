@@ -6,7 +6,7 @@ This module contains all the callback functions for the grutor pages
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file, jsonify
+from flask import g, request, render_template, redirect, url_for, flash, send_file, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -43,7 +43,7 @@ def grutorGradeRandom(pid):
     c,a = p.getParents()
     #For security we redirect anyone who shouldn't be here to the index
     if not (c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #create a path to the lockfile
     filepath = getProblemPath(c, a, p)
@@ -105,8 +105,15 @@ def grutorGradeRandom(pid):
       #for some reason
       user = User.objects.get(username=subTuple[0])
       return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=subTuple[2]))
-  except Exception as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
+  except User.DoesNotExits:
+    #If the user doesn't exist we have a problem
+    flash("""Successfully locked a submission but the user for that
+    submission couldn't be found in the database. Please contact a system
+    administrator to have them resolve this issue.""", "error")
+    abort(404)
 
 
 @app.route('/grutor/finish/<pid>/<uid>/<subnum>')
@@ -131,7 +138,7 @@ def grutorFinishSubmission(pid, uid, subnum):
 
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Define a function for performing closing operations
     def finish(sub):
@@ -143,15 +150,15 @@ def grutorFinishSubmission(pid, uid, subnum):
     finish(submission)
 
     #Handle the partners submission as well
-    #TODO: Make this a function for cleaner code
     if submission.partnerInfo != None:
       finish(submission.partnerInfo.submission)
 
     p.save()
 
     return redirect(url_for('grutorGradelistProblem', pid=pid))
-  except Exception as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grutor/release/<pid>/<uid>/<subnum>')
 @login_required
@@ -175,7 +182,7 @@ def grutorReleaseSubmission(pid, uid, subnum):
 
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Define function for releasing submissions
     def release(sub):
@@ -194,8 +201,9 @@ def grutorReleaseSubmission(pid, uid, subnum):
     p.save()
 
     return redirect(url_for('grutorGradelistProblem', pid=pid))
-  except Exception as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grutor/create/<pid>/<uid>')
 @login_required
@@ -219,11 +227,12 @@ def grutorMakeBlank(pid, uid):
 
     #For security purposes we send anyone who isnt in this class to the index
     if not (c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Check that the user we are trying to create a submission for is in the class
     if not (c in user.courseStudent):
-      return redirect(url_for('index'))
+      flash("The user you were trying to make a submission for is not in the course.")
+      abort(404)
 
     #Create a blank submission
     #Create the grade
@@ -254,8 +263,9 @@ def grutorMakeBlank(pid, uid):
 
     p.save(cascade=True)
     return redirect(url_for('grutorGradeSubmission', uid=uid, pid=pid, subnum=1))
-  except Course.DoesNotExist as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grutor/toggleLate/<pid>/<uid>/<subnum>')
 @login_required
@@ -278,7 +288,7 @@ def grutorToggleLate(pid, uid, subnum):
 
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Define function for releasing submissions
     def toggle(sub):
@@ -296,52 +306,58 @@ def grutorToggleLate(pid, uid, subnum):
     p.save()
 
     return redirect(url_for('grutorGradeSubmission', pid=pid, uid=uid, subnum=subnum))
-  except Exception as e:
-    raise e
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grutor/clockin', methods=['POST'])
 @login_required
 def grutorClockIn():
-  if request.method == 'POST':
-    form = ClockInForm(request.form)
-    form.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
-    if form.validate():
-      if form.location.data != "Other" or len(form.other.data) > 0:
-        cid = form.course.data
-        c = Course.objects.get(id=cid)
-        u = User.objects.get(id=current_user.id)
+  try:
+    if request.method == 'POST':
+      form = ClockInForm(request.form)
+      form.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
+      if form.validate():
+        if form.location.data != "Other" or len(form.other.data) > 0:
+          cid = form.course.data
+          c = Course.objects.get(id=cid)
+          
+          #Check for security purposes
+          if not c in g.user.activeGrading():
+            abort(403)
 
-        s = GraderStats.objects.filter(user=u, course=c, clockOut=None)
+          u = User.objects.get(id=current_user.id)
 
-        if len(s) == 0:
-          s = GraderStats()
-          s.user = u
-          s.course = c
-          s.clockIn = datetime.datetime.utcnow()
-          s.clockOut = None
-          if form.location.data == "Other":
-            s.location = form.other.data
+          s = GraderStats.objects.filter(user=u, course=c, clockOut=None)
+
+          if len(s) == 0:
+            s = GraderStats()
+            s.user = u
+            s.course = c
+            s.clockIn = datetime.datetime.utcnow()
+            s.clockOut = None
+            if form.location.data == "Other":
+              s.location = form.other.data
+            else:
+              s.location = form.location.data
+            s.save()
+            flash("You have been signed in", "success")
           else:
-            s.location = form.location.data
-          s.save()
-          flash("You have been signed in", "success")
+            flash("You are already signed in", "warning")
         else:
-          flash("You are already signed in", "warning")
+          flash("You must provide a location if you select Other", "warning")
       else:
-        flash("You must provide a location if you select Other", "warning")
-    else:
-      flash("Form validation failed " + str(form.course.errors), "error")
-  return redirect(url_for('index'))
+        flash("Form validation failed " + str(form.course.errors), "error")
+    return redirect(url_for('index'))
+  except Course.DoesNotExist:
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
 
 @app.route('/grutor/clockout/<sid>')
 @login_required
 def grutorClockOut(sid):
-  try:
-    gs = GraderStats.objects.get(id=sid)
-    gs.clockOut = datetime.datetime.utcnow()
-    gs.save()
-    flash("You have been signed out", "success")
-    return redirect(url_for('index'))
-  except Exception as e:
-    flash(str(e))
-    return redirect(url_for('error'))
+  gs = GraderStats.objects.get(id=sid)
+  gs.clockOut = datetime.datetime.utcnow()
+  gs.save()
+  flash("You have been signed out", "success")
+  return redirect(url_for('index'))

@@ -7,7 +7,7 @@ This module contains the view functions for the grutor module
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file, jsonify
+from flask import g, request, render_template, redirect, url_for, flash, send_file, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -44,11 +44,11 @@ def grutorAssignments(cid):
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt grading this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     return render_template("grutor/assignments.html", course=c)
   except Course.DoesNotExist as e:
-    raise e
+    abort(404)
 
 @app.route('/grutor/gradelist/problem/<pid>')
 @login_required
@@ -75,7 +75,7 @@ def grutorGradelistProblem(pid):
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Get the students for this course
     students = User.objects.filter(courseStudent=c)
@@ -83,7 +83,7 @@ def grutorGradelistProblem(pid):
     return render_template("grutor/problems.html", \
                             course=c, problem=p, assignment=a, users=students)
   except Course.DoesNotExist as e:
-    raise e
+    abort(404)
 
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>')
 @login_required
@@ -118,7 +118,7 @@ def grutorGradeSubmission(pid, uid, subnum):
 
     #For security purposes we send anyone who isnt in this class to the index
     if not ( c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #p = Problem.objects.get(id=pid)
     #a = AssignmentGroup.objects.get(id=aid)
@@ -138,7 +138,7 @@ def grutorGradeSubmission(pid, uid, subnum):
                             course=c, problem=p, assignment=a, subnum=subnum,
                             user=user, submission=submission)
   except Course.DoesNotExist as e:
-    raise e
+    abort(404)
 
 @app.route('/grutor/gradebook/<cid>')
 @login_required
@@ -159,7 +159,7 @@ def grutorViewGradebook(cid):
   try:
     c = Course.objects.get(id=cid)
     if not (g.user.isAdmin or c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Get the users for this course
     s = User.objects.filter(courseStudent=c)
@@ -171,7 +171,7 @@ def grutorViewGradebook(cid):
 
     return render_template('grutor/gradebook.html', course=c, uids=uids)
   except Course.DoesNotExist:
-    pass
+    abort(404)
 
 @app.route('/grutor/gradebook/<cid>/<col>')
 @login_required
@@ -193,7 +193,7 @@ def grutorEditGradebook(cid, col):
     column = GBColumn.objects.get(id=col)
 
     if not (course in current_user.gradingCourses() or current_user.isAdmin):
-      return redirect(url_for('index'))
+      abort(403)
 
     users = User.objects.filter(courseStudent=course)
 
@@ -208,5 +208,8 @@ def grutorEditGradebook(cid, col):
     column.save()
 
     return render_template("grutor/editcolumn.html", course = course, col=column, users=users)
-  except Exception as e:
-    raise e
+  except Course.DoesNotExist:
+    abort(404)
+  except GBColumn.DoesNotExist:
+    flash("The gradebook column you requested no longer exists")
+    abort(404)

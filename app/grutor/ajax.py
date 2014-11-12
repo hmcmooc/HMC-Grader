@@ -7,7 +7,7 @@ grutors and instructors performing a grutor role.
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file, jsonify
+from flask import g, request, render_template, redirect, url_for, flash, send_file, jsonify, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -22,7 +22,6 @@ from app.forms import SubmitAssignmentForm
 
 import os, datetime, fcntl, random
 import markdown
-
 
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>/savegrade', methods=['POST'])
 @login_required
