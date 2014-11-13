@@ -157,8 +157,9 @@ def ajaxRenderGrade():
       return jsonify(res=outstring, username=u.username, cid=content['cid'])
 
   except Exception as e:
-
-    return jsonify(res="<tr><td>"+str(e)+"</td></tr>")
+    import traceback
+    tb = traceback.format_exc()
+    return jsonify(res="<tr><td>"+str(e)+"</td><td>"+tb+"</td></tr>")
 
 @app.route('/stats/<cid>/submissions', methods=['POST'])
 @login_required

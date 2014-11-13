@@ -83,13 +83,20 @@ def adminCourses():
       #create a new course
       #TODO: Validate that a course with this name and semester doesn't already
       #exist
-      c = Course()
-      c.name = form.name.data
-      c.semester = form.semester.data
-      c.gradeBook = GradeBook()
-      c.save()
-      #Create the file backing
-      ensurePathExists(getCoursePath(c))
+      try:
+        c = Course.objects.get(name=form.name.data, semester=form.semester.data)
+        flash("A course with this name and semester already exists", "warning")
+      except Course.DoesNotExist:
+        c = Course()
+        c.name = form.name.data
+        c.semester = form.semester.data
+        c.gradeBook = GradeBook()
+        c.save()
+        #Create the file backing
+        ensurePathExists(getCoursePath(c))
+        for admin in User.objects.filter(isAdmin=True):
+          admin.courseInstructor.append(c)
+          admin.save()
       return redirect(url_for('adminCourses'))
   return render_template('admin/courses.html', form=CreateCourseForm(), active_page="courses", courses=Course.objects)
 

@@ -117,10 +117,7 @@ def remProblem(cid,aid,pid):
     #assignment's problem list
 
     p.cleanup()
-    #p.gradeColumn.delete()
-    #a.problems.remove(p)
     p.delete()
-    #a.save()
 
     return jsonify(status=200)
   except (Course.DoesNotExist, AssignmentGroup.DoesNotExist, Problem.DoesNotExist):

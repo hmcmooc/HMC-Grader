@@ -119,6 +119,7 @@ class Problem(db.Document):
   def cleanup(self):
     if self.gradeColumn != None:
       self.gradeColumn.cleanup()
+      self.gradeColumn.delete()
     for k in self.studentSubmissions:
       self.studentSubmissions[k].cleanup()
 

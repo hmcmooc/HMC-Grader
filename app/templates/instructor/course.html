@@ -170,10 +170,12 @@ Edit Course: {{course.name}}
         </thead>
         <tbody class="list">
           {% for s in instrs %}
+          {% if not s.isAdmin %}
           <tr>
           <td class="name">{{s.username}}</td>
           <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
           <tr>
+          {% endif %}
           {% endfor %}
         </tbody>
       </table>
