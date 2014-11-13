@@ -82,9 +82,15 @@ class GradeBook(db.EmbeddedDocument):
       yield a
 
   def columns(self):
-    for a in self.groups():
+    for a in self.assignmentGrades:
       if len(a.columns) == 0:
         yield None
       else:
         for c in sorted(a.columns, key=lambda x: x.name):
+          yield c
+    for a in self.auxillaryGrades:
+      if len(a.columns) == 0:
+        yield None
+      else:
+        for c in a.columns:
           yield c
