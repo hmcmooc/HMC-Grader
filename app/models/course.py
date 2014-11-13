@@ -88,6 +88,8 @@ class Problem(db.Document):
   gradeNotes = db.URLField()
   problemPage = db.URLField()
 
+  requiredFiles = db.StringField()
+
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))
 
@@ -155,6 +157,13 @@ class Problem(db.Document):
     c, a = self.getParents()
     filePath = getSubmissionPath(c, a, self, user, subnum)
     return [ f for f in listdir(filePath) if isfile(join(filePath,f)) ]
+
+  def getRequiredFiles(self):
+    import re
+    if self.requiredFiles != None and len(self.requiredFiles) > 0:
+      return re.split(', *', self.requiredFiles)
+    else:
+      return []
 
 
 class AssignmentGroup(db.Document):

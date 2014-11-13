@@ -41,6 +41,10 @@ Edit Problem
         {{form.time(placeholder="eg. 11:59 PM", class="form-control")}}
       </div>
       <div class="form-group">
+        {{form.requiredFiles.label}}
+        {{form.requiredFiles(placeholder="eg. foo.py, bar.py", class="form-control")}}
+      </div>
+      <div class="form-group">
         {{form.problemPage.label}}
         {{form.problemPage(placeholder="eg. cs.hmc.edu/cs5/hw3.html", class="form-control")}}
       </div>
@@ -172,6 +176,10 @@ $(function(){
 
   {% if problem.problemPage != None %}
   $('#problemPage').val("{{problem.problemPage}}")
+  {% endif %}
+
+  {% if problem.requiredFiles != None %}
+  $('#requiredFiles').val("{{problem.requiredFiles}}")
   {% endif %}
 
   //Turn the forms into a date picker and time picker

@@ -88,6 +88,11 @@ def updateProblem(pid):
         else:
           p.problemPage = None
 
+        if len(form.requiredFiles.data) > 0:
+          p.requiredFiles = form.requiredFiles.data
+        else:
+          p.requiredFiles = None
+
         p.save()
   except Exception as e:
     flash(str(e))

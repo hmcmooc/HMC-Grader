@@ -91,6 +91,7 @@ class ProblemOptionsForm(Form):
   time = TextField("Due Time")
   gradeNotes = TextField("Grading Notes URL")
   problemPage = TextField("Problem Description URL")
+  requiredFiles = TextField("Required Files (separated by commas)")
   allowPartners = BooleanField("Allow Partners")
   hiddentime = TextField("")
 

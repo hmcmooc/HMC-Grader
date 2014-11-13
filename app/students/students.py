@@ -159,6 +159,12 @@ def uploadFiles(pid):
       form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
       if form.validate():
         filepath = getProblemPath(c, a, p)
+        # Ensure the user has submitted all required files
+        missing = ensureFiles(p, request.files.getlist("files"))
+        if not len(missing) == 0:
+          for m in missing:
+            flash("Missing required file: " + m, "warning")
+          return redirect(url_for('studentAssignments', cid=c.id))
         userSub = createSubmission(p, g.user, filepath, request.files.getlist("files"))
 
         if form.partner.data != "None":
@@ -201,6 +207,24 @@ def uploadFiles(pid):
 #
 # Helpers for making submissions
 #
+
+def ensureFiles(problem, files):
+  from zipfile import ZipFile, is_zipfile
+  reqFiles = problem.getRequiredFiles()
+  for f in files:
+    if is_zipfile(f):
+      z = ZipFile(f)
+      for member in z.namelist():
+        if os.path.basename(member) in reqFiles:
+          reqFiles.remove(os.path.basename(member))
+
+      #Apparently when you traverse the zipfile it doesn't put the pointer
+      #back which causes a crash later
+      f.seek(0)
+    elif f.filename in reqFiles:
+      reqFiles.remove(f.filename)
+
+  return reqFiles
 
 def flatten(path):
   for root, dirs, files in os.walk(path, topdown=False):
