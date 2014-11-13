@@ -86,5 +86,5 @@ class GradeBook(db.EmbeddedDocument):
       if len(a.columns) == 0:
         yield None
       else:
-        for c in a.columns:
+        for c in sorted(a.columns, key=lambda x: x.name):
           yield c
