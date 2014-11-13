@@ -10,6 +10,16 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-8">
     <h1>{{course.name}}</h1>
+    <a href="{{url_for('viewGradebook', cid=course.id)}}" class="btn btn-primary"><span class="octicon octicon-book"></span> Grade Book</a>
+    <a href="{{url_for('viewCourseStats', cid=course.id)}}" class="btn btn-primary"><span class="octicon octicon-graph"></span> Statistics</a>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
     <h2>Assignments</h2>
     <form class="form-inline" action="{{url_for('createAssignment', cid=course.id)}}" method="POST" role="form">
       {{ form.hidden_tag() }}

@@ -51,14 +51,8 @@ body {
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Grader<b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li class="dropdown-header">Grading</li>
             {% for c in g.user.gradingActive()|sort(attribute='name') %}
             <li><a href="{{url_for('grutorAssignments', cid=c.id)}}">{{c.name}}</a></li>
-            {% endfor %}
-            <li class="divider"></li>
-            <li class="dropdown-header">Grade Book</li>
-            {% for c in g.user.gradingActive()|sort(attribute='name') %}
-            <li><a href="{{url_for('grutorViewGradebook', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
@@ -67,19 +61,8 @@ body {
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Instructor<b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li class="dropdown-header">Course Properties</li>
             {% for c in g.user.instructorActive()|sort(attribute='name') %}
             <li><a href="{{url_for('administerCourse', cid=c.id)}}">{{c.name}}</a></li>
-            {% endfor %}
-            <li class="divider"></li>
-            <li class="dropdown-header">Grade Book</li>
-            {% for c in g.user.instructorActive()|sort(attribute='name') %}
-            <li><a href="{{url_for('viewGradebook', cid=c.id)}}">{{c.name}}</a></li>
-            {% endfor %}
-            <li class="divider"></li>
-            <li class="dropdown-header">Statistics</li>
-            {% for c in g.user.instructorActive()|sort(attribute='name') %}
-            <li><a href="{{url_for('viewCourseStats', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
