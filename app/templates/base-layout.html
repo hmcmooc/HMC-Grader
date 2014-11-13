@@ -133,3 +133,9 @@ body {
   {% endblock %}
 </div>
 {% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='bootbox.min.js')}}"></script>
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+{% endblock %}

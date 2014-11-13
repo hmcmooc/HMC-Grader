@@ -36,7 +36,7 @@ Edit Course: {{course.name}}
           <td><a href="{{url_for('addProblem', cid=course.id, aid=a.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></a></td>
           <td class="active" colspan="2"></td>
           <td>
-            <a href="{{url_for("delAssignment", cid=course.id, aid=a.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a>
+            <btn onclick="confirmDelete('{{a.name}}', '{{url_for("delAssignment", cid=course.id, aid=a.id)}}')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
           </td>
         </tr>
         {% for p in a.problems|sort(attribute="name") %}
@@ -46,7 +46,7 @@ Edit Course: {{course.name}}
           <td>{{p.totalPoints()}}</td>
           <td>
             <a href="{{url_for('editProblem', pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
-            &nbsp;&nbsp;&nbsp;<a href="{{url_for('remProblem', cid=course.id, pid=p.id, aid=a.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a>
+            &nbsp;&nbsp;&nbsp;<btn onclick="confirmDelete('{{a.name}}/{{p.name}}', '{{url_for('remProblem', cid=course.id, pid=p.id, aid=a.id)}}')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
           </td>
         </tr>
         {% endfor %}
@@ -210,5 +210,33 @@ function saveSettings(){
   });
   return false;
 };
+</script>
+
+<script>
+function confirmDelete(name, url){
+  bootbox.dialog({
+    message: "Are you sure you want to delete "+name+"?<br>Student submitted files and all grades will be lost.<br><em><b>This is not recoverable.</b></em>",
+    title:"Confirm Delete",
+    buttons: {
+      confirm: {
+        label:"Confirm",
+        className:"btn-danger",
+        callback: function(){
+          $.ajax({url:url,
+          success:function(){
+            location.reload();
+          }})
+        }
+      },
+      close: {
+        label:"No",
+        className:"btn-default",
+        callback: function(){
+          //Nothing to do
+        }
+      }
+    }
+  })
+}
 </script>
 {% endblock %}

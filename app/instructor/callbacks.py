@@ -79,48 +79,6 @@ def createAssignment(cid):
         raise e
   return redirect(url_for('administerCourse', cid=cid))
 
-
-
-@app.route('/assignment/<cid>/<aid>/del')
-@login_required
-def delAssignment(cid, aid):
-  '''
-  Function Type: Callback-Redirect Function
-  Purpose: Delete an assignment and all problems in that assignment.
-
-  Inputs:
-    cid: The object ID of the course the assignment is in
-    aid: The object ID of the assignment group to add the problem to
-
-  Forms Handled: None
-  '''
-  try:
-    c = Course.objects.get(id=cid)
-    #For security purposes we send anyone who isnt an instructor or
-    #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
-
-
-    a = AssignmentGroup.objects.get(id=aid)
-
-    #Remove the filestorage
-    removePath(getAssignmentPath(c, a))
-
-    c.assignments.remove(a)
-
-    c.gradeBook.assignmentGrades.remove(a.gradeEntry)
-
-    a.gradeEntry.cleanup()
-    a.gradeEntry.delete()
-    a.cleanup()
-    a.delete()
-    c.save()
-    flash("Assignment Group Removed")
-  except Exception as e:
-    raise e
-  return redirect(url_for('administerCourse', cid=cid))
-
 #
 # Functions for adding and removing users
 #
@@ -260,46 +218,6 @@ def addProblem(cid,aid):
     return redirect(url_for('editProblem', cid=cid, aid=a.id, pid=p.id))
   except Exception as e:
     raise e
-
-@app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
-@login_required
-def remProblem(cid,aid,pid):
-  '''
-  Function Type: Callback-Redirect Function
-  Purpose: Remove a problem from a specified assignment.
-
-  Inputs:
-    cid: The object ID of the course the assignment is in
-    aid: The object ID of the assignment group to add the problem to
-    pid: The object ID of the problem to remove
-
-  Forms Handled: None
-  '''
-  try:
-    c = Course.objects.get(id=cid)
-    #For security purposes we send anyone who isnt an instructor or
-    #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
-
-    a = AssignmentGroup.objects.get(id=aid)
-    p = Problem.objects.get(id=pid)
-
-    #Remove storage space
-    removePath(getProblemPath(c, a, p))
-
-    #We leverage mongo's reverse delete rules to remove the problem from the
-    #assignment's problem list
-
-    p.cleanup()
-    #p.gradeColumn.delete()
-    #a.problems.remove(p)
-    p.delete()
-    #a.save()
-
-    return redirect(url_for('administerCourse', cid=cid))
-  except Course.DoesNotExist:
-    pass
 
 
 @app.route('/gradebook/<cid>/addGroup', methods=['POST'])
