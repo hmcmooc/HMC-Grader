@@ -51,7 +51,7 @@ td a {
           {% endfor %}
         </tr>
       </thead>
-      <tbody>
+      <tbody class="list">
       </tbody>
     </table>
   </div>
@@ -60,6 +60,7 @@ td a {
 
 {% block scripts %}
 {{super()}}
+<script src="{{url_for('static', filename='list.js')}}"></script>
 <script>
 $(function() {
   students = {{uids|tojson}};
@@ -74,11 +75,13 @@ $(function() {
       data: JSON.stringify(data),
       dataType: 'json',
       success: function(data) {
+        console.log("HERE");
         $('#{{course.id}} tbody').append(data.res);
-        $('#{{course.id}} tbody tr:last td:first').before("<td>"+{% if not course.anonymousGrading %}data.username{%else%}data.id{%endif%}+"</td>")
+        $('#{{course.id}} tbody tr:last td:first').before("<td class='name'>"+{% if not course.anonymousGrading %}data.username{%else%}data.id{%endif%}+"</td>")
       }
     });
   }
+
 })
 </script>
 {% endblock %}
