@@ -24,36 +24,6 @@ import traceback, StringIO, sys
 import dateutil.parser, itertools
 from decimal import Decimal
 
-@app.route('/assignment/<cid>/settings', methods=['POST'])
-@login_required
-def instructorSaveSettings(cid):
-  '''
-  Function Type: Callback-AJAX Function
-  Called By: instructor/course.html:saveSettings()
-  Purpose: Recieves the current state of the settings form and applies those
-  settings to the course.
-
-  Inputs:
-    cid: The object ID of the course to apply the settings to
-
-  POST Values: A dictionary of settings names to values
-
-  Outputs:
-    res: True if the operation succeeded otherwise False
-  '''
-  try:
-    c = Course.objects.get(id=cid)
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return jsonify(res=False)
-
-    content = request.get_json()
-    c.anonymousGrading = content['anonymousGrading']
-    c.lateGradePolicy = content['lateGradePolicy']
-    c.save()
-    return jsonify(res=True)
-  except:
-    return jsonify(res=False)
-
 def preventCollapse(gradeList):
   for a in gradeList:
     if len(a) == 0:

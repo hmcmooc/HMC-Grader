@@ -30,7 +30,7 @@ Edit Course: {{course.name}}
         </tr>
       </thead>
       <tbody>
-        {% for a in course.assignments %}
+        {% for a in course.assignments[::-1] %}
         <tr>
           <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
           <td><a href="{{url_for('addProblem', cid=course.id, aid=a.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></a></td>

@@ -20,7 +20,7 @@ Assignments for {{course.name}}
         </tr>
       </thead>
       <tbody>
-        {% for a in course.assignments %}
+        {% for a in course.assignments[::-1] %}
         <tr>
           <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
         </tr>

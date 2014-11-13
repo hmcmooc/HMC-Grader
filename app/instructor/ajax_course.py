@@ -1,9 +1,44 @@
 # coding=utf-8
 
+'''
+This module handles all of the ajax requests for the course properties page of
+the instructor tab.
+'''
+
 from flask import g, jsonify, flash
 from flask.ext.login import login_required
 
 from app.models.course import *
+
+@app.route('/assignment/<cid>/settings', methods=['POST'])
+@login_required
+def instructorSaveSettings(cid):
+  '''
+  Function Type: Callback-AJAX Function
+  Called By: instructor/course.html:saveSettings()
+  Purpose: Recieves the current state of the settings form and applies those
+  settings to the course.
+
+  Inputs:
+    cid: The object ID of the course to apply the settings to
+
+  POST Values: A dictionary of settings names to values
+
+  Outputs:
+    res: True if the operation succeeded otherwise False
+  '''
+  try:
+    c = Course.objects.get(id=cid)
+    if not (g.user.isAdmin or c in g.user.courseInstructor):
+      return jsonify(res=False)
+
+    content = request.get_json()
+    c.anonymousGrading = content['anonymousGrading']
+    c.lateGradePolicy = content['lateGradePolicy']
+    c.save()
+    return jsonify(res=True)
+  except:
+    return jsonify(res=False)
 
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required
