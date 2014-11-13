@@ -58,7 +58,9 @@ Assignments for {{course.name}}
       </tr>
       <tr>
         <th>Toggle Late</th>
-        <td><a href="{{url_for('grutorToggleLate', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-warning btn-xs">Toggle</a></td>
+        <td>
+          <button class="btn btn-xs btn-warning" id="toggleLate">Toggle</button>
+          {#<a href="{{url_for('grutorToggleLate', pid=problem.id, uid=user.id, subnum=subnum)}}" class="btn btn-warning btn-xs">Toggle</a>#}</td>
       </tr>
       <tr>
         <th>Grade Nodes</th>
@@ -217,6 +219,15 @@ $("#previewBtn").click(function(){
 $("#finishGrading").click(function(){
   saveGrades();
   saveComments();
+})
+
+$("#toggleLate").click(function(){
+  $.ajax({
+    url:"{{url_for('grutorToggleLate', pid=problem.id, uid=user.id, subnum=subnum)}}",
+    success: function(data) {
+      location.reload()
+    }
+  })
 })
 </script>
 

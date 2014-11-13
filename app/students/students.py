@@ -15,8 +15,8 @@ from app.models.gradebook import *
 from app.models.course import *
 from app.models.stats import StudentStats
 
-from forms import SubmitAssignmentForm, AttendanceForm
-from autograde import gradeSubmission
+from app.forms import SubmitAssignmentForm, AttendanceForm
+from app.autograde import gradeSubmission
 
 from app.helpers.filestorage import *
 from app.latework import getLateCalculators
