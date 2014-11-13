@@ -70,7 +70,8 @@ Submissions for grading
           <td>{% if not course.anonymousGrading %}{{user.username}}{% else %}{{course.getIdentifier(user.username)}}{% endif %}</td>
           {% with sub = problem.getLatestSubmission(user) %}
           {% if sub == None %}
-            <td>No Submission</td>
+            <td class="active">No Submission</td>
+            <td class="active"></td>
             <td>N/A</td>
             <td><a href="{{url_for('grutorMakeBlank', pid=problem.id, uid=user.id)}}" class="btn btn-primary btn-xs">Grade</a></td>
           {% else %}
