@@ -124,9 +124,17 @@ def grutorGradeSubmission(pid, uid, subnum):
     #a = AssignmentGroup.objects.get(id=aid)
 
     submission = p.getSubmission(user, subnum)
+
+    u = User.objects.get(id=g.user.id)
+
+    if submission.status < 3:
+      submission.gradedBy = u
+
     submission.status = max(submission.status, 3)
 
     if submission.partnerInfo != None:
+      if submission.partnerInfo.submission.status < 3:
+        submission.partnerInfo.submission.gradedBy = u
       submission.partnerInfo.submission.status = max(submission.partnerInfo.submission.status, 3)
       submission.partnerInfo.submission.save()
 

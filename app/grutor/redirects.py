@@ -187,6 +187,7 @@ def grutorReleaseSubmission(pid, uid, subnum):
     #Define function for releasing submissions
     def release(sub):
       sub.status = min(submission.status, 2)
+      sub.gradedBy = None
       sub.grade.save()
       sub.save()
     #End definition

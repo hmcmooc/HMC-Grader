@@ -27,6 +27,7 @@ class Submission(db.Document):
   isLate = db.BooleanField(default=False)
   grade = db.ReferenceField('GBGrade')
   status = db.IntField(default=0)
+  gradedBy = db.ReferenceField('User')
 
   # 0 = Ungraded
   # 1 = Autograde inprogress
