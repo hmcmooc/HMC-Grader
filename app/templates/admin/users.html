@@ -67,7 +67,7 @@ Admin Panel: Courses
           <td>{{u.firstName}} {{u.lastName}}</td>
           <td>{{u.email}}</td>
           <td><a href="{{url_for('adminSwitch', uid=u.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-refresh"></span></a></td>
-          <td><a href="#" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a></td>
+          <td><a href="{{url_for('adminRemove', uid=u.id)}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a></td>
         </tr>
         {% endfor %}
       </tbody>

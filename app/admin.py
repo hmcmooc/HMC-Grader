@@ -192,6 +192,16 @@ def adminSwitch(uid):
   g.user = current_user
   return redirect(url_for('index'))
 
+@app.route('/admin/rem/<uid>')
+@login_required
+def adminRemove(uid):
+  if not g.user.isAdmin:
+    return redirect(url_for('index'))
+
+  user = User.objects.get(id=uid)
+  user.delete()
+  return redirect(url_for('adminUsers'))
+
 #
 # Admin AJAX functions
 #
