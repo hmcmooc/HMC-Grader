@@ -18,7 +18,7 @@ from werkzeug import secure_filename
 def makeProblemNewPage(pid, t):
   try:
     p = Problem.objects.get(id=pid)
-    c, a = Problem.getParents()
+    c, a = p.getParents()
 
     if not  c in current_user.courseInstructor:
       abort(403)
@@ -31,18 +31,8 @@ def makeProblemNewPage(pid, t):
     else:
       p.problemPage = url_for('viewPage', pgid=notes.id)
 
+    p.save()
 
-    return redirect(url_for('editPage', notes.id))
+    return redirect(url_for('editPage', pgid=notes.id))
   except Problem.DoesNotExist:
     abort(404)
-
-@app.route('/viewpage/<pgid>')
-@login_required
-def viewPage(pgid):
-  return redirect(url_for('index'))
-
-
-@app.route('/editpage/<pgid>')
-@login_required
-def editPage(pgid):
-  return rediret(url_for('index'))

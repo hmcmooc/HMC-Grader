@@ -47,16 +47,20 @@ Edit Problem
 
       <div class="form-group">
         {{form.problemPage.label}}&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="#" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
-        <a href="#" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
+        <a href="{{url_for('makeProblemNewPage', pid=problem.id, t='problemPage')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
+        {% if problem.problemPage != None %}
+        <a href="{{problem.problemPage}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
+        {% endif %}
         {{form.problemPage(placeholder="eg. cs.hmc.edu/cs5/hw3.html", class="form-control")}}
       </div>
 
 
       <div class="form-group">
         {{form.gradeNotes.label}}&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="#" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
-        <a href="#" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
+        <a href="{{url_for('makeProblemNewPage', pid=problem.id, t='notes')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
+        {% if problem.gradeNotes != None %}
+        <a href="{{problem.gradeNotes}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
+        {% endif %}
         {{form.gradeNotes(placeholder="eg. cs.hmc.edu/cs5/hw3grading.html", class="form-control")}}
       </div>
       <div class="form-group">

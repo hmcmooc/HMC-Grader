@@ -1,38 +1,28 @@
 {% extends "base-layout.html" %}
 
 {% block title %}
-Edit Grading Notes
+Edit Page
 {% endblock %}
 
 {% block rows %}
+{% if g.user.gradingCourses()|length > 0 %}
 <div class="row">
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Edit Grading Notes</h1>
-    <button type="button" class="btn btn-default">Preview</button>
+    <a href="{{url_for('editPage', pgid=page.id)}}" class="btn btn-default">Edit Page</a>
     <br>
   </div>
   <div class="col-sm-2">
   </div>
 </div>
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    <textarea id="commentarea" class="form-control" rows="24">
-    {{notes.notes}}
-    </textarea>
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
 <hr>
+{% endif %}
 <div class="row">
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8" class="preview">
-    {{notes.notes|markdown}}
+    {{page.text|markdown}}
   </div>
   <div class="col-sm-2">
   </div>

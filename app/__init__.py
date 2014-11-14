@@ -57,3 +57,4 @@ from admin import *
 from instructor import *
 from students import *
 from grutor import *
+from pages import *

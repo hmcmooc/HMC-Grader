@@ -51,7 +51,7 @@ def editProblem(pid):
                            testFiles=testFiles)
   except Exception as e:
     flash(str(e))
-    return redirect(url_for('administerCourse', cid=cid))
+    return redirect(url_for('administerCourse', cid=c.id))
 
 @app.route('/editproblem/<pid>/update', methods=['POST'])
 @login_required

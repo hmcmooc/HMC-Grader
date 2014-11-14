@@ -1,0 +1,81 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Edit Page
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h1>Edit Grading Notes</h1>
+    <br>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <textarea id="commentarea" class="form-control" rows="24">{{page.text}}</textarea>
+    <br>
+    <button id="previewBtn" type="button" class="btn btn-default">Preview</button>
+    <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Save</button>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8" id="preview">
+    {{page.text|markdown}}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+$("#previewBtn").click(function(){
+  values = {}
+  values["text"] = $("#commentarea").val()
+  $.ajax({
+    url:"{{url_for('grutorPreview')}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(values),
+    dataType: 'json',
+    success: function(data) {
+      $("#preview").html(data["res"]);
+    }
+  });
+})
+
+function saveComments(){
+  values = {}
+  values["text"] = $("#commentarea").val()
+  console.log(values)
+  $.ajax({
+    url:"{{url_for('savePage', pgid=page.id)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(values),
+    dataType: 'json',
+    success: function(data) {
+      //Nothing to do
+      console.log(data)
+    }
+  });
+}
+
+$("#saveBtn").click(function(){
+  saveComments();
+})
+</script>
+{% endblock %}

@@ -85,8 +85,8 @@ class Problem(db.Document):
   allowPartners = db.BooleanField(default=True)
 
   #URLs for grader notes and for problem specification
-  gradeNotes = db.URLField()
-  problemPage = db.URLField()
+  gradeNotes = db.StringField()
+  problemPage = db.StringField()
 
   requiredFiles = db.StringField()
 
