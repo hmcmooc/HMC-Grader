@@ -115,7 +115,6 @@ class Problem(db.Document):
         done += 1
     return ungraded, ip, done
 
-
   def cleanup(self):
     if self.gradeColumn != None:
       self.gradeColumn.cleanup()

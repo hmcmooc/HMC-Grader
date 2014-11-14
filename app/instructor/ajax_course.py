@@ -5,7 +5,7 @@ This module handles all of the ajax requests for the course properties page of
 the instructor tab.
 '''
 
-from flask import g, jsonify, flash
+from flask import g, jsonify, flash, request
 from flask.ext.login import login_required
 
 from app.models.course import *
@@ -30,15 +30,15 @@ def instructorSaveSettings(cid):
   try:
     c = Course.objects.get(id=cid)
     if not (g.user.isAdmin or c in g.user.courseInstructor):
-      return jsonify(res=False)
+      return jsonify(res=False, msg="Permission Denied")
 
     content = request.get_json()
     c.anonymousGrading = content['anonymousGrading']
     c.lateGradePolicy = content['lateGradePolicy']
     c.save()
     return jsonify(res=True)
-  except:
-    return jsonify(res=False)
+  except Exception as e:
+    return jsonify(res=False, msg=str(e))
 
 @app.route('/assignment/<cid>/<aid>/del')
 @login_required
