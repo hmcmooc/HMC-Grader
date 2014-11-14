@@ -114,22 +114,23 @@ Assignments for {{course.name}}
   </div>
   <div class="col-sm-8">
     <div class="panel panel-default" id="panelcomments">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-target="#collapseComments" href="#collapseComments" class="collapsed">
-          Grader Comments
-        </a>
-      </h4>
-    </div>
-    <div id="collapseComments" class="panel-collapse collapse in">
-      <div class="panel-body">
-        <textarea id="commentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.comments }}</textarea>
-        <br>
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-target="#collapseComments" href="#collapseComments" class="collapsed">
+            Grader Comments
+          </a>
+        </h4>
+      </div>
+      <div id="collapseComments" class="panel-collapse collapse in">
+        <div class="panel-body">
+          <textarea id="commentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.comments }}</textarea>
+        </div>
+      </div>
+      <div class="panel-footer">
         <button type="button" class="btn btn-default" id="previewBtn">Preview</button>
         <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveComments()"><span class="glyphicon glyphicon-floppy-disk"></span> Save Comments</button>
-      </div>
     </div>
-  </div>
+    </div>
   </div>
   <div class="col-sm-2">
   </div>

@@ -1,0 +1,40 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Edit Grading Notes
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h1>Edit Grading Notes</h1>
+    <button type="button" class="btn btn-default">Preview</button>
+    <br>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <textarea id="commentarea" class="form-control" rows="24">
+    {{notes.notes}}
+    </textarea>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8" class="preview">
+    {{notes.notes|markdown}}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
