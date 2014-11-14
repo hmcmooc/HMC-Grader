@@ -290,7 +290,7 @@ def createSubmission(problem, user, filepath, files):
   problem.gradeColumn.scores[user.username] = grade
 
   #Finish the filepath
-  filepath = os.path.join(filepath, str(len(problem.studentSubmissions[g.user.username].submissions)+1))
+  filepath = os.path.join(filepath, str(len(problem.studentSubmissions[user.username].submissions)+1))
 
   #Make a new submission for the submission list
   sub = Submission()
