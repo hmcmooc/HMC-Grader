@@ -219,8 +219,9 @@ function saveSettings(){
     data: JSON.stringify(values),
     dataType: 'json',
     success: function(data) {
-      console.log(data)
-      //Nothing to do
+      if (data.res) {
+        location.reload();
+      }
     }
   });
   return false;
