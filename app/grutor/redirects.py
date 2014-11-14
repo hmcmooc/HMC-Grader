@@ -108,7 +108,7 @@ def grutorGradeRandom(pid):
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
     abort(404)
-  except User.DoesNotExits:
+  except User.DoesNotExist:
     #If the user doesn't exist we have a problem
     flash("""Successfully locked a submission but the user for that
     submission couldn't be found in the database. Please contact a system
