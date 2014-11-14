@@ -16,7 +16,7 @@ class User(db.Document):
   #General user information
   firstName = db.StringField()
   lastName = db.StringField()
-  username = db.StringField(required=True)
+  username = db.StringField(required=True, unique=True)
   email = db.EmailField()
   passHash = db.StringField(max_length=512)
   photoName = db.StringField()
