@@ -23,3 +23,12 @@ CELERY_BROKER_URL="amqp://guest@localhost"
 # Settings for file storage
 #
 STORAGE_HOME="/home/plenk/GroodyGrader"
+
+
+#
+# Email settings
+#
+
+SYSTEM_EMAIL_ADDRESS = "cloud@cs.hmc.edu"
+
+SMTP_SERVER = "knuth.cs.hmc.edu"

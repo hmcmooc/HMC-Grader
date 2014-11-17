@@ -9,7 +9,7 @@ Login
     <div class="col-sm-2">
     </div>
     <div class="col-sm-8">
-        <form class="form" action="{{url_for('login')}}" method="POST" role="form">
+        <form class="form" action="{{url_for('login')}}" method="POST" role="form" id="loginform">
             {{ form.hidden_tag() }}
             <div class="heading">
                 <h3 class="form-heading">Sign In</h3>
@@ -30,11 +30,23 @@ Login
                 {{form.remember.label}}
                 <p class="help-block">{{ form.remember.errors[0] }}</p>
             </div>
-            <button type="submit" class="btn btn-primary" value="in" name="btn">Sign In</button>
+            <button onClick="submitForm('{{url_for('login')}}')" class="btn btn-primary" value="in" name="btn">Sign In</button><br>
+            <h3>Forgot your password?</h3>
+            <button onClick="submitForm('{{url_for('requestRecovery')}}')" class="btn btn-warning btn-xs" value="in" name="btn">Reset Password</button>
         </form>
     </div>
 
     <div class="col-sm-2">
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+function submitForm(action){
+  $("#loginform").attr('action', action)
+  $("#loginform").submit()
+}
+</script>
 {% endblock %}

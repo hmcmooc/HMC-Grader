@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import NULLIFY, PULL
 
 from app.filestorage import *
+from datetime import datetime
 
 '''
 User model(s)
@@ -65,3 +66,17 @@ class User(db.Document):
 
   def instructorActive(self):
     return [x for x in self.courseInstructor if x.isActive]
+
+class RecoverAccount(db.Document):
+  '''
+  An object for recovering an account
+  '''
+
+  user = db.ReferenceField('User')
+  created = db.DateTimeField(default=datetime.now)
+
+  meta = {
+    'indexes': [
+      {'fields': ['created'], 'expireAfterSeconds': 3600}
+    ]
+  }

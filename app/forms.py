@@ -22,7 +22,7 @@ class SignInForm(Form):
   click the remember me button.
   '''
   username = TextField('Username',validators=[Required('Please provide a username')])
-  password = PasswordField('Password', validators=[Required()])
+  password = PasswordField('Password')
   remember = BooleanField('Remember Me')
 
 class ChangePasswordForm(Form):
@@ -40,6 +40,10 @@ class UserSettingsForm(Form):
   email = TextField('Email')
   photo = FileField('Profile Photo')
 
+
+class ResetPasswordForm(Form):
+  newPass = PasswordField('New Password', validators=[Required()])
+  newPassConf = PasswordField('Confirm New Password', validators=[Required()])
 
 # '''
 # Admin panel forms

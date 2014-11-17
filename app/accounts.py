@@ -14,8 +14,8 @@ from werkzeug import secure_filename
 
 from flask.ext.mongoengine import DoesNotExist
 
-from models.user import User
-from forms import SignInForm, ChangePasswordForm, UserSettingsForm
+from models.user import User, RecoverAccount
+from forms import SignInForm, ChangePasswordForm, UserSettingsForm, ResetPasswordForm
 
 from app.helpers.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
 
@@ -86,6 +86,78 @@ def login():
   #If it wasn't a form submission just render a blank form
   return render_template("accounts/login.html", form=SignInForm(), \
                           active_page="login")
+
+
+@app.route('/recover', methods=['POST'])
+def requestRecovery():
+  if request.method == 'POST':
+    form = SignInForm(request.form)
+    if form.validate():
+      try:
+        user = User.objects.get(username=form.username.data)
+        if user.email == None or len(user.email) == 0:
+          flash("No email address on file for this user", "error")
+          return redirect(url_for('login'))
+
+        rec = RecoverAccount()
+        rec.user = user
+        rec.save()
+
+        #Send an email to recover the password
+        import smtplib
+        from email.mime.text import MIMEText
+
+        messageText = """\
+        <html>
+        <head></head>
+        <body>
+        <p>It looks like you requested a link to reset your password. <a href='
+        """
+        messageText += url_for('recovery', rid=rec.id, _external=True)
+        messageText += """'>Here</a> is the link. If you didn't request this link
+        and you think this has been recieved in error please contact your system
+        administrator.</p>
+        </body>
+        </html>"""
+
+        msg = MIMEText(messageText,'html')
+        msg['Subject'] = 'Password reset request'
+        msg['From'] = app.config['SYSTEM_EMAIL_ADDRESS']
+        msg['To'] = user.email
+
+        s = smtplib.SMTP(app.config['SMTP_SERVER'])
+        s.sendmail(app.config['SYSTEM_EMAIL_ADDRESS'], [user.email], msg.as_string())
+
+        flash("Password reset request sent", "success")
+        return redirect(url_for('login'))
+      except Exception as e:
+        flash("An error occured while trying to recover your account", "error")
+        return redirect(url_for('index'))
+  return redirect(url_for('login'))
+
+@app.route('/recover/<rid>', methods=['POST', 'GET'])
+def recovery(rid):
+  try:
+    rec = RecoverAccount.objects.get(id=rid)
+    if request.method == 'POST':
+      form = ResetPasswordForm(request.form)
+      if form.validate():
+        if form.newPass.data == form.newPassConf.data:
+          rec.user.setPassword(form.newPass.data)
+          rec.user.save()
+          flash("Password Reset")
+          return redirect(url_for('index'))
+        else:
+          flash("Passwords must match", "warning")
+          return redirect(url_for('recovery', rid=rid))
+      else:
+        flash("Validation error", "warning")
+        return redirect(url_for('recovery', rid=rid))
+    else:
+      return render_template('accounts/recover.html', pwform=ResetPasswordForm(), rid=rid)
+  except RecoverAccount.DoesNotExist:
+    flash("This recovery ticket has expired", "warning")
+  return redirect(url_for('login'))
 
 @app.route('/logout')
 @login_required
