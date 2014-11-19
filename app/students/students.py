@@ -161,7 +161,6 @@ def uploadFiles(pid):
         filepath = getProblemPath(c, a, p)
         # Ensure the user has submitted all required files
         submittedFiles = request.files.getlist("files")
-        flash(str(submittedFiles))
 
 
         # missing = ensureFiles(p, submittedFiles)
@@ -318,14 +317,8 @@ def createSubmission(problem, user, filepath, files):
     filename = secure_filename(f.filename)
     if filename == "":
       continue
-    flash(filepath)
-    flash(filename)
-    flash(os.path.join(filepath, filename))
-    flash(f.read())
-    with open(os.path.join(filepath, filename), 'w+') as newFile:
-      print >> newFile, "hi jeb!"
-    #f.save(os.path.join(filepath, filename))
-    #processZip(filepath, filename)
+    f.save(os.path.join(filepath, filename))
+    processZip(filepath, filename)
 
   sub.save()
 
