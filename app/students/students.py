@@ -160,16 +160,20 @@ def uploadFiles(pid):
       if form.validate():
         filepath = getProblemPath(c, a, p)
         # Ensure the user has submitted all required files
-        missing = ensureFiles(p, request.files.getlist("files"))
-        if not len(missing) == 0:
-          for m in missing:
-            flash("Missing required file: " + m, "warning")
-          return redirect(url_for('studentAssignments', cid=c.id))
-        userSub = createSubmission(p, g.user, filepath, request.files.getlist("files"))
+        submittedFiles = request.files.getlist("files")
+        flash(str(submittedFiles))
+
+
+        # missing = ensureFiles(p, submittedFiles)
+        # if not len(missing) == 0:
+        #   for m in missing:
+        #     flash("Missing required file: " + m, "warning")
+        #   return redirect(url_for('studentAssignments', cid=c.id))
+        userSub = createSubmission(p, g.user, filepath, submittedFiles)
 
         if form.partner.data != "None":
           partner = User.objects.get(id=form.partner.data)
-          partnerSub = createSubmission(p, partner, filepath, request.files.getlist("files"))
+          partnerSub = createSubmission(p, partner, filepath, submittedFiles)
 
           #Create the partner info for the first user
           uPartnerInfo = PartnerInfo()
@@ -223,6 +227,7 @@ def ensureFiles(problem, files):
       f.seek(0)
     elif f.filename in reqFiles:
       reqFiles.remove(f.filename)
+      f.seek(0)
 
   return reqFiles
 
@@ -313,8 +318,14 @@ def createSubmission(problem, user, filepath, files):
     filename = secure_filename(f.filename)
     if filename == "":
       continue
-    f.save(os.path.join(filepath, filename))
-    processZip(filepath, filename)
+    flash(filepath)
+    flash(filename)
+    flash(os.path.join(filepath, filename))
+    flash(f.read())
+    with open(os.path.join(filepath, filename), 'w+') as newFile:
+      print >> newFile, "hi jeb!"
+    #f.save(os.path.join(filepath, filename))
+    #processZip(filepath, filename)
 
   sub.save()
 
