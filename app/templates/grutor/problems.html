@@ -79,7 +79,7 @@ Submissions for grading
           {% else %}
             {% with c,text = sub.getStatus() %}
             <td class="{{c}}">{{text}}</td>
-            <td class={% if sub.isLate %}"danger"{% else %}"{{c}}" {%endif%}>{% if sub.isLate %}<span class="octicon octicon-check"></span>{%endif%}</td>
+            <td style="text-align:center" class={% if sub.isLate %}"danger"{% else %}"{{c}}" {%endif%}>{% if sub.isLate %}<span class="octicon octicon-check"></span>{%endif%}</td>
             {% endwith %}
             <td class="time">{{sub.submissionTime.isoformat()}}</td>
             <td><a href="{{url_for('grutorGradeSubmission', pid=problem.id, uid=user.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>

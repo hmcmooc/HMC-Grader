@@ -20,6 +20,7 @@ Assignments for {{course.name}}
           <th>Problem</th>
           <th>Submit</th>
           <th>Status</th>
+          <th>Is Late</th>
           <th>Due Date</th>
           <th>Maximum Points</th>
         </tr>
@@ -41,7 +42,8 @@ Assignments for {{course.name}}
           {% else %}
           {% with c,text = sub.getStatus() %}
           <td class="{{c}}">
-          {% if sub.isLate %}<span style="color:red">[Late] </span>{%endif%}{{text}}<a href="{{url_for('viewProblem', pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
+          {{text}}<a href="{{url_for('viewProblem', pid=p.id, subnum=p.getSubmissionNumber(g.user))}}" class="btn btn-primary btn-xs pull-right">View</a>
+          <td style="text-align:center" class={% if sub.isLate %}"danger"{% else %}"{{c}}" {%endif%}>{% if sub.isLate %}<span class="octicon octicon-check"></span>{%endif%}</td>
           </td>
           {% endwith %}
           {% endif %}
