@@ -18,10 +18,10 @@ Assignments for {{course.name}}
         <tr>
           <th>Assignment Group</th>
           <th>Problem</th>
+          <th>Submit</th>
+          <th>Status</th>
           <th>Due Date</th>
           <th>Maximum Points</th>
-          <th>Status</th>
-          <th>Submit</th>
         </tr>
       </thead>
       <tbody>
@@ -33,8 +33,9 @@ Assignments for {{course.name}}
         <tr>
           {% with sub = p.getLatestSubmission(g.user) %}
           <td>{% if p.problemPage != None %}<a href="{{p.problemPage}}" target="_blank">{% endif %}{{p.name}}{% if p.problemPage != None %}</a>{% endif %}</td>
-          <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
-          <td>{{p.totalPoints()}}</td>
+          <td style="text-align:center">
+            <a href="{{url_for('submitAssignment', pid=p.id)}}" class="btn btn-primary btn-xs">Submit</a>
+          </td>
           {% if p.getSubmissionNumber(g.user) == 0 %}
           <td>Unsubmitted</td>
           {% else %}
@@ -44,9 +45,8 @@ Assignments for {{course.name}}
           </td>
           {% endwith %}
           {% endif %}
-          <td>
-            <a href="{{url_for('submitAssignment', pid=p.id)}}" class="btn btn-primary btn-xs">Submit</a>
-          </td>
+          <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
+          <td>{{p.totalPoints()}}</td>
           {% endwith %}
         </tr>
         {% endfor %}
