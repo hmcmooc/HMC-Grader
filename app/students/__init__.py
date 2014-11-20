@@ -1,3 +1,3 @@
 # coding=utf-8
 
-__all__ = ["students"]
+__all__ = ["students", "reviewFiles"]

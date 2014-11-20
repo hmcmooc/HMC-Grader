@@ -16,7 +16,7 @@
           {% if p == problem %}
               {% if p.getFiles(user, subnum)|length != 0 %}
               <tr class="success">
-                <td rowspan="{{p.getFiles(user, subnum)|length+1}}">{{p.name}}</td>
+                <td rowspan="{{p.getFiles(user, subnum)|length+1}}">{{p.name}} <a class="btn btn-primary btn-xs" href="{{url_for('studentViewFiles', pid=p.id, uid=user.id, subnum=subnum)}}">View Files</a></td>
               </tr>
               {% for f in p.getFiles(user, subnum)|sort %}
               <tr>
@@ -31,7 +31,7 @@
             {% if p.getLatestSubmission(user) != None %}
                 {% if p.getFiles(user, p.getSubmissionNumber(user))|length != 0 %}
                 <tr>
-                  <td rowspan="{{p.getFiles(user, p.getSubmissionNumber(user))|length+1}}">{{p.name}}</td>
+                  <td rowspan="{{p.getFiles(user, p.getSubmissionNumber(user))|length+1}}">{{p.name}} <a class="btn btn-primary btn-xs" href="{{url_for('studentViewFiles', pid=p.id, uid=user.id, subnum=p.getSubmissionNumber(user))}}">View Files</a></td>
                 </tr>
                 {% for f in p.getFiles(user, p.getSubmissionNumber(user))|sort %}
                 <tr>

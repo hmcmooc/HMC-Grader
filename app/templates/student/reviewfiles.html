@@ -9,7 +9,7 @@ Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Review your submission</h1>
+    <h1>View Files</h1>
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -17,6 +17,18 @@ Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
           <th>View</th>
         </tr>
       </thead>
+      <tbody>
+        {% if problem.getFiles(user, subnum)|length != 0 %}
+        {% for f in problem.getFiles(user, subnum) %}
+        <tr>
+          <td>{{f}}</td>
+          <td><button class="btn btn-primary btn-xs" onclick="preview('{{f}}');">View</button></td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr><td colspan="2">No Files</td></tr>
+        {% endif %}
+      </tbody>
     </table>
   </div>
   <div class="col-sm-2">
@@ -26,7 +38,8 @@ Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
 <div class="row">
   <div class="col-sm-2">
   </div>
-  <div class="col-sm-8" id="previewArea">
+  <div class="col-sm-8" id="previewArea" style="text-align:center">
+    <p>Select a file to view a preview</p>
   </div>
   <div class="col-sm-2">
   </div>
@@ -37,9 +50,27 @@ Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
 {{super()}}
 <script>
 function preview(filename) {
-  $("#previewArea").clear();
+  $("#previewArea").empty();
+  data = {}
+  data.filename = filename
   $.ajax({
-    url:"{{url_for('test')}}"
+    url:"{{url_for('studentGetFiles', pid=problem.id, uid=user.id, subnum=subnum)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(data),
+    dataType: 'json',
+    success: function(data) {
+      if (data.fileType == 'text') {
+        $("#previewArea").append("<pre style='text-align:left' id='previewText'></pre>");
+        $("#previewText").text(data.content);
+      } else if (data.fileType == 'image') {
+        console.log(data)
+        $("#previewArea").html("<img style='max_width:100%' src='"+data.url+"'></img>");
+      } else {
+        $("#previewArea").html("<b>Cannot preview this file</b>");
+      }
+    }
   })
 }
+</script>
 {% endblock %}
