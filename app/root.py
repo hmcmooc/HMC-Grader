@@ -39,7 +39,7 @@ def index():
 
     activeHours = GraderStats.objects.filter(user=g.user.id, clockOut=None)
     return render_template("userindex.html", active_page="index", \
-                            attendForm=attendForm, clockForm=clockForm,\
+                            clockForm=clockForm,\
                             activeHours=activeHours)
   return render_template("index.html", active_page="index")
 
@@ -96,7 +96,7 @@ def error(e):
   Function Type: View Function
   Template: common/permission.html
   Purpose: Inform a user that an error occured. Additionally display exception
-  info and a traceback. 
+  info and a traceback.
   '''
   import traceback
   tb = traceback.format_exc()

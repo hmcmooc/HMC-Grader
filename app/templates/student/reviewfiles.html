@@ -1,0 +1,45 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h1>Review your submission</h1>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>View</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8" id="previewArea">
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+function preview(filename) {
+  $("#previewArea").clear();
+  $.ajax({
+    url:"{{url_for('test')}}"
+  })
+}
+{% endblock %}

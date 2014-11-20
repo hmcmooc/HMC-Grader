@@ -15,39 +15,37 @@ Submission Site
 </div>
 
 {% if g.user.studentActive()|length > 0%}
+<hr>
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    <h2>Help us improve grutoring and lab time!</h2>
-    <p>Help us improve our grutoring and lab hours be telling us which hours you
-      use. Simply sign in using the form below! Additionally signing in below
-      during lab hours we will give you <em><b>full credit</b></em> on your lab
-      assignment.</p>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <b>Sign in to tutoring or lab!<b>
-      </div>
-      <div class="panel-body">
-        <form class="form" method="POST" action="{{url_for('studentSignin')}}">
-          {{ attendForm.hidden_tag() }}
-          <div class="form-group">
-            {{attendForm.course.label}}
-            {{attendForm.course(class="form-control")}}
-          </div>
-          <button type="submit" class="btn btn-primary">Sign In!</button>
-        </form>
-      </div>
+    <h2>Students</h2>
+    <div class="btn-group btn-group-lg">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        Submit <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        {% for c in g.user.studentActive() %}
+        <li><a href="{{url_for('studentAssignments', cid=c.id)}}">{{c.name}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="btn-group btn-group-lg">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        Clock in to Lab/Tutoring <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        {% for c in g.user.studentActive() %}
+        <li><a href="{{url_for('studentClockIn', cid=c.id)}}">{{c.name}}</a></li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
   <div class="col-sm-2"></div>
 </div>
 {% endif %}
+
 {% if g.user.gradingActive()|length > 0%}
 <div class="row">
   <div class="col-sm-2"></div>

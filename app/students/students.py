@@ -355,6 +355,37 @@ def downloadFiles(pid, uid, subnum, filename):
     #If either p can't be found or we can't get its parents then 404
     abort(404)
 
+@app.route('/assignments/send/<pid>/<uid>/<subnum>/<filename>')
+@login_required
+def sendFiles(pid, uid, subnum, filename):
+  '''
+  Function Type: Callback-Download
+  Purpose: Downloads the file specified for the user.
+
+  Inputs:
+    pid: The object ID of the problem that the file belongs to
+    uid: The object ID of the user the file belongs to
+    subnum: The submission number that the file belongs to
+    filename: The filename from the submission to download
+  '''
+  try:
+    p = Problem.objects.get(id=pid)
+    c,a = p.getParents()
+    #For security purposes we send anyone who isnt in this class to the index
+    if not ( c in current_user.courseStudent or c in current_user.gradingCourses()):
+      abort(403)
+
+    u = User.objects.get(id=uid)
+
+    s = p.getSubmission(u, subnum)
+
+    filepath = getSubmissionPath(c, a, p, u, subnum)
+
+    return send_file(os.path.join(filepath, filename))
+  except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
+    #If either p can't be found or we can't get its parents then 404
+    abort(404)
+
 @app.route('/grades')
 @login_required
 def viewGrades():
@@ -367,6 +398,35 @@ def viewGrades():
 
   courses = [str(c.id) for c in g.user.courseStudent]
   return render_template('student/viewgrades.html', courses=courses)
+
+@app.route('/student/clockin/<cid>')
+@login_required
+def studentClockIn(cid):
+  try:
+    c = Course.objects.get(id=cid)
+    if not c in current_user.courseStudent:
+      abort(403)
+
+    u = User.objects.get(id=current_user.id)
+
+    now = datetime.datetime.utcnow()
+    diff = datetime.timedelta(hours=1)
+    then = now - diff
+    sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+
+    if len(sl) == 0:
+      s = StudentStats()
+      s.user = u
+      s.course = c
+      s.clockIn = datetime.datetime.utcnow()
+      s.save()
+      flash("You have been signed in to " +  str(c.name), "success")
+    else:
+      flash("You already signed in within the past hour", "warning")
+
+    return redirect(url_for('index'))
+  except Course.DoesNotExist:
+    abort(404)
 
 @app.route('/student/signin', methods=['POST'])
 @login_required
