@@ -47,13 +47,13 @@ def studentGetFiles(pid, uid, subnum):
     import magic
 
     fileType = magic.from_file(filepath, mime=True)
-    fileType = fileType.split('/')[0]
+    fileType = fileType.split('/')
 
-    if fileType == 'text':
+    if fileType[0] == 'text':
       with open(filepath, 'r') as f:
-        return jsonify(fileType=fileType, content=f.read())
+        return jsonify(majorType=fileType[0], minorType=fileType[1], content=f.read())
     else:
-      return jsonify(fileType=fileType,\
+      return jsonify(majorType=fileType[0], minorType=fileType[1],\
        url=url_for('serveFiles', pid=pid, uid=uid, subnum=subnum, filename=content['filename']))
   except Problem.DoesNotExist:
     abort(404)

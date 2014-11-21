@@ -68,13 +68,17 @@ function preview(filename) {
     dataType: 'json',
     success: function(data) {
       console.log(data);
-      if (data.fileType == 'text') {
+      if (data.majorType == 'text') {
         $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
         $("#previewText").text(data.content);
         prettyPrint()
-      } else if (data.fileType == 'image') {
+      } else if (data.majorType == 'image') {
         console.log(data)
         $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
+      } else if (data.majorType == 'application' && data.minorType == 'pdf') {
+        $("#previewArea").append("<object data='"+data.url+"' type='application/pdf' width='100%' height='800px'>\
+        <p>It appears your browser doesn't have a built in PDF viewer</p>\
+        </object>");
       } else {
         $("#previewArea").append("<span class='mega-octicon octicon-file-binary'></span><br><b>Cannot preview this file</b>");
       }
