@@ -76,7 +76,7 @@ function preview(filename) {
         console.log(data)
         $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
       } else {
-        $("#previewArea").append("<b>Cannot preview this file</b>");
+        $("#previewArea").append("<span class='mega-octicon octicon-file-binary'></span><br><b>Cannot preview this file</b>");
       }
     }
   })
