@@ -67,6 +67,7 @@ function preview(filename) {
     data: JSON.stringify(data),
     dataType: 'json',
     success: function(data) {
+      console.log(data);
       if (data.fileType == 'text') {
         $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
         $("#previewText").text(data.content);
