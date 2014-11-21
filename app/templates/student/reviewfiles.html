@@ -4,6 +4,11 @@
 Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+<link href="{{url_for('static', filename='google-code-prettify/prettify.css')}}" type="text/css" rel="stylesheet"/>
+{% endblock %}
+
 {% block rows %}
 <div class="row">
   <div class="col-sm-2">
@@ -48,9 +53,11 @@ Review files for {{course.name}}/{{assignment.name}}/{{problem.name}}
 
 {% block scripts %}
 {{super()}}
+<script src="{{url_for('static', filename='google-code-prettify/prettify.js')}}"></script>
 <script>
 function preview(filename) {
   $("#previewArea").empty();
+  $("#previewArea").append("<h1>"+filename+"</h1>");
   data = {}
   data.filename = filename
   $.ajax({
@@ -61,13 +68,14 @@ function preview(filename) {
     dataType: 'json',
     success: function(data) {
       if (data.fileType == 'text') {
-        $("#previewArea").append("<pre style='text-align:left' id='previewText'></pre>");
+        $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
         $("#previewText").text(data.content);
+        prettyPrint()
       } else if (data.fileType == 'image') {
         console.log(data)
-        $("#previewArea").html("<img style='max_width:100%' src='"+data.url+"'></img>");
+        $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
       } else {
-        $("#previewArea").html("<b>Cannot preview this file</b>");
+        $("#previewArea").append("<b>Cannot preview this file</b>");
       }
     }
   })
