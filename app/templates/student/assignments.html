@@ -39,6 +39,7 @@ Assignments for {{course.name}}
           </td>
           {% if p.getSubmissionNumber(g.user) == 0 %}
           <td>Unsubmitted</td>
+          <td></td>
           {% else %}
           {% with c,text = sub.getStatus() %}
           <td class="{{c}}">
