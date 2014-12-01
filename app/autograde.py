@@ -10,9 +10,17 @@ from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
 
-from app.autograder import getTestResultParsers
+from app.autograder import getTestResultParsers, getTestRunners
 
 from app.helpers.filestorage import *
+
+AUTOGRADER_HEADER = \
+"""
+# Grader #
+* * *
+# Autograder #
+
+"""
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):
@@ -28,20 +36,16 @@ def gradeSubmission(pid, uid, subnum):
       #Set the status as awaiting grader unless it is already at a higher point
       #than that
       sub.status = max(sub.status, 2)
+      sub.comments = AUTOGRADER_HEADER + "No tests provided. Testing complete."
       sub.save()
       return
 
     #Create the directory name for the testing files
-    #In the form COURSE_ASSIGNMENT_PROBLEM_USER_SUBNUM to prevent conflicts with
-    #rapid submissions
-    testDirName = "_".join([course.name, assignment.name, problem.name, user.username, str(subnum)])
-    #Remove spaces from the name
-    testDirName = "-".join(testDirName.split())
-    #Make the path for the test dir
-    testDirPath = os.path.join("/tmp", testDirName)
+    #We use tempfile.mkdtemp to get a random secure temporary directory
+    from tempfile import mkdtemp
+    testDirPath = mkdtemp()
 
-    #Make the testing directory and move to it
-    os.mkdir(testDirPath)
+    #Change to that directory
     os.chdir(testDirPath)
 
     #Get all submitted files and put them in the temp directory
@@ -50,8 +54,19 @@ def gradeSubmission(pid, uid, subnum):
     submittedFiles = [f for f in os.listdir(submissionDir) if os.path.isfile(os.path.join(submissionDir, f))]
 
     #Move the files
+    requiredFiles = problem.getRequiredFiles()
     for f in submittedFiles:
+      if f in requiredFiles:
+        requiredFiles.remove(f)
       shutil.copy(os.path.join(submissionDir, f), testDirPath)
+
+    if len(requiredFiles) > 0:
+      sub = problem.getSubmission(user, subnum)
+      sub.status = max(sub.status, 2)
+      sub.comments = AUTOGRADER_HEADER + "Submission missing files."
+      sub.save()
+      shutil.rmtree(testDirPath)
+      return
 
     #Move the test files
     #NOTE: We move these files second so that if a student submits a file that
@@ -66,13 +81,7 @@ def gradeSubmission(pid, uid, subnum):
     #Get the submission so we can print results
     sub = problem.getSubmission(user, subnum)
 
-    sub.comments = \
-"""
-# Grader #
-* * *
-# Autograder #
-
-"""
+    sub.comments = AUTOGRADER_HEADER
 
     #Run each test function and parse the results
     for f in problem.testfiles:
@@ -82,27 +91,25 @@ def gradeSubmission(pid, uid, subnum):
         gradeSpec = json.load(spec)
 
       #Start a section for this file
-      sub.comments += "### " + f + " ###\n"
+      sub.comments += "### Test file: " + f + " ###\n"
 
       try:
-        startTime = datetime.now()
-        testProc = Popen(['python', f], stdout=PIPE, stderr=PIPE, env=os.environ)
+        testRunner = getTestRunners()[gradeSpec['type']]
+        resultParser = getTestResultParsers()[gradeSpec['type']]
 
-        timeoutReached = False
-        while testProc.poll() is None:
-          currentTime = datetime.now()
-          delta = currentTime - startTime
-          if delta.total_seconds() > 30: #TODO: Fix arbitrary timeout limit
-            testProc.kill()
-            timoutReached = True
-            break
+        timeout, testOutput, testError = testRunner([], f, 30)
 
-        if timeoutReached:
+        if timeout:
           sub.comments += '<font color="Red">Timeout Occurred</font>\n\n'
           continue #we are done so just do the next file
 
-        testOutput, testError = testProc.communicate()
-        summary, failedTests = pythonResultParser(testOutput, testError)
+        summary, failedTests = resultParser(testOutput, testError)
+
+        sub.comments += "**" + str(summary['total']) + " tests run**\n\n"
+
+        if summary['died']:
+          sub.comments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
+
 
         #Go through the sections and find assign points
         for section in gradeSpec['sections']:
@@ -116,21 +123,21 @@ def gradeSubmission(pid, uid, subnum):
             else:
               sub.comments += '##### <font color="Green">Passed</font>:' + test +" #####\n"
 
+          sub.comments += "***\n"
+
           #Assign the score
           assignedPoints = Decimal(section['points']) * (Decimal(1)-(Decimal(failed)/Decimal(len(section['tests']))))
-          print len(section['tests'])
+
           if section['section'] in sub.grade.scores:
             sub.grade.scores[section['section']] += assignedPoints
           else:
             sub.grade.scores[section['section']] = assignedPoints
       except Exception as e:
-        sub.comments += "Error running tests: \n<pre>" + str(e) + "</pre>\n\n"
+        sub.comments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
 
     #Remove the testing directory and all of the files
     shutil.rmtree(testDirPath)
 
-    print "Saving submission changes"
-    #TODO: Actually finish the work now we are just testing filemoving
     sub = problem.getSubmission(user, subnum)
     sub.status = max(sub.status, 2)
     sub.save()

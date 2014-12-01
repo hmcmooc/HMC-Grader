@@ -163,11 +163,14 @@ def uploadFiles(pid):
         submittedFiles = request.files.getlist("files")
 
 
-        # missing = ensureFiles(p, submittedFiles)
-        # if not len(missing) == 0:
-        #   for m in missing:
-        #     flash("Missing required file: " + m, "warning")
-        #   return redirect(url_for('studentAssignments', cid=c.id))
+        missing = ensureFiles(p, submittedFiles)
+        if not len(missing) == 0:
+          if len(missing) > 0:
+            flash("Some required files are missing from your submission. \
+                  it has been accepted but autograding will not run.", "warning")
+          for m in missing:
+            flash("Missing required file: " + m, "warning")
+
         userSub = createSubmission(p, g.user, filepath, submittedFiles)
 
         if form.partner.data != "None":
@@ -212,10 +215,14 @@ def uploadFiles(pid):
 #
 
 def ensureFiles(problem, files):
-  from zipfile import ZipFile, is_zipfile
+  import magic
+  from zipfile import ZipFile
   reqFiles = problem.getRequiredFiles()
   for f in files:
-    if is_zipfile(f):
+    mime = magic.from_buffer(f.read(), mime=True)
+    f.seek(0)
+    #If it is a zip let us peek inside
+    if mime[1] == "zip":
       z = ZipFile(f)
       for member in z.namelist():
         if os.path.basename(member) in reqFiles:
@@ -224,7 +231,9 @@ def ensureFiles(problem, files):
       #Apparently when you traverse the zipfile it doesn't put the pointer
       #back which causes a crash later
       f.seek(0)
-    elif f.filename in reqFiles:
+
+    #Check if the filename is in our required file list
+    if f.filename in reqFiles:
       reqFiles.remove(f.filename)
       f.seek(0)
 

@@ -1,6 +1,7 @@
 import re
 from subprocess import Popen, PIPE
 from os import environ
+from datetime import datetime
 
 import itertools, json
 
@@ -27,8 +28,20 @@ def testFileParser(filename):
 
   return testNames
 
-def runTests():
-  return ""
+def runTests(cmdPrefix, testFile, timeLimit):
+  startTime = datetime.now()
+  testProc = Popen(cmdPrefix + ['python', testFile], stdout=PIPE, stderr=PIPE, env=environ)
+
+  timeoutReached = False
+  while testProc.poll() is None:
+    currentTime = datetime.now()
+    delta = currentTime - startTime
+    if delta.total_seconds() > timeLimit:
+      testProc.kill()
+      timeoutReached = True
+      break
+
+  return timeoutReached, testProc.stdout.read(), testProc.stderr.read()
 
 def testResultParser(output, error):
   failedSections = error.split('='*70)

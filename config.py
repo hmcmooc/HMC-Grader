@@ -34,3 +34,11 @@ STORAGE_HOME="/home/plenk/GroodyGrader"
 SYSTEM_EMAIL_ADDRESS = "cloud@cs.hmc.edu"
 
 SMTP_SERVER = "knuth.cs.hmc.edu"
+
+
+#
+# Autograder settings
+#
+
+AUTOGRADER_PLUGIN_DIRECTORY = os.path.join(STORAGE_HOME, "/plugins/autograder")
+LATEWORK_PLUGIN_DIRECTORY = os.path.join(STORAGE_HOME, "/plugins/latework")
