@@ -1,3 +1,4 @@
+from app import app
 from os import listdir, getcwd
 from os.path import isfile, join, basename, dirname, splitext
 import imp

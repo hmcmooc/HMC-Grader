@@ -1,9 +1,6 @@
 import unittest
 
-try:
-  import test as hw
-except:
-  pass
+import test as hw
 
 class SimpleTests(unittest.TestCase):
 

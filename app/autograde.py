@@ -10,7 +10,7 @@ from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
 
-from app.autograder import getTestResultParsers, getTestRunners
+from app.autograder import getTestRunners
 
 from app.helpers.filestorage import *
 
@@ -91,25 +91,24 @@ def gradeSubmission(pid, uid, subnum):
         gradeSpec = json.load(spec)
 
       #Start a section for this file
-      sub.comments += "### Test file: " + f + " ###\n"
+      sub.comments += "### **Test file**: " + f + " ###\n"
 
       try:
         testRunner = getTestRunners()[gradeSpec['type']]
-        resultParser = getTestResultParsers()[gradeSpec['type']]
 
-        timeout, testOutput, testError = testRunner([], f, 30)
+        summary, failedTests = testRunner([], f, 30)
 
-        if timeout:
-          sub.comments += '<font color="Red">Timeout Occurred</font>\n\n'
-          continue #we are done so just do the next file
-
-        summary, failedTests = resultParser(testOutput, testError)
-
-        sub.comments += "**" + str(summary['total']) + " tests run**\n\n"
+        if summary['timeout']:
+          sub.comments += "<font color='Red'>A timeout occured</font>\n\n"
+          continue
 
         if summary['died']:
           sub.comments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
+          sub.comments += "<pre>" + summary['generalError'] + "</pre>\n"
+          continue
 
+        sub.comments += "**" + str(summary['totalTests']) + " tests run**\n\n"
+        sub.comments += "**" + str(summary['failedTests']) + " tests failed**\n\n"
 
         #Go through the sections and find assign points
         for section in gradeSpec['sections']:
