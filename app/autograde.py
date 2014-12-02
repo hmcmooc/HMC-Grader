@@ -81,6 +81,9 @@ def gradeSubmission(pid, uid, subnum):
     #Get the submission so we can print results
     sub = problem.getSubmission(user, subnum)
 
+    sub.status = max(sub.status, 1)
+    sub.save()
+
     sub.comments = AUTOGRADER_HEADER
 
     #Run each test function and parse the results
@@ -112,20 +115,26 @@ def gradeSubmission(pid, uid, subnum):
 
         #Go through the sections and find assign points
         for section in gradeSpec['sections']:
-          sub.comments += "#### **Test Section**: " + section['name'] + " ####\n"
+          sectionContent = ""
           failed = 0
           for test in section['tests']:
             if test in failedTests:
               failed += 1
-              sub.comments += '##### <font color="Red">Failed</font>:' + test +" #####\n"
-              sub.comments += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
+              sectionContent += '##### <font color="Red">Failed</font>:' + test +" #####\n"
+              sectionContent += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
             else:
-              sub.comments += '##### <font color="Green">Passed</font>:' + test +" #####\n"
+              sectionContent += '##### <font color="Green">Passed</font>:' + test +" #####\n"
 
-          sub.comments += "***\n"
+          sectionContent += "***\n"
 
           #Assign the score
           assignedPoints = Decimal(section['points']) * (Decimal(1)-(Decimal(failed)/Decimal(len(section['tests']))))
+
+          assignedString = "%.2f" % float(assignedPoints)
+          pointsString = "%.2f" % float(section['points'])
+
+          sub.comments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
+          sub.comments += sectionContent
 
           if section['section'] in sub.grade.scores:
             sub.grade.scores[section['section']] += assignedPoints

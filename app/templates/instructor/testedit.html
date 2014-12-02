@@ -56,6 +56,11 @@ Edit Tests
 {% block scripts %}
 {{super()}}
 <script>
+function cleanID(id){
+  var newId = id.split(' ').join('-')
+  return newId
+}
+
 var gradeSpec = {{data|tojson}};
 var sections = {{problem.rubric.keys()|tojson}};
 
@@ -88,7 +93,7 @@ function buildPage(){
 
 function makeTestSelector(name, index){
   var sec = gradeSpec.sections[index];
-  var sel = '<select id="'+name+'Test" class="form-control">';
+  var sel = '<select id="'+cleanID(name)+'Test" class="form-control">';
   for(var i = 0; i < gradeSpec.tests.length; ++i){
     if (sec.tests.indexOf(gradeSpec.tests[i]) == -1){
       sel += '<option value="'+gradeSpec.tests[i]+'">'+gradeSpec.tests[i]+'</option>'
@@ -101,7 +106,7 @@ function makeTestSelector(name, index){
 function makeSectionSelector(name, index){
   var sec = gradeSpec.sections[index];
   var rubricSects = sections;
-  var sel = '<select id="'+name+'Section" index="'+index+'" mytype="rubricSelector" class="form-control">';
+  var sel = '<select id="'+cleanID(name)+'Section" index="'+index+'" mytype="rubricSelector" class="form-control">';
   for(var i = 0; i < rubricSects.length; ++i){
     if(rubricSects[i] == sec.rubric){
       sel += '<option selected="selected"'
@@ -130,7 +135,7 @@ function makeSectionPane(name, index){
   <div class="col-sm-6">Rubric Section: '+makeSectionSelector(name, index)+'</div>\
   </div>\
   </div>\
-  <table class="table table-bordered" id="' + name + '">\
+  <table class="table table-bordered" id="' + cleanID(name) + '">\
     <thead><tr><th>Test Name</th><th>Remove</th></thead>\
     <tbody>\
     <tr><td>'+makeTestSelector(name, index)+'</td><td><button onClick="addTest('+index+')" class="btn btn-s btn-primary"><span class="glyphicon glyphicon-plus"></span></button></td></tr>\
@@ -141,7 +146,7 @@ function makeSectionPane(name, index){
 
 function makeTestEntry(secName, testName, secIndex, testIndex){
   console.log(testName);
-  $('table#'+secName+' tbody tr:last').before('<tr id="'+testName+'"><td>'+testName+'</td><td><button onClick="removeTest('+secIndex+','+testIndex+')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></button></td></tr>')
+  $('table#'+cleanID(secName)+' tbody tr:last').before('<tr id="'+testName+'"><td>'+testName+'</td><td><button onClick="removeTest('+secIndex+','+testIndex+')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></button></td></tr>')
 }
 
 function removeSection(index){
@@ -157,7 +162,7 @@ function removeTest(secIndex, testIndex){
 
 function addTest(secIndex){
   var sec = gradeSpec.sections[secIndex];
-  var testName = $("select#"+sec.name+"Test").val();
+  var testName = $("select#"+cleanID(sec.name)+"Test").val();
   sec.tests.push(testName);
   buildPage();
 }
