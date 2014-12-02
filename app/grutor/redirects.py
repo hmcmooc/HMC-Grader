@@ -281,7 +281,7 @@ def grutorClockIn():
           c = Course.objects.get(id=cid)
 
           #Check for security purposes
-          if not c in g.user.activeGrading():
+          if not c in g.user.gradingActive():
             abort(403)
 
           u = User.objects.get(id=current_user.id)
