@@ -37,6 +37,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
     summary = {}
     summary['died'] = True
     summary['generalError'] = compOut
+    summary['timeout'] = False
     return summary, {}
 
   className = testFile[:-5]
@@ -52,7 +53,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
     delta = currentTime - startTime
     if delta.total_seconds() > timeLimit:
       runner.kill()
-      return {'timeout':True}, {}
+      return {'timeout':True, 'died':False}, {}
       break
 
   stdout,stderr = runner.communicate()

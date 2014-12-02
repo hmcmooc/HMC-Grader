@@ -13,14 +13,14 @@ from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
 
-@app.route('/viewpage/<pgid>')
+@app.route('/page/view/id/<pgid>')
 @login_required
 def viewPage(pgid):
   page = Page.objects.get(id=pgid)
   return render_template('pages/viewpage.html', page=page)
 
 
-@app.route('/editpage/<pgid>')
+@app.route('/page/edit/id/<pgid>')
 @login_required
 def editPage(pgid):
   if len(current_user.gradingCourses()) == 0:
@@ -28,7 +28,7 @@ def editPage(pgid):
   page = Page.objects.get(id=pgid)
   return render_template('pages/editpage.html', page=page)
 
-@app.route('/editpage/<pgid>/save', methods=['POST'])
+@app.route('/page/save/<pgid>', methods=['POST'])
 @login_required
 def savePage(pgid):
   try:
