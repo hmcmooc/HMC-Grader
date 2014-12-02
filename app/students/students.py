@@ -321,15 +321,23 @@ def createSubmission(problem, user, filepath, files):
   #make sure the directory exists
   os.makedirs(filepath)
 
+  try:
 
-  for f in files:
-    filename = secure_filename(f.filename)
-    if filename == "":
-      continue
-    f.save(os.path.join(filepath, filename))
-    processZip(filepath, filename)
-
-  sub.save()
+    for f in files:
+      filename = secure_filename(f.filename)
+      if filename == "":
+        continue
+      f.save(os.path.join(filepath, filename))
+      processZip(filepath, filename)
+  except Exception as e:
+      shutil.rmtree(filepath)
+      flash("One of your files has caused our system to crash."+\
+      " This most commonly happens with zip files which contain two copies of files with the same name or a file which has the same name as the zip file itself."+\
+      " Please look at the error and try to correct this issue."+\
+      " If this is not your issue please report a bug to the system administrator", "warning")
+      raise e
+  else:
+    sub.save()
 
   return sub
 
