@@ -318,10 +318,9 @@ def createSubmission(problem, user, filepath, files):
   if problem.duedate < sub.submissionTime:
     sub.isLate = True
 
-  #make sure the directory exists
-  os.makedirs(filepath)
-
   try:
+    #make sure the directory exists
+    os.makedirs(filepath)
 
     for f in files:
       filename = secure_filename(f.filename)
