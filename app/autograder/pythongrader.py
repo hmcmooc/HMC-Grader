@@ -6,7 +6,7 @@ import re
 
 import itertools, json
 
-PLUGIN_NAME = "Python"
+PLUGIN_NAME = "Python (pyunit)"
 
 PYTHON_TEST_REGEX=r"^.*?def (.*?)\(self\):$"
 
