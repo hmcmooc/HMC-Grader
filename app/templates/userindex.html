@@ -47,6 +47,24 @@ Submission Site
 {% endif %}
 
 {% if g.user.gradingActive()|length > 0%}
+{% if numInProgress > 0 %}
+<br>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel {% if numInProgress < 10 %}panel-success{% elif numInProgress < 20 %}panel-warning{%else%}panel-danger{%endif%}">
+      <div class="panel-heading">
+        <b>Current in progress grading</b>
+      </div>
+      <div class="panel-body">
+        You have {{numInProgress}} grade(s) that you havent finished.
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{%endif%}
+
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
@@ -104,5 +122,6 @@ Submission Site
   </div>
   <div class="col-sm-2"></div>
 </div>
+
 {% endif %}
 {% endblock %}

@@ -6,6 +6,7 @@ from app import app, loginManager
 from flask import g, request, render_template, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
+from models.course import *
 from models.stats import *
 from app.forms import AttendanceForm, ClockInForm
 
@@ -31,16 +32,17 @@ def index():
   Forms Handled: None
   '''
   if g.user.is_authenticated():
-    attendForm = AttendanceForm()
-    attendForm.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
-
     clockForm = ClockInForm()
     clockForm.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
 
     activeHours = GraderStats.objects.filter(user=g.user.id, clockOut=None)
+
+    inProgress = Submission.objects.filter(gradedBy=g.user.id, status=3)
+
     return render_template("userindex.html", active_page="index", \
                             clockForm=clockForm,\
-                            activeHours=activeHours)
+                            activeHours=activeHours,\
+                            numInProgress=len(inProgress))
   return render_template("index.html", active_page="index")
 
 
