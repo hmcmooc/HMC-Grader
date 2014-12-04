@@ -17,7 +17,13 @@ from werkzeug import secure_filename
 @login_required
 def viewPage(pgid):
   page = Page.objects.get(id=pgid)
-  return render_template('pages/viewpage.html', page=page)
+  if page.generalView or \
+    (page.studentView and any([x in g.user.courseStudent for x in page.courses])) or\
+    (page.grutorView and any([x in g.user.courseGrutor for x in page.courses])) or\
+    (any([x in g.user.courseInstructor for x in page.courses])):
+    return render_template('pages/viewpage.html', page=page)
+  else:
+    abort(403)
 
 
 @app.route('/page/edit/id/<pgid>')
@@ -26,7 +32,10 @@ def editPage(pgid):
   if len(current_user.gradingCourses()) == 0:
     abort(403)
   page = Page.objects.get(id=pgid)
-  return render_template('pages/editpage.html', page=page)
+  otherPages = {}
+  for c in page.courses:
+    otherPages[c.semester+"/"+c.name] = Page.objects.filter(courses=c)
+  return render_template('pages/editpage.html', page=page, otherPages=otherPages)
 
 @app.route('/page/save/<pgid>', methods=['POST'])
 @login_required

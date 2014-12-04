@@ -80,12 +80,24 @@ Edit Page
 <div class="row">
   <div class="col-sm-2">
   </div>
-  <div class="col-sm-8">
+  <div class="col-sm-5">
     <textarea id="commentarea" class="form-control" rows="24">{{page.text}}</textarea>
+  </div>
+  <div class="col-sm-3">
+    <h3>Other pages from course(s)</h3>
+    <div class="list-group">
+      {% for c in page.courses %}
+        <li class="list-group-item list-group-item-info">{{c.semester}}/{{c.name}}</li>
+        {% for op in otherPages[c.semester+"/"+c.name] %}
+          <a href="{{url_for('viewPage', pgid=op.id)}}" class="list-group-item">&nbsp;&nbsp;&nbsp;{{op.title}}</a>
+        {% endfor %}
+      {% endfor %}
+    </div>
   </div>
   <div class="col-sm-2">
   </div>
 </div>
+<!--Here is the preview -->
 <hr>
 <div class="row">
   <div class="col-sm-2">
