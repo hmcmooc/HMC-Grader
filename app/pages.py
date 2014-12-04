@@ -37,6 +37,11 @@ def savePage(pgid):
     page = Page.objects.get(id=pgid)
     content = request.get_json()
     page.text = content['text']
+    page.title = content['title']
+    page.generalView = content['generalView']
+    page.studentView = content['studentView']
+    page.grutorView = content['grutorView']
+    page.grutorEdit = content['grutorEdit']
     page.save()
     return jsonify(res=True)
   except Exception as e:

@@ -28,19 +28,6 @@ from app.helpers.filestorage import *
 #This query atomically selects a submision from the problem we want which is
 #the latest submission for a user and is ready to be graded. It then sets that
 #submission as begin graded and sets our user as the grader for this submission
-# LOCK_QUERY = """
-# function() {
-# var res = db[collection].findAndModify(
-# {
-# query: {problem: options.pid, status: 2, isLatest:true},
-# update: {$set: {status: 3, gradedBy: options.uid}},
-# new: true,
-# fields: {'_id':1}
-# });
-# return res;
-# }
-# """
-
 LOCK_QUERY = """
 function() {
 var res = db[collection].findAndModify(

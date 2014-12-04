@@ -41,26 +41,26 @@ Edit Page
   </div>
   <div class="col-sm-2">
     <div class="form-group">
-      <input type="checkbox" id="generalVisible" {% if page.generalView %}checked{%endif%}></input>
-      <label for="studentVisible">Visible to Anyone</label>
+      <input type="checkbox" id="generalVisible" {% if page.generalView %}checked="checked"{%endif%}></input>
+      <label for="generalVisible">Visible to Anyone</label>
     </div>
   </div>
   <div class="col-sm-2">
     <div class="form-group">
-      <input type="checkbox" id="studentVisible" {% if page.studentView %}checked{%endif%}></input>
+      <input type="checkbox" id="studentVisible" {% if page.studentView %}checked="checked"{%endif%}></input>
       <label for="studentVisible">Visible to Student</label>
     </div>
   </div>
   <div class="col-sm-2">
     <div class="form-group">
-      <input type="checkbox" id="graderVisible" {% if page.grutorView %}checked{%endif%}></input>
-      <label for="studentVisible">Visible to Grader</label>
+      <input type="checkbox" id="graderVisible" {% if page.grutorView %}checked="checked"{%endif%}></input>
+      <label for="graderVisible">Visible to Grader</label>
     </div>
   </div>
   <div class="col-sm-2">
     <div class="form-group">
-      <input type="checkbox" id="graderEditable" {% if page.grutorEdit %}checked{%endif%}></input>
-      <label for="studentVisible">Editable by Grader</label>
+      <input type="checkbox" id="graderEdit" {% if page.grutorEdit %}checked="checked"{%endif%}></input>
+      <label for="graderEdit">Editable by Grader</label>
     </div>
   </div>
   <div class="col-sm-2">
@@ -71,7 +71,7 @@ Edit Page
   </div>
   <div class="col-sm-8">
     <button id="previewBtn" type="button" class="btn btn-default">Preview</button>
-    <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Save</button>
+    <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-floppy-saved"></span> Saved</button>
   </div>
   <div class="col-sm-2">
   </div>
@@ -110,6 +110,41 @@ Edit Page
 {% block scripts %}
 {{super()}}
 <script>
+function unsaved(){
+  $("#saveBtn").attr('class', "btn btn-warning")
+  $("#saveBtn").html("<span class='glyphicon glyphicon-floppy-save'></span> Save")
+}
+
+$("#commentarea").bind('input propertychange', function(){
+  unsaved()
+});
+
+$("#title").bind('input propertychange', function(){
+  unsaved()
+});
+
+$("#generalVisible").change(function(){
+  unsaved()
+});
+
+$("#studentVisible").change(function(){
+  unsaved()
+});
+
+$("#graderVisible").change(function(){
+  unsaved()
+  if ($(this).prop("checked")) {
+    $("#graderEdit").attr("disabled", false);
+  } else {
+    $("#graderEdit").attr("disabled", true);
+    $("#graderEdit").attr("checked", false);
+  }
+});
+
+$("#graderEdit").change(function(){
+  unsaved()
+});
+
 $("#previewBtn").click(function(){
   values = {}
   values["text"] = $("#commentarea").val()
@@ -128,7 +163,11 @@ $("#previewBtn").click(function(){
 function saveComments(){
   values = {}
   values["text"] = $("#commentarea").val()
-  console.log(values)
+  values["title"] = $("#title").val()
+  values["generalView"] = $("#generalVisible").prop('checked');
+  values["studentView"] = $("#studentVisible").prop('checked');
+  values["grutorView"] = $("#graderVisible").prop('checked');
+  values["grutorEdit"] = $("#graderEdit").prop('checked');
   $.ajax({
     url:"{{url_for('savePage', pgid=page.id)}}",
     type:'POST',
@@ -136,8 +175,7 @@ function saveComments(){
     data: JSON.stringify(values),
     dataType: 'json',
     success: function(data) {
-      //Nothing to do
-      console.log(data)
+      location.reload()
     }
   });
 }
