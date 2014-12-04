@@ -23,6 +23,10 @@ class Submission(db.Document):
   A submission contains all the information about one attempt at a given problem
   by a student.
   '''
+  #bookkeeping
+  problem = db.ReferenceField('Problem')
+  isLatest = db.BooleanField(default=True)
+
   submissionTime = db.DateTimeField(required=True)
   isLate = db.BooleanField(default=False)
   grade = db.ReferenceField('GBGrade')
@@ -73,6 +77,12 @@ class StudentSubmissionList(db.EmbeddedDocument):
       s.cleanup()
       s.delete()
     self.submissions = []
+
+  def addSubmission(self, sub):
+    if len(self.submissions) > 0:
+      self.submissions[-1].isLatest = False
+      self.submissions[-1].save()
+    self.submissions.append(sub)
 
 class Problem(db.Document):
   '''
@@ -165,6 +175,12 @@ class Problem(db.Document):
       return re.split(', *', self.requiredFiles)
     else:
       return []
+
+  def getSubmissionInfo(self, sub):
+    for key, value in self.studentSubmissions.iteritems():
+      if sub in value.submissions:
+        return User.objects.get(username=key), (value.submissions.index(sub)+1)
+    return None, -1
 
 
 class AssignmentGroup(db.Document):

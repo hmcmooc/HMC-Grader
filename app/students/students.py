@@ -172,10 +172,14 @@ def uploadFiles(pid):
             flash("Missing required file: " + m, "warning")
 
         userSub = createSubmission(p, g.user, filepath, submittedFiles)
+        userSub.problem = p
+        userSub.save()
 
         if form.partner.data != "None":
           partner = User.objects.get(id=form.partner.data)
           partnerSub = createSubmission(p, partner, filepath, submittedFiles)
+          partnerSub.problem = p
+          partnerSub.save()
 
           #Create the partner info for the first user
           uPartnerInfo = PartnerInfo()
@@ -312,7 +316,7 @@ def createSubmission(problem, user, filepath, files):
   sub.submissionTime = datetime.datetime.utcnow()
 
   sub.save()
-  problem.studentSubmissions[user.username].submissions.append(sub)
+  problem.studentSubmissions[user.username].addSubmission(sub)
 
   #Check for lateness
   if problem.duedate < sub.submissionTime:

@@ -9,7 +9,7 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Edit Grading Notes</h1>
+    <h1>Edit {{page.title}}</h1>
     <br>
   </div>
   <div class="col-sm-2">
@@ -19,15 +19,83 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <textarea id="commentarea" class="form-control" rows="24">{{page.text}}</textarea>
-    <br>
+    <div class="form-group">
+      <label for="studentVisible">Page Title</label>
+      <input class="form-control" type="text" id="title" value="{{page.title}}"></input>
+    </div>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h4>Permissions</h4>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-2">
+    <div class="form-group">
+      <input type="checkbox" id="generalVisible" {% if page.generalView %}checked{%endif%}></input>
+      <label for="studentVisible">Visible to Anyone</label>
+    </div>
+  </div>
+  <div class="col-sm-2">
+    <div class="form-group">
+      <input type="checkbox" id="studentVisible" {% if page.studentView %}checked{%endif%}></input>
+      <label for="studentVisible">Visible to Student</label>
+    </div>
+  </div>
+  <div class="col-sm-2">
+    <div class="form-group">
+      <input type="checkbox" id="graderVisible" {% if page.grutorView %}checked{%endif%}></input>
+      <label for="studentVisible">Visible to Grader</label>
+    </div>
+  </div>
+  <div class="col-sm-2">
+    <div class="form-group">
+      <input type="checkbox" id="graderEditable" {% if page.grutorEdit %}checked{%endif%}></input>
+      <label for="studentVisible">Editable by Grader</label>
+    </div>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
     <button id="previewBtn" type="button" class="btn btn-default">Preview</button>
     <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Save</button>
   </div>
   <div class="col-sm-2">
   </div>
 </div>
+<br>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <textarea id="commentarea" class="form-control" rows="24">{{page.text}}</textarea>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
 <hr>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h1>{{page.title}}</h1>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
 <div class="row">
   <div class="col-sm-2">
   </div>
