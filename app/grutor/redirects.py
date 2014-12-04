@@ -68,66 +68,6 @@ def grutorGradeRandom(pid):
     user, subnum = p.getSubmissionInfo(sub)
     return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=subnum))
 
-    # #create a path to the lockfile
-    # filepath = getProblemPath(c, a, p)
-    # if not os.path.isdir(filepath):
-    #   os.makedirs(filepath)
-    # filepath = os.path.join(filepath, '.lock')
-    # students = User.objects.filter(courseStudent=c)
-    # #Open the file and get a writelock to serialize
-    # with open(filepath, 'w+') as f:
-    #   fcntl.flock(f, fcntl.LOCK_EX)
-    #
-    #   def getSubmission(name):
-    #     if name in p.studentSubmissions:
-    #       return (name, p.studentSubmissions[name].submissions[-1], len(p.studentSubmissions[name].submissions))
-    #     else:
-    #       return (name, None, 1)
-    #
-    #   #Find an ungraded assignment
-    #   submissions = map(lambda x: getSubmission(x.username), students)
-    #   #Get only submissions that can be graded
-    #   #Define a small predicate to use in the filter
-    #   def isGradeable(submission):
-    #     #get the submission from the tuple
-    #     sub = submission[1]
-    #     #Handle submissions with nothing attached
-    #     if sub == None:
-    #       return True
-    #     if sub.status == 2:
-    #       return True
-    #     else:
-    #       return False
-    #
-    #   submissions = filter(isGradeable, submissions)
-    #   if len(submissions) == 0:
-    #     #If there are none to pick redirect and notify
-    #     flash("All submissions have been claimed")
-    #     fcntl.flock(f, fcntl.LOCK_UN)
-    #     return redirect(url_for('grutorGradelistProblem', pid=pid))
-    #
-    #   #To prevent race conditions we claim these before the lock is released
-    #   #even though this also happens when we redirect
-    #   subTuple = random.choice(submissions)
-    #   sub = subTuple[1]
-    #   #Handle a non submission
-    #   if sub == None:
-    #     flash("This student submitted nothing. A blank submission has been created")
-    #     #Leverage this function to create stuff for us
-    #     grutorMakeBlank(pid, User.objects.get(username=subTuple[0]).id)
-    #   else:
-    #     sub.status = 3
-    #     sub.save()
-    #     if sub.partnerInfo != None:
-    #       sub.partnerInfo.submission.status = 3
-    #       sub.partnerInfo.submission.save()
-    #   #release the lock
-    #   fcntl.flock(f, fcntl.LOCK_UN)
-    #   #redirect to grading
-    #   #We get the user after releasing the lock to prevent deadlock if this fails
-    #   #for some reason
-    #   user = User.objects.get(username=subTuple[0])
-    #   return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=subTuple[2]))
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
     abort(404)
