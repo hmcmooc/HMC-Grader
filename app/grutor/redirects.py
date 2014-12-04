@@ -28,11 +28,24 @@ from app.helpers.filestorage import *
 #This query atomically selects a submision from the problem we want which is
 #the latest submission for a user and is ready to be graded. It then sets that
 #submission as begin graded and sets our user as the grader for this submission
+# LOCK_QUERY = """
+# function() {
+# var res = db[collection].findAndModify(
+# {
+# query: {problem: options.pid, status: 2, isLatest:true},
+# update: {$set: {status: 3, gradedBy: options.uid}},
+# new: true,
+# fields: {'_id':1}
+# });
+# return res;
+# }
+# """
+
 LOCK_QUERY = """
 function() {
 var res = db[collection].findAndModify(
 {
-query: {problem: options.pid, status: 2, isLatest:true},
+query: {_id: options.id, status: 2, isLatest:true},
 update: {$set: {status: 3, gradedBy: options.uid}},
 new: true,
 fields: {'_id':1}
@@ -45,9 +58,6 @@ return res;
 EMPTY_LOCK_QUERY = """
 function() {
 var fieldName = "studentSubmissions."+options.uname;
-
-
-
 var q = {};
 q._id = options.pid;
 q[fieldName]= {};
@@ -88,27 +98,26 @@ def grutorGradeRandom(pid):
     if not (c in current_user.gradingCourses()):
       abort(403)
 
-    #Execute a javascript query to claim the submission
-    sub = Submission.objects.exec_js(LOCK_QUERY, pid=p.id, uid=current_user.id)
-    if sub == None:
-      #If we didn't find one that was submitted try to find a non submitted one
-      courseUsers = list(User.objects.filter(courseStudent=c))
-      random.shuffle(courseUsers)
+    #Shuffle the users in the course so we can get a random one
+    courseUsers = list(User.objects.filter(courseStudent=c))
+    random.shuffle(courseUsers)
 
-      #Try the users
-      for user in courseUsers:
-        found = Problem.objects.exec_js(EMPTY_LOCK_QUERY, pid=p.id, uname=user.username)
-        if found != None:
-          flash("Created blank for user " + user.username)
+    #For each user try to get a submission for them
+    for user in courseUsers:
+      #If there is no submission make an entry for them
+      if not user.username in p.studentSubmissions:
+        res = Problem.objects.exec_js(EMPTY_LOCK_QUERY, pid=p.id, uname=user.username)
+        if not res == None:
           grutorMakeBlank(p.id, user.id)
+          flash("Created a blank submission", "warning")
           return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=1))
-
-      flash("All submissions have been claimed", "warning")
-      return redirect(url_for('grutorGradelistProblem', pid=pid))
-    sub = Submission.objects.get(id=sub['_id'])
-
-    user, subnum = p.getSubmissionInfo(sub)
-    return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=subnum))
+      else:
+        sub = p.getLatestSubmission(user)
+        res = Submission.objects.exec_js(LOCK_QUERY, id=sub.id, uid=g.user.id)
+        if not res == None:
+          return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=p.getSubmissionNumber(user)))
+    flash("All submissions have been claimed", "warning")
+    return redirect(url_for('grutorGradelistProblem', pid=pid))
 
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
@@ -259,7 +268,7 @@ def grutorMakeBlank(pid, uid):
     sub.grade = p.gradeColumn.scores[user.username]
     sub.submissionTime = datetime.datetime.utcnow()
     sub.status = 3
-    sub.gradedBy = g.user
+    sub.gradedBy = User.objects.get(id=g.user.id)
 
     sub.save()
     p.studentSubmissions[user.username].addSubmission(sub)
