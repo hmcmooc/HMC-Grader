@@ -25,6 +25,9 @@ import markdown
 
 from app.helpers.filestorage import *
 
+#This query atomically selects a submision from the problem we want which is
+#the latest submission for a user and is ready to be graded. It then sets that
+#submission as begin graded and sets our user as the grader for this submission
 LOCK_QUERY = """
 function() {
 var res = db[collection].findAndModify(
@@ -34,6 +37,33 @@ update: {$set: {status: 3, gradedBy: options.uid}},
 new: true,
 fields: {'_id':1}
 });
+return res;
+}
+"""
+
+#This query automatically
+EMPTY_LOCK_QUERY = """
+function() {
+var fieldName = "studentSubmissions."+options.uname;
+
+
+
+var q = {};
+q._id = options.pid;
+q[fieldName]= {};
+q[fieldName].$exists = false;
+
+var field = {};
+field[fieldName] = {};
+field[fieldName].submissions = [];
+
+var res = db[collection].findAndModify(
+{
+query: q,
+update: {$set: field},
+fields: {'_id':1}
+});
+
 return res;
 }
 """
@@ -61,6 +91,18 @@ def grutorGradeRandom(pid):
     #Execute a javascript query to claim the submission
     sub = Submission.objects.exec_js(LOCK_QUERY, pid=p.id, uid=current_user.id)
     if sub == None:
+      #If we didn't find one that was submitted try to find a non submitted one
+      courseUsers = list(User.objects.filter(courseStudent=c))
+      random.shuffle(courseUsers)
+
+      #Try the users
+      for user in courseUsers:
+        found = Problem.objects.exec_js(EMPTY_LOCK_QUERY, pid=p.id, uname=user.username)
+        if found != None:
+          flash("Created blank for user " + user.username)
+          grutorMakeBlank(p.id, user.id)
+          return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=1))
+
       flash("All submissions have been claimed", "warning")
       return redirect(url_for('grutorGradelistProblem', pid=pid))
     sub = Submission.objects.get(id=sub['_id'])
@@ -216,6 +258,8 @@ def grutorMakeBlank(pid, uid):
     sub.filePath = filepath
     sub.grade = p.gradeColumn.scores[user.username]
     sub.submissionTime = datetime.datetime.utcnow()
+    sub.status = 3
+    sub.gradedBy = g.user
 
     sub.save()
     p.studentSubmissions[user.username].addSubmission(sub)
