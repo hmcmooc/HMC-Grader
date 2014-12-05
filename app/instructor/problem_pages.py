@@ -24,6 +24,8 @@ def makeProblemNewPage(pid, t):
       abort(403)
 
     notes = Page()
+    notes.initializePerms()
+    notes.course = c
     notes.save()
 
     if t == "notes":

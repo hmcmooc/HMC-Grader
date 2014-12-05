@@ -12,17 +12,62 @@ from app.models.pages import *
 from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
+import markdown, re
+
+
+WIKI_LINK_REGEX = r"\[(.+)\]<(.+)>"
+ID_REGEX = r"(?<!\\),"
+
+def wikiAdaptations(page):
+  linkRegex = re.compile(WIKI_LINK_REGEX)
+  pageText = page.text
+
+  for link in linkRegex.finditer(pageText):
+    try:
+      text = link.group(1)
+      identifier = link.group(2)
+
+      identifiers = re.split(ID_REGEX, identifier)
+
+
+      if len(identifiers) == 3:
+        sem = identifiers[0].strip()
+        course = identifiers[1].strip()
+        title = identifiers[2].strip()
+      else:
+        sem = page.course.semester
+
+      if len(identifiers) == 2:
+        course = identifiers[0].strip()
+        title = identifiers[1].strip()
+      else:
+        course = page.course.name
+        title = identifiers[0].strip()
+
+      c = Course.objects.get(semester__startswith=sem, name__startswith=course)
+      p = Page.objects.get(course=c, title__startswith=title)
+      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"'>" + text + "</a>"
+    except Course.DoesNotExist:
+      replacement = "<span style='color:red'>"+text+"[Link failed]</span>"
+    except Page.DoesNotExist:
+      if title == "COURSE_PROBLEMS":
+        flash("Problem page")
+        replacement = "<a href='"+url_for('studentAssignments', cid=c.id)+"'>"+text+"</a>"
+      else:
+        replacement = "<a href='"+url_for('index')+"' style='color:grey'>" + text + "[?]</a>"
+
+
+    pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
+
+  return pageText
+
 
 @app.route('/page/view/id/<pgid>')
 def viewPage(pgid):
   page = Page.objects.get(id=pgid)
-  if page.generalView:
-    return render_template('pages/viewpage.html', page=page)
-  elif g.user.is_authenticated() and \
-    ((page.studentView and any([x in g.user.courseStudent for x in page.courses])) or\
-    (page.grutorView and any([x in g.user.courseGrutor for x in page.courses])) or\
-    (any([x in g.user.courseInstructor for x in page.courses]))):
-    return render_template('pages/viewpage.html', page=page)
+  text = wikiAdaptations(page)
+  if page.canView(g.user):
+    return render_template('pages/viewpage.html', page=page, text=text)
   else:
     abort(403)
 
@@ -30,29 +75,64 @@ def viewPage(pgid):
 @app.route('/page/edit/id/<pgid>')
 @login_required
 def editPage(pgid):
-  if len(current_user.gradingCourses()) == 0:
-    abort(403)
   page = Page.objects.get(id=pgid)
-  otherPages = {}
-  for c in page.courses:
-    otherPages[c.semester+"/"+c.name] = Page.objects.filter(courses=c)
-  return render_template('pages/editpage.html', page=page, otherPages=otherPages)
+  text = wikiAdaptations(page)
+  if page.canEdit(g.user):
+    return render_template('pages/editpage.html', page=page, text=text)
+  else:
+    abort(403)
 
 @app.route('/page/save/<pgid>', methods=['POST'])
 @login_required
 def savePage(pgid):
   try:
-    if len(current_user.gradingCourses()) == 0:
-      abort(403)
     page = Page.objects.get(id=pgid)
+    if not page.canEdit(g.user):
+      abort(403)
     content = request.get_json()
     page.text = content['text']
     page.title = content['title']
-    page.generalView = content['generalView']
-    page.studentView = content['studentView']
-    page.grutorView = content['grutorView']
-    page.grutorEdit = content['grutorEdit']
+    page.perm['anyView'] = content['perm']['anyView']
+    page.perm['userView'] = content['perm']['userView']
+    page.perm['cUserView'] = content['perm']['cUserView']
+    page.perm['grutorView'] = content['perm']['grutorView']
+    page.perm['cGrutorView'] = content['perm']['cGrutorView']
+    page.perm['userEdit'] = content['perm']['userEdit']
+    page.perm['cUserEdit'] = content['perm']['cUserEdit']
+    page.perm['grutorEdit'] = content['perm']['grutorEdit']
+    page.perm['cGrutorEdit'] = content['perm']['cGrutorEdit']
     page.save()
     return jsonify(res=True)
   except Exception as e:
     return jsonify(res=str(e))
+
+@app.route('/page/preview/<pgid>', methods=['POST'])
+@login_required
+def pagePreview(pgid):
+  '''
+  Funcion Type: Callback-AJAX Function
+  Called By: grutor/gradesubmission.html:$("#previewBtn").click(...)
+  Purpose: Produce HTML from a given markdown string.
+
+  Inputs:
+    pgid: The page that this preview is of. This is used for dealing with links
+
+  POST Values: A json object containing one field called "text" which contains
+  the markdown formatted string.
+
+  Outputs:
+    res: The resulting html generated from the markdown
+  '''
+  content = request.get_json()
+  try:
+    pg = Page.objects.get(id=pgid)
+    pg.text = content["text"]
+    html = markdown.markdown(wikiAdaptations(pg))
+    return jsonify(res=html)
+  except Exception as e:
+    return jsonify(res=str(e))
+
+@app.route('/page/make/<cid>/<title>')
+@login_required
+def pageMake(cid, title):
+  pass

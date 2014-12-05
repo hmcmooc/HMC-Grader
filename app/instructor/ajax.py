@@ -224,7 +224,11 @@ def ajaxGraderPerformance(cid):
         for sl in p.studentSubmissions.items():
           if sl[-1].submissions[-1].gradedBy == user:
             count += 1
-        data += "<td>"+str(count)+"</td>"
+        if count == 0:
+          data += "<td class='danger'>"
+        else:
+          data += "<td>"
+        data += str(count)+"</td>"
 
     data += "</tr>"
 

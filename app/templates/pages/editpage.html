@@ -9,7 +9,7 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Edit {{page.title}}</h1>
+    <h1>Edit {{page.course.name}}/{{page.title}}</h1>
     <br>
   </div>
   <div class="col-sm-2">
@@ -32,6 +32,7 @@ Edit Page
   </div>
   <div class="col-sm-8">
     <h4>Permissions</h4>
+    <p>Mouse over headers for tool tips</p>
   </div>
   <div class="col-sm-2">
   </div>
@@ -39,29 +40,35 @@ Edit Page
 <div class="row">
   <div class="col-sm-2">
   </div>
-  <div class="col-sm-2">
-    <div class="form-group">
-      <input type="checkbox" id="generalVisible" {% if page.generalView %}checked="checked"{%endif%}></input>
-      <label for="generalVisible">Visible to Anyone</label>
-    </div>
-  </div>
-  <div class="col-sm-2">
-    <div class="form-group">
-      <input type="checkbox" id="studentVisible" {% if page.studentView %}checked="checked"{%endif%}></input>
-      <label for="studentVisible">Visible to Student</label>
-    </div>
-  </div>
-  <div class="col-sm-2">
-    <div class="form-group">
-      <input type="checkbox" id="graderVisible" {% if page.grutorView %}checked="checked"{%endif%}></input>
-      <label for="graderVisible">Visible to Grader</label>
-    </div>
-  </div>
-  <div class="col-sm-2">
-    <div class="form-group">
-      <input type="checkbox" id="graderEdit" {% if page.grutorEdit %}checked="checked"{%endif%}></input>
-      <label for="graderEdit">Editable by Grader</label>
-    </div>
+  <div class="col-sm-8">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th><span title="Anyone on the internet">Anyone</span></th>
+          <th><span title="Any user registerd for CS>">Any User</span></th>
+          <th><span title="Any student in the course">Course Users</span></th>
+          <th><span title="Any grutor in CS> that is not in this course">Any Grutor</span></th>
+          <th><span title="Any grutor for the course">Course Grutors</span></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>View</td>
+          <td><input type="checkbox" id="anyView" {% if page.perm['anyView'] %}checked="checked"{%endif%}></input></td>
+          <td><input type="checkbox" id="userView" {% if page.perm['userView'] %}checked="checked"{%endif%}></input></td>
+          <td><input type="checkbox" id="cUserView" {% if page.perm['cUserView'] %}checked="checked"{%endif%}></input></td>
+          <td><input type="checkbox" id="grutorView" {% if page.perm['grutorView'] %}checked="checked"{%endif%}></input></td>
+          <td><input type="checkbox" id="cGrutorView" {% if page.perm['cGrutorView'] %}checked="checked"{%endif%}></input></td>
+        </tr>
+        <tr>
+          <td>Edit</td>
+          <td>N/A</td>
+          <td><input type="checkbox" id="userEdit" {% if page.perm['userEdit'] %}checked="checked"{%endif%} {% if not page.perm['userView'] %}disabled{%endif%}></input></td>
+          <td><input type="checkbox" id="cUserEdit" {% if page.perm['cUserEdit'] %}checked="checked"{%endif%} {% if not page.perm['cUserView'] %}disabled{%endif%}></input></td>
+          <td><input type="checkbox" id="grutorEdit" {% if page.perm['grutorEdit'] %}checked="checked"{%endif%} {% if not page.perm['grutorView'] %}disabled{%endif%}></input></td>
+          <td><input type="checkbox" id="cGrutorEdit" {% if page.perm['cGrutorEdit'] %}checked="checked"{%endif%} {% if not page.perm['cGrutorView'] %}disabled{%endif%}></input></td>
+        </tr>
+    </table>
   </div>
   <div class="col-sm-2">
   </div>
@@ -80,19 +87,8 @@ Edit Page
 <div class="row">
   <div class="col-sm-2">
   </div>
-  <div class="col-sm-5">
+  <div class="col-sm-8">
     <textarea id="commentarea" class="form-control" rows="24">{{page.text}}</textarea>
-  </div>
-  <div class="col-sm-3">
-    <h3>Other pages from course(s)</h3>
-    <div class="list-group">
-      {% for c in page.courses %}
-        <li class="list-group-item list-group-item-info">{{c.semester}}/{{c.name}}</li>
-        {% for op in otherPages[c.semester+"/"+c.name] %}
-          <a href="{{url_for('viewPage', pgid=op.id)}}" class="list-group-item">&nbsp;&nbsp;&nbsp;{{op.title}}</a>
-        {% endfor %}
-      {% endfor %}
-    </div>
   </div>
   <div class="col-sm-2">
   </div>
@@ -112,7 +108,7 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8" id="preview">
-    {{page.text|markdown}}
+    {{text|markdown}}
   </div>
   <div class="col-sm-2">
   </div>
@@ -135,33 +131,11 @@ $("#title").bind('input propertychange', function(){
   unsaved()
 });
 
-$("#generalVisible").change(function(){
-  unsaved()
-});
-
-$("#studentVisible").change(function(){
-  unsaved()
-});
-
-$("#graderVisible").change(function(){
-  unsaved()
-  if ($(this).prop("checked")) {
-    $("#graderEdit").attr("disabled", false);
-  } else {
-    $("#graderEdit").attr("disabled", true);
-    $("#graderEdit").attr("checked", false);
-  }
-});
-
-$("#graderEdit").change(function(){
-  unsaved()
-});
-
 $("#previewBtn").click(function(){
   values = {}
   values["text"] = $("#commentarea").val()
   $.ajax({
-    url:"{{url_for('grutorPreview')}}",
+    url:"{{url_for('pagePreview', pgid=page.id)}}",
     type:'POST',
     contentType:'application/json',
     data: JSON.stringify(values),
@@ -176,10 +150,17 @@ function saveComments(){
   values = {}
   values["text"] = $("#commentarea").val()
   values["title"] = $("#title").val()
-  values["generalView"] = $("#generalVisible").prop('checked');
-  values["studentView"] = $("#studentVisible").prop('checked');
-  values["grutorView"] = $("#graderVisible").prop('checked');
-  values["grutorEdit"] = $("#graderEdit").prop('checked');
+  perm = {}
+  perm.anyView = $("#anyView").prop('checked');
+  perm.userView = $("#userView").prop('checked');
+  perm.cUserView = $("#cUserView").prop('checked');
+  perm.grutorView = $("#grutorView").prop('checked');
+  perm.cGrutorView = $("#cGrutorView").prop('checked');
+  perm.userEdit = $("#userEdit").prop('checked');
+  perm.cUserEdit = $("#cUserEdit").prop('checked');
+  perm.grutorEdit = $("#grutorEdit").prop('checked');
+  perm.cGrutorEdit = $("#cGrutorEdit").prop('checked');
+  values['perm'] = perm;
   $.ajax({
     url:"{{url_for('savePage', pgid=page.id)}}",
     type:'POST',
@@ -187,6 +168,7 @@ function saveComments(){
     data: JSON.stringify(values),
     dataType: 'json',
     success: function(data) {
+      console.log(data)
       location.reload()
     }
   });
@@ -195,5 +177,51 @@ function saveComments(){
 $("#saveBtn").click(function(){
   saveComments();
 })
+</script>
+
+<script>
+$("#anyView").change(function(){
+  unsaved();
+});
+
+$("#userView").change(function(){
+  unsaved();
+  if ($(this).prop("checked")) {
+    $("#userEdit").attr("disabled", false);
+  } else {
+    $("#userEdit").attr("disabled", true);
+    $("#userEdit").attr("checked", false);
+  }
+});
+
+$("#cUserView").change(function(){
+  unsaved();
+  if ($(this).prop("checked")) {
+    $("#cUserEdit").attr("disabled", false);
+  } else {
+    $("#cUserEdit").attr("disabled", true);
+    $("#cUserEdit").attr("checked", false);
+  }
+});
+
+$("#grutorView").change(function(){
+  unsaved();
+  if ($(this).prop("checked")) {
+    $("#grutorEdit").attr("disabled", false);
+  } else {
+    $("#grutorEdit").attr("disabled", true);
+    $("#grutorEdit").attr("checked", false);
+  }
+});
+
+$("#cGrutorView").change(function(){
+  unsaved();
+  if ($(this).prop("checked")) {
+    $("#cGrutorEdit").attr("disabled", false);
+  } else {
+    $("#cGrutorEdit").attr("disabled", true);
+    $("#cGrutorEdit").attr("checked", false);
+  }
+});
 </script>
 {% endblock %}

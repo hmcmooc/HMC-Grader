@@ -48,6 +48,11 @@ from models.gradebook import *
 from models.course import *
 from models.user import *
 
+def activeCourses():
+  return Course.objects.filter(isActive=True)
+
+app.jinja_env.globals.update(activeCourses=activeCourses)
+
 #We perform imports here for all the other files which contain pages
 #By importing these here the decorators execute and the view functions become
 #available. If you add another file with view functions you must import it here
