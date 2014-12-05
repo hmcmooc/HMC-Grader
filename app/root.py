@@ -42,7 +42,8 @@ def index():
     return render_template("userindex.html", active_page="index", \
                             clockForm=clockForm,\
                             activeHours=activeHours,\
-                            numInProgress=len(inProgress))
+                            numInProgress=len(inProgress),\
+                            inProgress=inProgress)
   return render_template("index.html", active_page="index")
 
 

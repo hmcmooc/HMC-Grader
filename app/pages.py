@@ -14,13 +14,14 @@ from app.forms import ProblemOptionsForm, AddTestForm
 from werkzeug import secure_filename
 
 @app.route('/page/view/id/<pgid>')
-@login_required
 def viewPage(pgid):
   page = Page.objects.get(id=pgid)
-  if page.generalView or \
-    (page.studentView and any([x in g.user.courseStudent for x in page.courses])) or\
+  if page.generalView:
+    return render_template('pages/viewpage.html', page=page)
+  elif g.user.is_authenticated() and \
+    ((page.studentView and any([x in g.user.courseStudent for x in page.courses])) or\
     (page.grutorView and any([x in g.user.courseGrutor for x in page.courses])) or\
-    (any([x in g.user.courseInstructor for x in page.courses])):
+    (any([x in g.user.courseInstructor for x in page.courses]))):
     return render_template('pages/viewpage.html', page=page)
   else:
     abort(403)

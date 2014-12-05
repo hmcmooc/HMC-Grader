@@ -59,6 +59,30 @@ Submission Site
       <div class="panel-body">
         You have {{numInProgress}} grade(s) that you havent finished.
       </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Course</th><th>Assignment</th><th>Problem</th><th>User</th><th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ip in inProgress %}
+          <tr>
+            {% with p = ip.problem %}
+            {% with c,a = p.getParents() %}
+            {% with u,num = p.getSubmissionInfo(ip) %}
+            <td>{{c.semester}}/{{c.name}}</td>
+            <td>{{a.name}}</td>
+            <td>{{p.name}}</td>
+            <td>{% if not c.anonymousGrading %}{{u.username}}{% else %}{{c.getIdentifier(u.username)}}{% endif %}</td>
+            <td><a href="{{url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=num)}}" class="btn btn-primary btn-xs">Grade</a></td>
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
   <div class="col-sm-2"></div>

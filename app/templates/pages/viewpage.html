@@ -14,7 +14,7 @@ View Page
   <div class="col-sm-2">
   </div>
 </div>
-{% if g.user.gradingCourses()|length > 0 %}
+{% if g.user.is_authenticated() and g.user.gradingCourses()|length > 0 %}
 <div class="row">
   <div class="col-sm-2">
   </div>
