@@ -200,3 +200,35 @@ def ajaxAttendanceStats(cid):
     return jsonify(data=attendanceData(c, startTime, endTime), error=False)
   except Exception as e:
     return jsonify(error=str(e))
+
+
+@app.route('/stats/<cid>/graderPerformance', methods=['POST'])
+@login_required
+def ajaxGraderPerformance(cid):
+  try:
+    c = Course.objects.get(id = cid)
+    if not (g.user.isAdmin or c in current_user.gradingCourses()):
+      return jsonify(error="permission denied")
+
+    contents = request.get_json()
+
+    user = User.objects.get(id=contents['uid'])
+
+    data = "<tr>"
+    data += "<td>"+user.username+"</td>"
+
+    for a in c.assignments:
+      if len(a.problems) == 0: data += "<td>N/A</td>"
+      for p in a.problems:
+        count = 0
+        for sl in p.studentSubmissions.items():
+          if sl[-1].submissions[-1].gradedBy == user:
+            count += 1
+        data += "<td>"+str(count)+"</td>"
+
+    data += "</tr>"
+
+    return jsonify(row=data)
+
+  except Exception as e:
+    return jsonify(error=str(e))

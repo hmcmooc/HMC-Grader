@@ -211,6 +211,11 @@ def viewCourseStats(cid):
     if not(c in current_user.gradingCourses() or current_user.isAdmin):
       return redirect(url_for('index'))
 
-    return render_template("instructor/stats.html", course = c)
+    uids = [str(u.id) for u in User.objects.filter(courseGrutor=c)]+\
+        [str(u.id) for u in User.objects.filter(courseInstructor=c)]
+
+    uids = list(set(uids))
+
+    return render_template("instructor/stats.html", course = c, uids=uids)
   except Course.DoesNotExist as e:
     raise e

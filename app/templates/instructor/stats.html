@@ -89,6 +89,42 @@ Course Statistics
   </div>
   <div class="col-sm-2"></div>
 </div>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Grutor Performance</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <table class="table" id="graderPerformance">
+      <thead>
+        <tr> <!-- This row is for the gradebook groups -->
+          <th rowspan="2">Username</th>
+          {% for a in course.gradeBook.groups() %}
+          <th colspan="{{a.getWidth()}}">{{a.name}}</th>
+          {% endfor %}
+        </tr>
+        <tr> <!-- This row is for the gradebook columns -->
+          {% for c in course.gradeBook.columns() %}
+          {% if c == None %}
+          <th>None</th>
+          {% else %}
+          <th>{{c.name}}</th>
+          {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -139,6 +175,22 @@ function setupSection(name, dataUrl) {
 $(function() {
   setupSection("sub", "{{url_for('ajaxSubmissionStats', cid=course.id)}}")
   setupSection("attend", "{{url_for('ajaxAttendanceStats', cid=course.id)}}")
+  var graders = {{uids|tojson}};
+
+  for (var i = 0; i < graders.length; i++) {
+    data = {'uid':graders[i]};
+    $.ajax({
+      url:"{{url_for('ajaxGraderPerformance', cid=course.id)}}",
+      type:'POST',
+      contentType:'application/json',
+      data: JSON.stringify(data),
+      dataType: 'json',
+      success: function(data) {
+        console.log(data)
+        $("#graderPerformance tbody").append(data.row);
+      }
+    })
+  }
 });
 </script>
 {% endblock %}
