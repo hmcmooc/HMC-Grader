@@ -16,6 +16,7 @@ from flask.ext.mongoengine import DoesNotExist
 from app.models.user import *
 from app.models.gradebook import *
 from app.models.course import *
+from app.models.pages import *
 
 from forms import CreateCourseForm, CreateUserForm
 
@@ -92,6 +93,17 @@ def adminCourses():
         c.semester = form.semester.data
         c.gradeBook = GradeBook()
         c.save()
+
+        page = Page()
+        page.initializePerms()
+        page.perm['anyView'] = True
+        page.title = "Home"
+        page.course = c
+        page.save()
+
+        c.homepage = url_for('viewPage', pgid=page.id)
+        c.save()
+
         #Create the file backing
         ensurePathExists(getCoursePath(c))
         for admin in User.objects.filter(isAdmin=True):

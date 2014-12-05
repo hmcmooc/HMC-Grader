@@ -9,7 +9,7 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Edit {{page.course.name}}/{{page.title}}</h1>
+    <h1>Edit {{page.course.name}}/{{page.title}}<a href="{{url_for('viewPage', pgid=page.id)}}" class="btn btn-default" style="float:right;">View</a></h1>
     <br>
   </div>
   <div class="col-sm-2">

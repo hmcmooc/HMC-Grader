@@ -119,6 +119,7 @@ class CourseSettingsForm(Form):
   the future when we decide on more settings)
   '''
   anonymousGrading = BooleanField("Use anonymous grading")
+  homepage = TextField("Course Homepage (include http:// for external sites)")
   latePolicy = SelectField("Late Work Policy")
 
 # '''

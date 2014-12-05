@@ -226,7 +226,7 @@ class Course(db.Document):
   #How do we calculate late grades (Defaults to one that just highlights late grades)
   lateGradePolicy = db.StringField(default="Highlighter")
 
-  homepage = db.URLField(default="#")
+  homepage = db.StringField(default="#")
 
   meta = {"cascade": True, 'ordering': ["+semester", "+name"]}
 

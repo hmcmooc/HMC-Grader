@@ -76,6 +76,10 @@ Edit Course: {{course.name}}
     <h2 id="settings">Settings</h2>
     <form class="form" role="form" onSubmit="return saveSettings()" id="settings">
       <div class="form-group">
+        {{settingsForm.homepage.label}}
+        {{settingsForm.homepage(class="form-control", value=course.homepage)}}
+      </div>
+      <div class="form-group">
         {{settingsForm.anonymousGrading()}}{{settingsForm.anonymousGrading.label}}
       </div>
       <div class="form-group">
@@ -212,6 +216,7 @@ function saveSettings(){
   values = {};
   values['anonymousGrading'] = $('#anonymousGrading').prop('checked');
   values['lateGradePolicy'] = $('#latePolicy').val()
+  values['homepage'] = $('#homepage').val()
   $.ajax({
     url:"{{url_for('instructorSaveSettings', cid=course.id)}}",
     type:'POST',
@@ -219,6 +224,7 @@ function saveSettings(){
     data: JSON.stringify(values),
     dataType: 'json',
     success: function(data) {
+      console.log(data)
       if (data.res) {
         location.reload();
       }

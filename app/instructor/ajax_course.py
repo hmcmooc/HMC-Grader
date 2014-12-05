@@ -35,6 +35,7 @@ def instructorSaveSettings(cid):
     content = request.get_json()
     c.anonymousGrading = content['anonymousGrading']
     c.lateGradePolicy = content['lateGradePolicy']
+    c.homepage = content['homepage']
     c.save()
     return jsonify(res=True)
   except Exception as e:
