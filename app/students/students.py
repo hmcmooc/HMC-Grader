@@ -239,13 +239,21 @@ def ensureFiles(problem, files):
 
   return reqFiles
 
-def flatten(path):
-  for root, dirs, files in os.walk(path, topdown=False):
-    if root != path:
-      for name in files:
-        shutil.move(os.path.join(root, name), path)
-    for name in dirs:
-      os.rmdir(os.path.join(root, name))
+def flatten(root, ext):
+  path = os.path.join(root, ext)
+  if all([os.path.isdir(os.path.join(path, f)) for f in os.listdir(path)]):
+    for d in [ f for f in os.listdir(path) if os.path.isdir(os.path.join(path,f)) ]:
+      for f in os.listdir(os.path.join(path, d)):
+        shutil.move(os.path.join(path, d, f), root)
+  else:
+    for f in os.listdir(path):
+      shutil.move(os.path.join(path, f), root)
+  # for root, dirs, files in os.walk(path, topdown=False):
+  #   if root != path:
+  #     for name in files:
+  #       shutil.move(os.path.join(root, name), path)
+  #   for name in dirs:
+  #     os.rmdir(os.path.join(root, name))
 
 def makePathList(path):
   folders=[]
@@ -269,13 +277,10 @@ def processZip(filepath, filename):
 
   z = ZipFile(os.path.join(filepath, filename))
 
-  for member in z.infolist():
-    if member.filename[-1] != "/": #Is not a directory
-      pathList = makePathList(member.filename)
-      if not any(map(lambda x: x[0] == "_" or x[0] == ".", pathList)):
-        print member.filename
-	z.extract(member, filepath)
-  flatten(filepath)
+  z.extractall(os.path.join(filepath, '.extracted'))
+  flatten(filepath, '.extracted')
+
+  shutil.rmtree(os.path.join(filepath, '.extracted'))
 
 #
 # End helpers for making submissions
