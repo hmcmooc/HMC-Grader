@@ -12,6 +12,8 @@ from celeryconfig import make_celery
 
 from decimal import getcontext
 
+from markdown.extensions.attr_list import AttrListExtension
+
 #Set decimal precision
 getcontext.prec = 2
 
@@ -32,7 +34,8 @@ loginManager.login_view = 'login' #Set the default view for logging in
 db = MongoEngine(app)
 
 #Initialize the markdown engine
-Markdown(app)
+m = Markdown(app)
+m.register_extension(AttrListExtension)
 
 #Initialize the celery object
 celery = make_celery(app)

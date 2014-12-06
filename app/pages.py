@@ -15,46 +15,81 @@ from werkzeug import secure_filename
 import markdown, re
 
 
-WIKI_LINK_REGEX = r"\[(.+)\]<(.+)>"
+WIKI_LINK_REGEX = r"(?<!!)\[(.+)\]<(.+)>(?:\{:(.+)\})?"
+IMG_LINK_REGEX = r"!\[(.+)\]<(.+)>(?:\{:(.+)\})?"
 ID_REGEX = r"(?<!\\),"
+
+def extractPageInfo(idents):
+  idents = map(lambda x: x.strip(), idents)
+  return [None]*(3-len(idents))+idents
+
+def extractImageInfo(idents):
+  idents = map(lambda x: x.strip(), idents)
+  return [None]*(4-len(idents))+idents
 
 def wikiAdaptations(page):
   linkRegex = re.compile(WIKI_LINK_REGEX)
+  imgRegex = re.compile(IMG_LINK_REGEX)
   pageText = page.text
 
   for link in linkRegex.finditer(pageText):
     try:
       text = link.group(1)
       identifier = link.group(2)
+      style = link.group(3)
+      if style == None:
+        style = ""
+      flash(identifier)
+      flash(style)
 
-      identifiers = re.split(ID_REGEX, identifier)
+      idents = extractPageInfo(re.split(ID_REGEX, identifier))
+
+      if idents[0] == None:
+        idents[0] = page.course.semester
+
+      if idents[1] == None:
+        idents[1] = page.course.name
 
 
-      if len(identifiers) == 3:
-        sem = identifiers[0].strip()
-        course = identifiers[1].strip()
-        title = identifiers[2].strip()
-      else:
-        sem = page.course.semester
-
-      if len(identifiers) == 2:
-        course = identifiers[0].strip()
-        title = identifiers[1].strip()
-      else:
-        course = page.course.name
-        title = identifiers[0].strip()
-
-      c = Course.objects.get(semester__startswith=sem, name__startswith=course)
-      p = Page.objects.get(course=c, title__startswith=title)
-      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"'>" + text + "</a>"
+      c = Course.objects.get(semester__startswith=idents[0], name__startswith=idents[1])
+      p = Page.objects.get(course=c, title__startswith=idents[2])
+      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"' "+style+">" + text + "</a>"
     except Course.DoesNotExist:
       replacement = "<span style='color:red'>"+text+"[Link failed]</span>"
     except Page.DoesNotExist:
-      if title == "COURSE_PROBLEMS":
+      if idents[2] == "COURSE_PROBLEMS":
         flash("Problem page")
         replacement = "<a href='"+url_for('studentAssignments', cid=c.id)+"'>"+text+"</a>"
       else:
         replacement = "<a href='"+url_for('index')+"' style='color:grey'>" + text + "[?]</a>"
+
+
+    pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
+
+  for img in imgRegex.finditer(pageText):
+    try:
+      text = link.group(1)
+      identifier = link.group(2)
+
+      idents = extractPageInfo(re.split(ID_REGEX, identifier))
+
+      if idents[0] == None:
+        idents[0] = page.course.semester
+
+      if idents[1] == None:
+        idents[1] = page.course.name
+
+      if idents[2] == None:
+        idents[2] = page.title
+
+
+      c = Course.objects.get(semester__startswith=idents[0], name__startswith=idents[1])
+      p = Page.objects.get(course=c, title__startswith=idents[2])
+      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"'>" + text + "</a>"
+    except Course.DoesNotExist:
+      replacement = "<span style='color:red'>[Image failed to load. Course not found]</span>"
+    except Page.DoesNotExist:
+      replacement = "<span style='color:red'>[Image failed to load. Page not found]</span>"
 
 
     pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
