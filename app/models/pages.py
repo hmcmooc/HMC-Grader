@@ -13,6 +13,8 @@ class Page(db.Document):
   #Can any person from the internet view this page
   perm = db.MapField(db.BooleanField())
 
+  images = db.ListField(db.StringField())
+
   def initializePerms(self):
     self.perm['anyView'] = False
     self.perm['userView'] = False

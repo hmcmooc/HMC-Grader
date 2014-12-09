@@ -17,7 +17,7 @@ from flask.ext.mongoengine import DoesNotExist
 from models.user import User, RecoverAccount
 from forms import SignInForm, ChangePasswordForm, UserSettingsForm, ResetPasswordForm
 
-from app.helpers.filestorage import getPhotoDir, getPhotoPath, ensurePathExists
+from app.helpers.filestorage import getUserPhotoDir, getUserPhotoPath, ensurePathExists
 
 import os
 
@@ -231,7 +231,7 @@ def sendProfilePicture(uid):
   try:
     user = User.objects.get(id=uid)
     if user.photoName != None:
-      return send_file(getPhotoPath(user))
+      return send_file(getUserPhotoPath(user))
     else:
       return redirect(url_for('static', filename='images/defaultUser.png'))
   except Exception as e:
@@ -260,8 +260,8 @@ def userUpdateSettings():
           #We have to upload a new photo
           photoName = secure_filename(f.filename)
           name, extension = os.path.splitext(photoName)
-          ensurePathExists(getPhotoDir())
-          f.save(os.path.join(getPhotoDir(), str(g.user.id)+extension))
+          ensurePathExists(getUserPhotoDir())
+          f.save(os.path.join(getUserPhotoDir(), str(g.user.id)+extension))
           user.photoName = str(g.user.id)+extension
 
         user.save()

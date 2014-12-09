@@ -1,22 +1,24 @@
 # coding=utf-8
 
 #import the app
-from app import app
+from app import app, markdown
 
 from flask import g, request, render_template, redirect, url_for, flash, abort, jsonify
+from flask import send_file
 from flask.ext.login import current_user, login_required
 
 from app.models.course import *
 from app.models.pages import *
 
-from app.forms import ProblemOptionsForm, AddTestForm
+from app.forms import PageImageForm
 
 from werkzeug import secure_filename
-import markdown, re
+from helpers.filestorage import getPagePhotoPath, getPagePhotoDir, ensurePathExists
+import re
 
 
-WIKI_LINK_REGEX = r"(?<!!)\[(.+)\]<(.+)>(?:\{:(.+)\})?"
-IMG_LINK_REGEX = r"!\[(.+)\]<(.+)>(?:\{:(.+)\})?"
+WIKI_LINK_REGEX = r"(?<!!)\[(.+)\]<((?:[^<\\>]|\\.)+?)>(?:\{:(.+)\})?"
+IMG_LINK_REGEX = r"!\[(.+)\]<((?:[^<\\>]|\\.)+?)>(?:\{:(.+)\})?"
 ID_REGEX = r"(?<!\\),"
 
 def extractPageInfo(idents):
@@ -39,9 +41,8 @@ def wikiAdaptations(page):
       style = link.group(3)
       if style == None:
         style = ""
-      flash(identifier)
-      flash(style)
 
+      identifier = re.sub(r'\\(.)', r'\1', identifier)
       idents = extractPageInfo(re.split(ID_REGEX, identifier))
 
       if idents[0] == None:
@@ -58,20 +59,19 @@ def wikiAdaptations(page):
       replacement = "<span style='color:red'>"+text+"[Link failed]</span>"
     except Page.DoesNotExist:
       if idents[2] == "COURSE_PROBLEMS":
-        flash("Problem page")
         replacement = "<a href='"+url_for('studentAssignments', cid=c.id)+"'>"+text+"</a>"
       else:
-        replacement = "<a href='"+url_for('index')+"' style='color:grey'>" + text + "[?]</a>"
+        replacement = "<a href='"+url_for('pageMake', pgid=page.id, title=idents[2])+"' style='color:grey'>" + text + "[?]</a>"
 
 
     pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
 
   for img in imgRegex.finditer(pageText):
     try:
-      text = link.group(1)
-      identifier = link.group(2)
+      text = img.group(1)
+      identifier = img.group(2)
 
-      idents = extractPageInfo(re.split(ID_REGEX, identifier))
+      idents = extractImageInfo(re.split(ID_REGEX, identifier))
 
       if idents[0] == None:
         idents[0] = page.course.semester
@@ -85,14 +85,14 @@ def wikiAdaptations(page):
 
       c = Course.objects.get(semester__startswith=idents[0], name__startswith=idents[1])
       p = Page.objects.get(course=c, title__startswith=idents[2])
-      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"'>" + text + "</a>"
+      replacement = "<img src='"+url_for('serveImage', pgid=p.id, name=idents[3])+"'" + style + ">"
     except Course.DoesNotExist:
       replacement = "<span style='color:red'>[Image failed to load. Course not found]</span>"
     except Page.DoesNotExist:
       replacement = "<span style='color:red'>[Image failed to load. Page not found]</span>"
 
 
-    pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
+    pageText = re.sub(re.escape(img.group(0)), replacement, pageText, count=1)
 
   return pageText
 
@@ -113,7 +113,7 @@ def editPage(pgid):
   page = Page.objects.get(id=pgid)
   text = wikiAdaptations(page)
   if page.canEdit(g.user):
-    return render_template('pages/editpage.html', page=page, text=text)
+    return render_template('pages/editpage.html', page=page, text=text, form=PageImageForm())
   else:
     abort(403)
 
@@ -162,12 +162,61 @@ def pagePreview(pgid):
   try:
     pg = Page.objects.get(id=pgid)
     pg.text = content["text"]
-    html = markdown.markdown(wikiAdaptations(pg))
+    html = markdown(wikiAdaptations(pg))
     return jsonify(res=html)
   except Exception as e:
     return jsonify(res=str(e))
 
-@app.route('/page/make/<cid>/<title>')
+@app.route('/page/make/<pgid>/<title>')
 @login_required
-def pageMake(cid, title):
-  pass
+def pageMake(pgid, title):
+  '''
+  Function Type: Redirect Function
+  Purpose: To make a new page in a course
+  '''
+  try:
+    prevPage = Page.objects.get(id=pgid)
+    if not prevPage.canEdit(g.user):
+      flash("You aren't allowed to edit this page.")
+      return redirect(url_for('viewPage', pgid=pgid))
+    page = Page()
+    page.title = title
+    page.course = prevPage.course
+    page.perm = prevPage.perm
+
+    page.save()
+
+    return redirect(url_for('editPage', pgid=page.id))
+
+  except Page.DoesNotExist:
+    abort(404)
+
+
+@app.route('/page/img/<pgid>/<name>')
+def serveImage(pgid, name):
+  try:
+    page = Page.objects.get(id=pgid)
+    photoPath = getPagePhotoPath(page, name)
+    return send_file(photoPath)
+  except Page.DoesNotExist:
+    abort(404)
+
+@app.route('/page/img/upload/<pgid>', methods=['POST'])
+@login_required
+def uploadImage(pgid):
+  try:
+    page = Page.objects.get(id=pgid)
+    if request.method == 'POST':
+      form = PageImageForm(request.form)
+      if form.validate():
+        file = request.files.getlist('photo')[0]
+        ensurePathExists(getPagePhotoDir(page))
+        photoName = secure_filename(file.filename)
+        file.save(os.path.join(getPagePhotoPath(page, photoName)))
+        if not photoName in page.images:
+          page.images.append(photoName)
+          page.save()
+    return redirect(url_for('editPage', pgid=pgid))
+
+  except Page.DoesNotExist:
+    abort(404)

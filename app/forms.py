@@ -152,3 +152,10 @@ class AttendanceForm(Form):
   This form allows a student to sign into the system for lab
   '''
   course = SelectField("Course")
+
+# '''
+# Page Forms
+# '''
+
+class PageImageForm(Form):
+  photo = FileField("File")

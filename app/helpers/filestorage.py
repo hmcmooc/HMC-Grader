@@ -21,9 +21,19 @@ def getPhotoDir():
   path = os.path.join(app.config['STORAGE_HOME'], "photos")
   return path
 
-def getPhotoPath(user):
-  path = os.path.join(getPhotoDir(), user.photoName)
 
+def getUserPhotoDir():
+  return os.path.joing(getPhotoDir(), 'user')
+
+def getUserPhotoPath(user):
+  path = os.path.join(getUserPhotoDir(), user.photoName)
+  return path
+
+def getPagePhotoDir(page):
+  return os.path.join(getPhotoDir(), 'pages', str(page.id))
+
+def getPagePhotoPath(page, name):
+  path = os.path.join(getPagePhotoDir(page), name)
   return path
 
 def getCoursePath(course):

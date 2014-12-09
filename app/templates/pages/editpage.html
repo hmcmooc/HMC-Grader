@@ -9,7 +9,7 @@ Edit Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>Edit {{page.course.name}}/{{page.title}}<a href="{{url_for('viewPage', pgid=page.id)}}" class="btn btn-default" style="float:right;">View</a></h1>
+    <h1>Edit: {{page.course.semester}}/{{page.course.name}}/{{page.title}}<a href="{{url_for('viewPage', pgid=page.id)}}" class="btn btn-default" style="float:right;">View</a></h1>
     <br>
   </div>
   <div class="col-sm-2">
@@ -93,6 +93,48 @@ Edit Page
   <div class="col-sm-2">
   </div>
 </div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h2>Images</h2>
+    <form class="form-inline" enctype="multipart/form-data" role="form" method="POST" action="{{url_for('uploadImage', pgid=page.id)}}">
+      {{form.hidden_tag()}}
+      <div class="form-group">
+        {{form.photo(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-default">Upload</button>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    {% if page.images|length == 0 %}
+    <em>No Images</em>
+    {% else %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Filename</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for img in page.images %}
+        <tr>
+          <td><img src="{{url_for('serveImage', pgid=page.id, name=img)}}" style="max-width:200px; max-height:200px"></td>
+          <td>{{img}}</td>
+        {% endfor %}
+      </tbod>
+    </table>
+    {% endif %}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
 <!--Here is the preview -->
 <hr>
 <div class="row">
@@ -142,6 +184,7 @@ $("#previewBtn").click(function(){
     dataType: 'json',
     success: function(data) {
       $("#preview").html(data["res"]);
+      $("#preview").scrollTop();
     }
   });
 })

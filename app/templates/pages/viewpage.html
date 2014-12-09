@@ -9,7 +9,7 @@ View Page
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <h1>{{page.course.name}}/{{page.title}}{% if page.canEdit(g.user) %}<a href="{{url_for('editPage', pgid=page.id)}}" class="btn btn-default" style="float:right;">Edit</a>{% endif %}</h1>
+    <h1>{{page.course.semester}}/{{page.course.name}}/{{page.title}}{% if page.canEdit(g.user) %}<a href="{{url_for('editPage', pgid=page.id)}}" class="btn btn-default" style="float:right;">Edit</a>{% endif %}</h1>
 
   </div>
   <div class="col-sm-2">

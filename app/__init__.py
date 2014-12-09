@@ -34,8 +34,8 @@ loginManager.login_view = 'login' #Set the default view for logging in
 db = MongoEngine(app)
 
 #Initialize the markdown engine
-m = Markdown(app)
-m.register_extension(AttrListExtension)
+markdown = Markdown(app)
+markdown.register_extension(AttrListExtension)
 
 #Initialize the celery object
 celery = make_celery(app)
