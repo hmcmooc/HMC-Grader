@@ -1,7 +1,9 @@
 # coding=utf-8
 
 #import the app
-from app import app, markdown
+from app import app
+
+from app import markdown as app_md
 
 from flask import g, request, render_template, redirect, url_for, flash, abort, jsonify
 from flask import send_file
@@ -14,93 +16,15 @@ from app.forms import PageImageForm
 
 from werkzeug import secure_filename
 from helpers.filestorage import getPagePhotoPath, getPagePhotoDir, ensurePathExists
-import re
+import re, markdown
 
-
-WIKI_LINK_REGEX = r"(?<!!)\[(.+)\]<((?:[^<\\>]|\\.)+?)>(?:\{:(.+)\})?"
-IMG_LINK_REGEX = r"!\[(.+)\]<((?:[^<\\>]|\\.)+?)>(?:\{:(.+)\})?"
-ID_REGEX = r"(?<!\\),"
-
-def extractPageInfo(idents):
-  idents = map(lambda x: x.strip(), idents)
-  return [None]*(3-len(idents))+idents
-
-def extractImageInfo(idents):
-  idents = map(lambda x: x.strip(), idents)
-  return [None]*(4-len(idents))+idents
-
-def wikiAdaptations(page):
-  linkRegex = re.compile(WIKI_LINK_REGEX)
-  imgRegex = re.compile(IMG_LINK_REGEX)
-  pageText = page.text
-
-  for link in linkRegex.finditer(pageText):
-    try:
-      text = link.group(1)
-      identifier = link.group(2)
-      style = link.group(3)
-      if style == None:
-        style = ""
-
-      identifier = re.sub(r'\\(.)', r'\1', identifier)
-      idents = extractPageInfo(re.split(ID_REGEX, identifier))
-
-      if idents[0] == None:
-        idents[0] = page.course.semester
-
-      if idents[1] == None:
-        idents[1] = page.course.name
-
-
-      c = Course.objects.get(semester__startswith=idents[0], name__startswith=idents[1])
-      p = Page.objects.get(course=c, title__startswith=idents[2])
-      replacement = "<a href='"+url_for('viewPage', pgid=p.id)+"' "+style+">" + text + "</a>"
-    except Course.DoesNotExist:
-      replacement = "<span style='color:red'>"+text+"[Link failed]</span>"
-    except Page.DoesNotExist:
-      if idents[2] == "COURSE_PROBLEMS":
-        replacement = "<a href='"+url_for('studentAssignments', cid=c.id)+"'>"+text+"</a>"
-      else:
-        replacement = "<a href='"+url_for('pageMake', pgid=page.id, title=idents[2])+"' style='color:grey'>" + text + "[?]</a>"
-
-
-    pageText = re.sub(re.escape(link.group(0)), replacement, pageText, count=1)
-
-  for img in imgRegex.finditer(pageText):
-    try:
-      text = img.group(1)
-      identifier = img.group(2)
-
-      idents = extractImageInfo(re.split(ID_REGEX, identifier))
-
-      if idents[0] == None:
-        idents[0] = page.course.semester
-
-      if idents[1] == None:
-        idents[1] = page.course.name
-
-      if idents[2] == None:
-        idents[2] = page.title
-
-
-      c = Course.objects.get(semester__startswith=idents[0], name__startswith=idents[1])
-      p = Page.objects.get(course=c, title__startswith=idents[2])
-      replacement = "<img src='"+url_for('serveImage', pgid=p.id, name=idents[3])+"'" + style + ">"
-    except Course.DoesNotExist:
-      replacement = "<span style='color:red'>[Image failed to load. Course not found]</span>"
-    except Page.DoesNotExist:
-      replacement = "<span style='color:red'>[Image failed to load. Page not found]</span>"
-
-
-    pageText = re.sub(re.escape(img.group(0)), replacement, pageText, count=1)
-
-  return pageText
-
+from app.helpers.wikiextension import WikiExtension
+from markdown.extensions.attr_list import AttrListExtension
 
 @app.route('/page/view/id/<pgid>')
 def viewPage(pgid):
   page = Page.objects.get(id=pgid)
-  text = wikiAdaptations(page)
+  text = markdown.markdown(page.text, [WikiExtension(page), AttrListExtension()])
   if page.canView(g.user):
     return render_template('pages/viewpage.html', page=page, text=text)
   else:
@@ -111,7 +35,7 @@ def viewPage(pgid):
 @login_required
 def editPage(pgid):
   page = Page.objects.get(id=pgid)
-  text = wikiAdaptations(page)
+  text = markdown.markdown(page.text, [WikiExtension(page), AttrListExtension()])
   if page.canEdit(g.user):
     return render_template('pages/editpage.html', page=page, text=text, form=PageImageForm())
   else:
@@ -162,7 +86,7 @@ def pagePreview(pgid):
   try:
     pg = Page.objects.get(id=pgid)
     pg.text = content["text"]
-    html = markdown(wikiAdaptations(pg))
+    html = markdown.markdown(pg.text, [WikiExtension(pg), AttrListExtension()])
     return jsonify(res=html)
   except Exception as e:
     return jsonify(res=str(e))
@@ -193,7 +117,7 @@ def pageMake(pgid, title):
 
 
 @app.route('/page/img/<pgid>/<name>')
-def serveImage(pgid, name):
+def servePageImage(pgid, name):
   try:
     page = Page.objects.get(id=pgid)
     photoPath = getPagePhotoPath(page, name)

@@ -125,7 +125,7 @@ Edit Page
       <tbody>
         {% for img in page.images %}
         <tr>
-          <td><img src="{{url_for('serveImage', pgid=page.id, name=img)}}" style="max-width:200px; max-height:200px"></td>
+          <td><img src="{{url_for('servePageImage', pgid=page.id, name=img)}}" style="max-width:200px; max-height:200px"></td>
           <td>{{img}}</td>
         {% endfor %}
       </tbod>
