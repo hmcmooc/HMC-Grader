@@ -9,6 +9,7 @@ from flask import g, jsonify, flash, request
 from flask.ext.login import login_required
 
 from app.models.course import *
+import string, random, shutil
 
 @app.route('/assignment/<cid>/settings', methods=['POST'])
 @login_required
@@ -66,7 +67,9 @@ def delAssignment(cid, aid):
     flash("Assignment group "+a.name+" removed", "success")
 
     #Remove the filestorage
-    removePath(getAssignmentPath(c, a))
+    randString = ''.join(random.choice(string.letters + string.digits) for _ in range(10))
+    assignPath = getAssignmentPath(c, a)
+    shutil.move(assignPath, assignPath+'_'+randString)
 
     c.assignments.remove(a)
 
@@ -102,7 +105,7 @@ def remProblem(cid,aid,pid):
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or
     #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
+    if not (g.user.isAdmin or c in g.user.courseInstructor):
       return jsonify(status=403), 403
 
     a = AssignmentGroup.objects.get(id=aid)
@@ -111,7 +114,10 @@ def remProblem(cid,aid,pid):
     flash("Problem "+a.name+"/"+p.name+" removed", "success")
 
     #Remove storage space
-    removePath(getProblemPath(c, a, p))
+    randString = ''.join(random.choice(string.letters + string.digits) for _ in range(10))
+    probPath = getProblemPath(c, a, p)
+    shutil.move(probPath, probPath+'_'+randString)
+    #removePath(getProblemPath(c, a, p))
 
     #We leverage mongo's reverse delete rules to remove the problem from the
     #assignment's problem list
