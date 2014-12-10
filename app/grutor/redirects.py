@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 '''
 This module contains all the callback functions for the grutor pages
 '''
@@ -100,7 +100,17 @@ def grutorGradeRandom(pid):
           return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=1))
       else:
         sub = p.getLatestSubmission(user)
-        res = Submission.objects.exec_js(LOCK_QUERY, id=sub.id, uid=g.user.id)
+        if sub.partnerInfo == None:
+          res = Submission.objects.exec_js(LOCK_QUERY, id=sub.id, uid=g.user.id)
+        else:
+          otherSub = sub.partnerInfo.submission
+          #We use total lock oerdering to prevent deadlock
+          subList = sorted([sub, otherSub], key=lambda x: x.id)
+          res = Submission.objects.exec_js(LOCK_QUERY, id=subList[0].id, uid=g.user.id)
+          if res == None:
+            continue
+          res = Submission.objects.exec_js(LOCK_QUERY, id=subList[1].id, uid=g.user.id)
+
         if not res == None:
           return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=p.getSubmissionNumber(user)))
     flash("All submissions have been claimed", "warning")
