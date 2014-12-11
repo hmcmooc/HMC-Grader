@@ -4,7 +4,6 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import NULLIFY, PULL
 
-from app.filestorage import *
 
 class GraderStats(db.Document):
   '''
