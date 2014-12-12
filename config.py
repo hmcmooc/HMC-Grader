@@ -42,3 +42,5 @@ SMTP_SERVER = "knuth.cs.hmc.edu"
 
 AUTOGRADER_PLUGIN_PATH = os.path.join(STORAGE_HOME, "plugins/autograder")
 LATEWORK_PLUGIN_PATH = os.path.join(STORAGE_HOME, "plugins/latework")
+
+GRADER_USER = "nobody"
