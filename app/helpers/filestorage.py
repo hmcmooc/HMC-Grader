@@ -23,7 +23,7 @@ def getPhotoDir():
 
 
 def getUserPhotoDir():
-  return os.path.joing(getPhotoDir(), 'user')
+  return os.path.join(getPhotoDir(), 'user')
 
 def getUserPhotoPath(user):
   path = os.path.join(getUserPhotoDir(), user.photoName)
