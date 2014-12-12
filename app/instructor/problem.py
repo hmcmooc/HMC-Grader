@@ -16,7 +16,7 @@ from app.forms import ProblemOptionsForm, AddTestForm
 
 from werkzeug import secure_filename
 
-from app.filestorage import *
+from app.helpers.filestorage import *
 
 import traceback, StringIO, sys
 import dateutil.parser

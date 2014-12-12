@@ -119,6 +119,7 @@ class CourseSettingsForm(Form):
   the future when we decide on more settings)
   '''
   anonymousGrading = BooleanField("Use anonymous grading")
+  homepage = TextField("Course Homepage (include http:// for external sites)")
   latePolicy = SelectField("Late Work Policy")
 
 # '''
@@ -151,3 +152,10 @@ class AttendanceForm(Form):
   This form allows a student to sign into the system for lab
   '''
   course = SelectField("Course")
+
+# '''
+# Page Forms
+# '''
+
+class PageImageForm(Form):
+  photo = FileField("File")

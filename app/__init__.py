@@ -12,6 +12,8 @@ from celeryconfig import make_celery
 
 from decimal import getcontext
 
+from markdown.extensions.attr_list import AttrListExtension
+
 #Set decimal precision
 getcontext.prec = 2
 
@@ -32,7 +34,8 @@ loginManager.login_view = 'login' #Set the default view for logging in
 db = MongoEngine(app)
 
 #Initialize the markdown engine
-Markdown(app)
+markdown = Markdown(app)
+markdown.register_extension(AttrListExtension)
 
 #Initialize the celery object
 celery = make_celery(app)
@@ -47,6 +50,11 @@ def beforeRequest():
 from models.gradebook import *
 from models.course import *
 from models.user import *
+
+def activeCourses():
+  return Course.objects.filter(isActive=True)
+
+app.jinja_env.globals.update(activeCourses=activeCourses)
 
 #We perform imports here for all the other files which contain pages
 #By importing these here the decorators execute and the view functions become
