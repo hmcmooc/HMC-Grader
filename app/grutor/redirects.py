@@ -25,46 +25,6 @@ import markdown
 
 from app.helpers.filestorage import *
 
-#This query atomically selects a submision from the problem we want which is
-#the latest submission for a user and is ready to be graded. It then sets that
-#submission as begin graded and sets our user as the grader for this submission
-LOCK_QUERY = """
-function() {
-var res = db[collection].findAndModify(
-{
-query: {_id: options.id, status: 2, isLatest:true},
-update: {$set: {status: 3, gradedBy: options.uid}},
-new: true,
-fields: {'_id':1}
-});
-return res;
-}
-"""
-
-#This query automatically
-EMPTY_LOCK_QUERY = """
-function() {
-var fieldName = "studentSubmissions."+options.uname;
-var q = {};
-q._id = options.pid;
-q[fieldName]= {};
-q[fieldName].$exists = false;
-
-var field = {};
-field[fieldName] = {};
-field[fieldName].submissions = [];
-
-var res = db[collection].findAndModify(
-{
-query: q,
-update: {$set: field},
-fields: {'_id':1}
-});
-
-return res;
-}
-"""
-
 @app.route('/grutor/grade/<pid>/random')
 @login_required
 def grutorGradeRandom(pid):
@@ -90,29 +50,31 @@ def grutorGradeRandom(pid):
     random.shuffle(courseUsers)
 
     #For each user try to get a submission for them
-    for user in courseUsers:
-      #If there is no submission make an entry for them
-      if not user.username in p.studentSubmissions:
-        res = Problem.objects.exec_js(EMPTY_LOCK_QUERY, pid=p.id, uname=user.username)
-        if not res == None:
-          grutorMakeBlank(p.id, user.id)
-          flash("Created a blank submission", "warning")
-          return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=1))
-      else:
-        sub = p.getLatestSubmission(user)
-        if sub.partnerInfo == None:
-          res = Submission.objects.exec_js(LOCK_QUERY, id=sub.id, uid=g.user.id)
-        else:
-          otherSub = sub.partnerInfo.submission
-          #We use total lock oerdering to prevent deadlock
-          subList = sorted([sub, otherSub], key=lambda x: x.id)
-          res = Submission.objects.exec_js(LOCK_QUERY, id=subList[0].id, uid=g.user.id)
-          if res == None:
-            continue
-          res = Submission.objects.exec_js(LOCK_QUERY, id=subList[1].id, uid=g.user.id)
+    for username in p.studentSubmissions.keys():
+      user = User.objects.get(username=username)
 
-        if not res == None:
-          return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=p.getSubmissionNumber(user)))
+      #Get the pymongo collection for some atomic actions not provided by
+      #the mongoengine wrapper
+      subCol = Submission._get_collection()
+      sub = p.getLatestSubmission(user)
+      if sub.partnerInfo == None:
+        res = subCol.find_and_modify(query={'_id': sub.id, 'status':2, 'isLatest':True}, \
+          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+      else:
+        otherSub = sub.partnerInfo.submission
+        #We use total lock oerdering to prevent deadlock
+        subList = sorted([sub, otherSub], key=lambda x: x.id)
+        res = subCol.find_and_modify(query={'_id': subList[0].id, 'status':2, 'isLatest':True}, \
+          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+        #res = Submission.objects.exec_js(LOCK_QUERY, id=subList[0].id, uid=g.user.id)
+        if res == None:
+          continue
+        res = subCol.find_and_modify(query={'_id': subList[1].id, 'status':2, 'isLatest':True}, \
+          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+        #res = Submission.objects.exec_js(LOCK_QUERY, id=subList[1].id, uid=g.user.id)
+
+      if not res == None:
+        return redirect(url_for("grutorGradeSubmission", pid=pid, uid=user.id, subnum=p.getSubmissionNumber(user)))
     flash("All submissions have been claimed", "warning")
     return redirect(url_for('grutorGradelistProblem', pid=pid))
 
