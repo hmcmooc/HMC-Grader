@@ -127,8 +127,15 @@ def grutorGradeSubmission(pid, uid, subnum):
 
     u = User.objects.get(id=g.user.id)
 
+    #If this is not in progress by anyone try to claim it atomically
     if submission.status < 3:
-      submission.gradedBy = u
+      subCol = Submission._get_collection()
+      res = subCol.find_and_modify(query={'_id':submission.id, 'status_lt': 3}, update={"$set": {"status":3, "gradedBy": u.id}})
+      #submission.gradedBy = u
+      if res == None:
+        flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
+    elif submission.gradedBy != u:
+      flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
 
     submission.status = max(submission.status, 3)
 
