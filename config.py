@@ -12,19 +12,22 @@ SECRET_KEY="Grutors <3 SPAM"
 #
 #Mongo settings
 #
-MONGODB_SETTINGS = {'DB': 'submissionsite'}
+MONGODB_SETTINGS = {'DB': 'submissionsite',
+'username': 'grader',
+'password': 'grutorsLoveGrading',
+'host': '134.173.43.224'}
 
 DATABASE_QUERY_TIMEOUT = 0.5
 
 #
 #Celery config ssettings
 #
-CELERY_BROKER_URL="amqp://guest@localhost"
+CELERY_BROKER_URL="amqp://grader:grutorsLoveGrading@134.173.43.224"
 
 #
 # Settings for file storage
 #
-STORAGE_HOME="/home/plenk/GroodyGrader"
+STORAGE_HOME="/home/hmcgrader/GraderStorage"
 
 
 #

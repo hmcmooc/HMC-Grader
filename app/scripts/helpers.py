@@ -1,49 +1,55 @@
-from app.models import *
+from app.models.user import *
+from app.models.course import *
 
 def createUsername(firstName, lastName):
-  return firstName[0]+lastName
+  firstName = firstName.lower()
+  lastName = lastName.lower()
+  #Try increasing the length of the first name to remove conflicts
+  for i in range(1,len(firstName)+1):
+    try:
+      tryName = firstName[:i]+lastName
+      u = User.objects.get(username=tryName)
+    except User.DoesNotExist:
+      return firstName[:i]+lastName
 
-def addUser(username=None, firstName="", lastName="",
-            email="", password="asdf"):
-  '''This function attempts to create a new user. If a user with that name
-  already exists it will provide an interactive prompt requesting a different
-  username'''
-  #Create the username if it isn't providied
-  if username == None:
-    #Make sure a name was provided or else error out
-    if len(firstName) == 0 or len(lastName) == 0:
-      print "No username or first/last name provided skipping user"
-      return None
-    #Otherwise we create a username dynamically
-    username = createUsername(firstName, lastName)
+  #If we didn't get a successful name here append numbers
+  conflictNumber = 1
+  while True:
+    try:
+      tryName = firstName+lastName+str(conflictNumber)
+      u = User.objects.get(username=tryName)
+      conflictNumber += 1
+    except:
+      return firstName+lastName+str(conflictNumber)
 
-  #Check if the user exists
-  try:
-    #Leverage the exception to break us out of the loop when we get a good
-    #username
-    while True:
-      User.objects.get(username=username)
-      print "User with username: %s already exists" % (username)
-      username = raw_input("Please provide a new username: ")
-  except:
-    #nothing to do this is good
-    pass
-
+def addUser(firstName, lastName, email=None, password="asdf"):
+  '''Creates a user with a distinct username'''
   #create the user
   u = User()
-  u.username = username
+  u.username = createUsername(firstName, lastName)
   u.firstName = firstName
   u.lastName = lastName
   u.email = email
   u.setPassword(password)
   u.save()
   #return the user when we are done
-  print "Added user: %s" % (username)
   return u
 
-def getClass(classname):
+def addOrGetUser(firstName, lastName, email=None, password="asdf"):
+  '''If we are given an email try to get an existing user otherwise create
+  a new user'''
+  if email != None:
+    try:
+      u = User.objects.get(firstName=firstName, lastName=lastName, email=email)
+      return u
+    except User.DoesNotExist:
+      pass
+
+  return addUser(firstName, lastName, email, password)
+
+def getCourse(semester, name):
   try:
-    return Course.objects.get(name=classname)
-  except:
-    print "Course not found"
+    c = Course.objects.get(semester=semester, name=name)
+    return c
+  except Course.DoesNotExist:
     return None

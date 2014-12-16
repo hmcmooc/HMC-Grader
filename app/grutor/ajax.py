@@ -23,6 +23,22 @@ from app.forms import SubmitAssignmentForm
 import os, datetime, fcntl, random
 import markdown
 
+def grutorSubArchive(p, c, a, user, sub):
+  _, subnum = p.getSubmissionInfo(sub)
+  with open(os.path.join(getSubmissionPath(c,a,p,user,subnum), '.gradeArchive'), 'w') as f:
+    f.write("#Scores#\n")
+    for sec, score in sub.grade.scores.iteritems():
+      f.write(sec+":"+str(score)+"\n")
+    f.write("\n#info#\n")
+    f.write("isLate:" + str(sub.isLate)+"\n")
+    if sub.partnerInfo == None:
+      f.write("partner: None\n")
+    else:
+      f.write("partner: " + sub.partnerInfo.user.username + "\n")
+    f.write("gradedBy: " + sub.gradedBy.username + "\n")
+    f.write('\n')
+    f.write(sub.comments)
+
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>/savegrade', methods=['POST'])
 @login_required
 def grutorSaveGrades(pid, uid, subnum):
@@ -71,8 +87,10 @@ def grutorSaveGrades(pid, uid, subnum):
     sub = p.getSubmission(user, subnum)
 
     score(sub)
+    grutorSubArchive(p, c, a, user, sub)
     if sub.partnerInfo != None:
       score(sub.partnerInfo.submission)
+      grutorSubArchive(p, c, a, sub.partnerInfo.user, sub.partnerInfo.submission)
 
     return jsonify(res=True)
 
@@ -144,8 +162,11 @@ def grutorSaveComment(pid, uid, subnum):
     sub = p.getSubmission(user, subnum)
 
     comment(sub)
+
+    grutorSubArchive(p, c, a, user, sub)
     if sub.partnerInfo != None:
       comment(sub.partnerInfo.submission)
+      grutorSubArchive(p, c, a, sub.partnerInfo.user, sub.partnerInfo.submission)
 
 
     #Save changes to the problem
