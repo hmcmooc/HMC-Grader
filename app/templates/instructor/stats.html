@@ -63,7 +63,7 @@ Course Statistics
 
 <hr>
 
-<div class="row">
+{%<div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
     <h2>Tutoring Attendance</h2>
@@ -96,7 +96,7 @@ Course Statistics
     <h2>Grading Record</h2>
   </div>
   <div class="col-sm-2"></div>
-</div>
+</div>%}
 
 <div class="row">
   <div class="col-sm-2"></div>
@@ -174,7 +174,7 @@ function setupSection(name, dataUrl) {
 }
 $(function() {
   setupSection("sub", "{{url_for('ajaxSubmissionStats', cid=course.id)}}")
-  setupSection("attend", "{{url_for('ajaxAttendanceStats', cid=course.id)}}")
+  //setupSection("attend", "{{url_for('ajaxAttendanceStats', cid=course.id)}}")
   var graders = {{uids|tojson}};
 
   for (var i = 0; i < graders.length; i++) {
