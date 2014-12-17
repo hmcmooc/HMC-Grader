@@ -77,39 +77,6 @@ def administerCourse(cid):
   except Course.DoesNotExist:
     return redirect(url_for('index'))
 
-# def createGradeLists(users, course):
-#   gradeLists = {}
-#   for u in users:
-#     gl = []
-#     for a in course.assignments:
-#       al = []
-#       for p in a.problems:
-#         sub = p.getLatestSubmission(u)
-#         if not sub == None:
-#           gradeData = {}
-#           gradeData['rawTotalScore'] = sub.grade.totalScore()
-#           gradeData['timeDelta'] = p.duedate - sub.submissionTime
-#           gradeData['isLate'] = sub.isLate
-#           gradeData['maxScore'] = p.totalPoints()
-#           al.append(gradeData)
-#         else:
-#           al.append(None)
-#       gl.append(al)
-#     gradeLists[u.username] = gl
-#   return gradeLists
-#
-# def preventCollapse(gradeList):
-#   for a in gradeList:
-#     if len(a) == 0:
-#       a.append(None)
-#   return gradeList
-#
-# def processGradelist(gradeList, lateCalculator):
-#   gl = lateCalculator(gradeList)
-#   gl = preventCollapse(gl)
-#   gl = list(itertools.chain.from_iterable(gl))
-#   return gl
-
 @app.route('/gradebook/<cid>')
 @login_required
 def viewGradebook(cid):
@@ -129,7 +96,7 @@ def viewGradebook(cid):
   try:
     c = Course.objects.get(id=cid)
     if not (g.user.isAdmin or c in current_user.gradingCourses()):
-      return redirect(url_for('index'))
+      abort(403)
 
     #Get the users for this course
     s = User.objects.filter(courseStudent=c)
