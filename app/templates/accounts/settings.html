@@ -93,7 +93,7 @@ Settings Panel
     <ul class="list-group">
       {% for c in g.user.courseStudent %}
         {% if c.isActive %}
-        <li class="list-group-item">{{c.name}}</li>
+        <li class="list-group-item">{{c.name}} {% if c.anonymousGrading %}(Course ID: {{c.getIdentifier(g.user.username)}}){%endif%}</li>
         {% endif %}
       {% endfor %}
     </ul>
