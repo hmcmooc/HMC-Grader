@@ -136,10 +136,10 @@ def gradeSubmission(pid, uid, subnum):
           sub.comments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
           sub.comments += sectionContent
 
-          if section['section'] in sub.grade.scores:
-            sub.grade.scores[section['section']] += assignedPoints
+          if section['rubric'] in sub.grade.scores:
+            sub.grade.scores[section['rubric']] += assignedPoints
           else:
-            sub.grade.scores[section['section']] = assignedPoints
+            sub.grade.scores[section['rubric']] = assignedPoints
       except Exception as e:
         sub.comments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
 

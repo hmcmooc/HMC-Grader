@@ -23,14 +23,32 @@ Edit Tests
   <div class="col-sm-2">
   </div>
   <div class="col-sm-6">
+    <table class="table" id="rubricTable">
+      <thead><tr><th>Rubric Section</th><th>Allocated Points</th><th>Total Points</th>
+      </thead>
+      <tbody>
+        {% for k, v in problem.rubric.iteritems() %}
+        <tr id="{{k|replace(' ', '_')}}"><td>{{k}}</td><td>0</td><td>{{v}}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   <div class="col-sm-2" style="text-align:right">
-    <button class="btn btn-success" id="save">Save</button>
+    <button class="btn btn-success" id="save"><span class='glyphicon glyphicon-floppy-saved'></span> Saved</button>
   </div>
   <div class="col-sm-2">
   </div>
 </div>
 <br>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h4>Sections</h4>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
 <div class="row">
   <div class="col-sm-2">
   </div>
@@ -56,12 +74,44 @@ Edit Tests
 {% block scripts %}
 {{super()}}
 <script>
+
 function cleanID(id){
-  var newId = id.split(' ').join('-')
+  var newId = id.split(' ').join('_')
   return newId
 }
 
+function updateRubric(){
+  var rubricTotals = {};
+  for(var i = 0; i < gradeSpec.sections.length; ++i){
+    var section = gradeSpec.sections[i];
+    if (cleanID(section.rubric) in rubricTotals) {
+      rubricTotals[cleanID(section.rubric)] += Number(section.points);
+    } else {
+      rubricTotals[cleanID(section.rubric)] = Number(section.points);
+    }
+  }
+  $("#rubricTable tbody tr").each(function() {
+    var value = rubricTotals[$(this).attr('id')];
+    if (value == undefined) {
+      $(this).find("td:nth-child(2)").text("0");
+    } else {
+      $(this).find("td:nth-child(2)").text(value);
+    }
+  })
+}
+
+function unsaved(){
+  $("button#save").removeClass("btn-success")
+  $("button#save").addClass("btn-warning")
+  $("button#save").html("<span class='glyphicon glyphicon-floppy-save'></span> Unsaved")
+}
+
+</script>
+<script>
+
+
 var gradeSpec = {{data|tojson}};
+var availableTests = gradeSpec.tests;
 var sections = {{problem.rubric.keys()|tojson}};
 
 $( document ).ready(function() {
@@ -83,12 +133,17 @@ function buildPage(){
   $("select[mytype='rubricSelector']").change(function(){
     var sec = gradeSpec.sections[$(this).attr("index")];
     sec.rubric = $(this).val();
+    updateRubric()
+    unsaved();
   });
 
   $("input[mytype='points']").change(function(){
     var sec = gradeSpec.sections[$(this).attr("index")]
-    sec.points = $(this).val();
+    sec.points = Number($(this).val());
+    updateRubric()
+    unsaved();
   })
+  updateRubric();
 }
 
 function makeTestSelector(name, index){
@@ -120,7 +175,6 @@ function makeSectionSelector(name, index){
 }
 
 function makeSectionPane(name, index){
-  console.log(name);
   var sec = gradeSpec.sections[index];
   //Just a lot of Bootstrap HTML boilerplate
   $('div#sections').append(
@@ -145,19 +199,20 @@ function makeSectionPane(name, index){
 }
 
 function makeTestEntry(secName, testName, secIndex, testIndex){
-  console.log(testName);
   $('table#'+cleanID(secName)+' tbody tr:last').before('<tr id="'+testName+'"><td>'+testName+'</td><td><button onClick="removeTest('+secIndex+','+testIndex+')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></button></td></tr>')
 }
 
 function removeSection(index){
   gradeSpec.sections.splice(index,1);
   buildPage();
+  unsaved();
 }
 
 function removeTest(secIndex, testIndex){
   var sec = gradeSpec.sections[secIndex];
   sec.tests.splice(testIndex, 1);
   buildPage();
+  unsaved();
 }
 
 function addTest(secIndex){
@@ -165,6 +220,7 @@ function addTest(secIndex){
   var testName = $("select#"+cleanID(sec.name)+"Test").val();
   sec.tests.push(testName);
   buildPage();
+  unsaved();
 }
 
 function addSection(){
@@ -173,8 +229,9 @@ function addSection(){
     alert("Section name must contain valid characters")
     return;
   }
-  gradeSpec.sections.push({"name":name, points:0, section:sections[0], tests:[]});
+  gradeSpec.sections.push({"name":name, points:0, rubric:sections[0], tests:[]});
   buildPage();
+  unsaved();
 }
 
 $("button#save").click(function(){
@@ -185,7 +242,9 @@ $("button#save").click(function(){
     data: JSON.stringify(gradeSpec),
     dataType: 'json',
     success: function(data) {
-      //Nothing to do
+      $("button#save").addClass("btn-success")
+      $("button#save").removeClass("btn-warning")
+      $("button#save").html4("<span class='glyphicon glyphicon-floppy-saved'></span> Saved")
     }
   });
 });
