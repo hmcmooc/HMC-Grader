@@ -34,7 +34,7 @@ Edit Tests
     </table>
   </div>
   <div class="col-sm-2" style="text-align:right">
-    <button class="btn btn-success" id="save"><span class='glyphicon glyphicon-floppy-saved'></span> Saved</button>
+    <button class="btn btn-success" id="save"><span class='glyphicon glyphicon-saved'></span> Saved</button>
   </div>
   <div class="col-sm-2">
   </div>
@@ -103,7 +103,7 @@ function updateRubric(){
 function unsaved(){
   $("button#save").removeClass("btn-success")
   $("button#save").addClass("btn-warning")
-  $("button#save").html("<span class='glyphicon glyphicon-floppy-save'></span> Unsaved")
+  $("button#save").html("<span class='glyphicon glyphicon-save'></span> Unsaved")
 }
 
 </script>
@@ -244,7 +244,7 @@ $("button#save").click(function(){
     success: function(data) {
       $("button#save").addClass("btn-success")
       $("button#save").removeClass("btn-warning")
-      $("button#save").html4("<span class='glyphicon glyphicon-floppy-saved'></span> Saved")
+      $("button#save").html4("<span class='glyphicon glyphicon-saved'></span> Saved")
     }
   });
 });

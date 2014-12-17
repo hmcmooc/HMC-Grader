@@ -3,12 +3,16 @@
 #import the app and the login manager
 from app import app, loginManager
 
+#Import the flask functions we need
 from flask import g, request, render_template, redirect, url_for, flash
-from flask.ext.login import login_user, logout_user, current_user, login_required
+from flask.ext.login import current_user, login_required
 
-from models.course import *
-from models.stats import *
-from app.forms import AttendanceForm, ClockInForm
+#Import the models we need for these pages
+from app.structures.models.course import *
+from app.structures.models.stats import *
+
+#Import the forms needed on these pages
+from app.structures.forms import AttendanceForm, ClockInForm
 
 @app.route('/')
 def index():

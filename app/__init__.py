@@ -8,14 +8,10 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.markdown import Markdown
 
 #import for celery task manager
-from celeryconfig import make_celery
-
-from decimal import getcontext
+from helpers.celeryconfig import make_celery
 
 from markdown.extensions.attr_list import AttrListExtension
 
-#Set decimal precision
-getcontext.prec = 2
 
 app = Flask(__name__)
 
@@ -46,11 +42,17 @@ celery = make_celery(app)
 def beforeRequest():
   g.user = current_user
 
+#We pre imort all the models because they have a required import order.
+#By doing this here we remove that requirement in other files which makes
+#extending the code easier.
+from structures.models.gradebook import *
+from structures.models.course import *
+from structures.models.user import *
+from structures.models.stats import *
+from structures.models.pages import *
 
-from models.gradebook import *
-from models.course import *
-from models.user import *
 
+#Set up a function that can be used in jinja
 def activeCourses():
   return Course.objects.filter(isActive=True)
 
@@ -59,10 +61,8 @@ app.jinja_env.globals.update(activeCourses=activeCourses)
 #We perform imports here for all the other files which contain pages
 #By importing these here the decorators execute and the view functions become
 #available. If you add another file with view functions you must import it here
-from root import *
-from accounts import *
-from admin import *
-from instructor import *
-from students import *
-from grutor import *
-from pages import *
+from userViews.common import *
+from userViews.admin import *
+from userViews.instructor import *
+from userViews.student import *
+from userViews.grutor import *

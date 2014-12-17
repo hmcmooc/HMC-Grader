@@ -1,24 +1,22 @@
-
 # -*- coding: utf-8 -*-
 
 '''
 This module handles all administrator views and functions.
 '''
 
-#import the app and the login manager
-from app import app, loginManager, celery
+#import the app and the celery object (for stats)
+from app import app, celery
 
 from flask import g, request, render_template, redirect, url_for, flash, jsonify
+from flask import abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
-from flask.ext.mongoengine import DoesNotExist
+from app.structures.models.user import *
+from app.structures.models.gradebook import *
+from app.structures.models.course import *
+from app.structures.models.pages import *
 
-from app.models.user import *
-from app.models.gradebook import *
-from app.models.course import *
-from app.models.pages import *
-
-from forms import CreateCourseForm, CreateUserForm
+from app.structures.forms import CreateCourseForm, CreateUserForm
 
 from app.helpers.filestorage import ensurePathExists, getCoursePath
 
@@ -44,7 +42,7 @@ def adminIndex():
   #even though we require login if someone gets here and is not admin
   #send them away. This is done in all methods for the admin panel
   if not g.user.isAdmin:
-    return redirect(url_for('index'))
+    abort(403)
 
   #eventually we will compute statistics about the state of the system to be
   #put here

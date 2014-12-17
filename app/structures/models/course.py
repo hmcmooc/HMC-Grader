@@ -6,7 +6,7 @@ from mongoengine import NULLIFY, PULL
 
 from app.helpers.filestorage import *
 
-from app.models.user import User
+from app.structures.models.user import User
 
 
 #TODO: Figure out what to do when a user is removed from a course

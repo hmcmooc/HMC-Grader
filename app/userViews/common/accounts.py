@@ -7,18 +7,26 @@ This module handles login, logout, and settings for user accounts
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file
+#Import flask functions we need
+from flask import g, request, render_template, redirect, url_for, flash
+from flask import abort, send_file
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
+#Function for securing uploaded files
 from werkzeug import secure_filename
 
-from flask.ext.mongoengine import DoesNotExist
+#Import the models we need for these pages
+from app.structures.models.user import User, RecoverAccount
 
-from models.user import User, RecoverAccount
-from forms import SignInForm, ChangePasswordForm, UserSettingsForm, ResetPasswordForm
+#Import the forms we need for these pages
+from app.structures.forms import SignInForm, ChangePasswordForm
+from app.structures.forms import UserSettingsForm, ResetPasswordForm
 
-from app.helpers.filestorage import getUserPhotoDir, getUserPhotoPath, ensurePathExists
+#Import app helper functions for these pages
+from app.helpers.filestorage import getUserPhotoDir, getUserPhotoPath
+from app.helpers.filestorage import ensurePathExists
 
+#Generic python imports
 import os
 
 LOGIN_ERROR_MSG = "Invalid Username/Password"

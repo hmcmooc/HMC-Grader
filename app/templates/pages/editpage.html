@@ -78,7 +78,7 @@ Edit Page
   </div>
   <div class="col-sm-8">
     <button id="previewBtn" type="button" class="btn btn-default">Preview</button>
-    <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-floppy-saved"></span> Saved</button>
+    <button id="saveBtn" type="button" class="btn btn-success"><span class="glyphicon glyphicon-saved"></span> Saved</button>
   </div>
   <div class="col-sm-2">
   </div>
@@ -162,7 +162,7 @@ Edit Page
 <script>
 function unsaved(){
   $("#saveBtn").attr('class', "btn btn-warning")
-  $("#saveBtn").html("<span class='glyphicon glyphicon-floppy-save'></span> Save")
+  $("#saveBtn").html("<span class='glyphicon glyphicon-save'></span> Save")
 }
 
 $("#commentarea").bind('input propertychange', function(){
