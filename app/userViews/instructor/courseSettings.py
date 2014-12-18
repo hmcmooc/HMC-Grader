@@ -39,7 +39,7 @@ import shutil, random, string
 def instructorCourseSettings(cid):
   '''
   Function Type: View Function
-  Template: instructor/course.html
+  Template: instructor/courseSettings.html
   Purpose: Allows an instructor to manipulate the assignemnts of a course.
   Course settings, and the users and graders for a course.
 
@@ -60,7 +60,7 @@ def instructorCourseSettings(cid):
   '''
   try:
     c = Course.objects.get(id=cid)
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
+    if not c in current_user.courseInstructor:
       abort(403)
 
     #Get the users for this course
@@ -78,7 +78,7 @@ def instructorCourseSettings(cid):
     if c.anonymousGrading:
       c.ensureIDs()
 
-    #TODO: Refactor user forms to use javascript/AJAX
+    #TODO: Refactor forms to use javascript/AJAX
     return render_template("instructor/courseSettings.html",\
      course=c, students=s, grutors=grutor, instrs=i,\
      form=CreateAssignmentForm(), suserform=AddUserCourseForm(),\
@@ -106,8 +106,8 @@ def instructorSaveCourseSettings(cid):
   '''
   try:
     c = Course.objects.get(id=cid)
-    if not (g.user.isAdmin or c in g.user.courseInstructor):
-      return jsonify(res=False, msg="Permission Denied")
+    if not c in g.user.courseInstructor:
+      return jsonify(status=403), 403
 
     content = request.get_json()
     c.anonymousGrading = content['anonymousGrading']
@@ -145,8 +145,8 @@ def instructorCreateAssignmentGroup(cid):
           c = Course.objects.get(id=cid)
           #For security purposes we send anyone who isnt an instructor or
           #admin away
-          if not (g.user.isAdmin or c in current_user.courseInstructor):
-            return redirect(url_for('index'))
+          if not c in current_user.courseInstructor:
+            abort(403)
 
           #If this assignment already exists we want to return now
           if form.name.data in c.assignments:
@@ -175,7 +175,7 @@ def instructorCreateAssignmentGroup(cid):
           flash("Added Assignment Group")
           return redirect(url_for('instructorCourseSettings', cid=cid))
       except Course.DoesNotExist as e:
-        raise e
+        abort(404)
   return redirect(url_for('instructorCourseSettings', cid=cid))
 
 @app.route('/assignment/<cid>/<aid>/del')
@@ -195,7 +195,7 @@ def instructorDeleteAssignmentGroup(cid, aid):
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or
     #admin away
-    if not (g.user.isAdmin or c in g.user.courseInstructor):
+    if not c in g.user.courseInstructor:
       return jsonify(status=403), 403
 
 
@@ -243,8 +243,8 @@ def instructorAddProblem(cid,aid):
     c = Course.objects.get(id=cid)
     #For security purposes we send anyone who isnt an instructor or
     #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
+    if not current_user.courseInstructor:
+      abort(403)
 
     a = AssignmentGroup.objects.get(id=aid)
 
@@ -274,9 +274,9 @@ def instructorAddProblem(cid,aid):
     ensurePathExists(getTestPath(c,a,p))
 
     flash("This is your first time creating the problem please fill in all the form fields an hit save")
-    return redirect(url_for('editProblem', cid=cid, aid=a.id, pid=p.id))
-  except Exception as e:
-    raise e
+    return redirect(url_for('instructorProblemSettings', pid=p.id))
+  except Course.DoesNotExist:
+    abort(404)
 
 @app.route('/assignment/<cid>/<aid>/remproblem/<pid>')
 @login_required
@@ -344,8 +344,8 @@ def instructorAddUserToCourse(cid):
 
     #For security purposes we send anyone who isnt an instructor or
     #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
+    if not c in current_user.courseInstructor:
+      abort(403)
 
     if request.method == "POST":
       form = AddUserCourseForm(request.form)
@@ -360,8 +360,8 @@ def instructorAddUserToCourse(cid):
         u.save()
   except User.DoesNotExist:
     flash("Failed to find user", "error")
-  except Exception as e:
-    raise e
+  except Course.DoesNotExist:
+    abort(404)
   return redirect(url_for('administerCourse', cid=cid))
 
 @app.route('/editcourse/<cid>/remuser/<uid>/<t>')
@@ -383,8 +383,8 @@ def instructorRemoveUserFromCourse(cid, uid, t):
 
     #For security purposes we send anyone who isnt an instructor or
     #admin away
-    if not (g.user.isAdmin or c in current_user.courseInstructor):
-      return redirect(url_for('index'))
+    if not c in current_user.courseInstructor:
+      abort(403)
 
 
     u = User.objects.get(id=uid)
@@ -398,6 +398,6 @@ def instructorRemoveUserFromCourse(cid, uid, t):
 
   except User.DoesNotExist:
     flash("Failed to find user")
-  except Exception as e:
-    raise e
+  except Course.DoesNotExist:
+    abort(404)
   return redirect(url_for('administerCourse', cid=cid))

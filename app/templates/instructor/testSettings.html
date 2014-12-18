@@ -10,9 +10,9 @@ Edit Tests
   </div>
   <div class="col-sm-8">
     <ol class="breadcrumb">
-      <li><a href="{{url_for('administerCourse', cid=course.id)}}">{{course.name}}</a></li>
+      <li><a href="{{url_for('instructorCourseSettings', cid=course.id)}}">{{course.name}}</a></li>
       <li>{{assignment.name}}</li>
-      <li><a href="{{url_for('editProblem', pid=problem.id)}}">{{problem.name}}</a></li>
+      <li><a href="{{url_for('instructorProblemSettings', pid=problem.id)}}">{{problem.name}}</a></li>
       <li>{{filename}}</li>
     </ol>
   </div>
@@ -236,7 +236,7 @@ function addSection(){
 
 $("button#save").click(function(){
   $.ajax({
-    url:"{{url_for('saveTestFile', pid=problem.id, filename=filename)}}",
+    url:"{{url_for('instructorSaveTestFile', pid=problem.id, filename=filename)}}",
     type:'POST',
     contentType:'application/json',
     data: JSON.stringify(gradeSpec),
@@ -244,7 +244,7 @@ $("button#save").click(function(){
     success: function(data) {
       $("button#save").addClass("btn-success")
       $("button#save").removeClass("btn-warning")
-      $("button#save").html4("<span class='glyphicon glyphicon-saved'></span> Saved")
+      $("button#save").html("<span class='glyphicon glyphicon-saved'></span> Saved")
     }
   });
 });

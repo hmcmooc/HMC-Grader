@@ -19,11 +19,11 @@ Edit Problem
   <div class="col-sm-2">
   </div>
   <div class="col-sm-8">
-    <form class="form" action="{{url_for('updateProblem', pid=problem.id)}}" method="POST" role="form">
+    <form class="form" action="{{url_for('instructorSaveProblemSettings', pid=problem.id)}}" method="POST" role="form">
       {{ form.hidden_tag() }}
       <div class="heading">
         <ol class="breadcrumb">
-          <li><a href="{{url_for('administerCourse', cid=course.id)}}">{{course.name}}</a></li>
+          <li><a href="{{url_for('instructorCourseSettings', cid=course.id)}}">{{course.name}}</a></li>
           <li>{{assignment.name}}</li>
           <li>{{problem.name}}</li>
         </ol>
@@ -47,7 +47,7 @@ Edit Problem
 
       <div class="form-group">
         {{form.problemPage.label}}&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="{{url_for('makeProblemNewPage', pid=problem.id, t='problemPage')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
+        <a href="{{url_for('instructorMakeProblemPage', pid=problem.id, t='problemPage')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
         {% if problem.problemPage != None %}
         <a target="_blank" href="{{problem.problemPage}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
         {% endif %}
@@ -57,7 +57,7 @@ Edit Problem
 
       <div class="form-group">
         {{form.gradeNotes.label}}&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="{{url_for('makeProblemNewPage', pid=problem.id, t='notes')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
+        <a href="{{url_for('instructorMakeProblemPage', pid=problem.id, t='notes')}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span> Make Page</a>
         {% if problem.gradeNotes != None %}
         <a target="_blank" href="{{problem.gradeNotes}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-share"></span> Test Link</a>
         {% endif %}
@@ -133,7 +133,7 @@ Edit Problem
         <tr>
           <td>{{f[0]}}</td>
           <td>{{f[1]}}</td>
-          <td style="text-align:center"><a href="{{url_for('editTestFile', pid=problem.id, filename=f[0])}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a></td>
+          <td style="text-align:center"><a href="{{url_for('instructorEditTestFile', pid=problem.id, filename=f[0])}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a></td>
           <td style="text-align:center"><a href="{{url_for('remTestFile', pid=problem.id, filename=f[0])}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
         </tr>
         {% endfor %}
