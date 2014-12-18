@@ -29,6 +29,7 @@ td a {
   </div>
   <div class="col-sm-2"></div>
 </div>
+{% if instructor %}
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
@@ -62,6 +63,7 @@ td a {
   <div class="col-sm-2"></div>
 </div>
 <hr>
+{% endif %}
 <!-- Begin gradebook table -->
 <div class="row">
   <div class="col-sm-12">
@@ -79,7 +81,7 @@ td a {
           {% if c == None %}
           <th>None</th>
           {% else %}
-          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id, instr="true")}}">{{c.name}}</a></th>
+          <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id, instr=instructor)}}">{{c.name}}</a></th>
           {% endif %}
           {% endfor %}
         </tr>
@@ -99,18 +101,16 @@ $(function() {
   students = {{uids|tojson}};
 
   for(var i = 0; i < students.length; i++) {
-    data = {'uid':students[i], 'cid':"{{course.id}}", 'links':true};
+    data = {'uid':students[i]};
     $.ajax({
-      url:"{{url_for('ajaxRenderGrade')}}",
+      url:"{{url_for('commonRenderGrade', cid=course.id, instr=instructor)}}",
       type:'POST',
       async:true,
       contentType:'application/json',
       data: JSON.stringify(data),
       dataType: 'json',
       success: function(data) {
-        console.log("HERE")
         $('#{{course.id}} tbody').append(data.res);
-        $('#{{course.id}} tbody tr:last td:first').before("<td class='name'>"+data.username{% if course.anonymousGrading %}+" ("+ data.id+")"{%endif%}+"</td>")
       }
     });
   }

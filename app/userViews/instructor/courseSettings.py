@@ -362,7 +362,7 @@ def instructorAddUserToCourse(cid):
     flash("Failed to find user", "error")
   except Course.DoesNotExist:
     abort(404)
-  return redirect(url_for('administerCourse', cid=cid))
+  return redirect(url_for('instructorCourseSettings', cid=cid))
 
 @app.route('/editcourse/<cid>/remuser/<uid>/<t>')
 @login_required

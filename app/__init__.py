@@ -42,6 +42,11 @@ celery = make_celery(app)
 def beforeRequest():
   g.user = current_user
 
+#Add the custom converters we have made here
+from app.helpers.converters import BoolConverter
+
+app.url_map.converters['bool'] = BoolConverter
+
 #We pre imort all the models because they have a required import order.
 #By doing this here we remove that requirement in other files which makes
 #extending the code easier.

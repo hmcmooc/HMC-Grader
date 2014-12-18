@@ -94,3 +94,12 @@ class GradeBook(db.EmbeddedDocument):
       else:
         for c in a.columns:
           yield c
+
+  def totalPoints(self):
+    points = 0
+    for c in self.columns():
+      if c == None:
+        continue
+      points += c.maxScore
+
+    return points

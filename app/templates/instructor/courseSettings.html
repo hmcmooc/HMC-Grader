@@ -10,7 +10,7 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-4">
     <h1>{{course.name}}</h1>
-    <a href="#" class="btn btn-primary"><span class="octicon octicon-book"></span> Grade Book</a>
+    <a href="{{url_for('viewGradebook', cid=course.id, instr=True)}}" class="btn btn-primary"><span class="octicon octicon-book"></span> Grade Book</a>
     <a href="#" class="btn btn-primary"><span class="octicon octicon-graph"></span> Statistics</a>
   </div>
   <div class="col-sm-4">
