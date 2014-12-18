@@ -51,7 +51,7 @@ Admin Panel: Courses
         <tr>
           <td>{{c.name}}</td>
           <td>{{c.semester}}</td>
-          <td><a class="btn btn-default" href="{{url_for('administerCourse', cid=c.id)}}">Administer</a></td>
+          <td><a class="btn btn-default" href="{{url_for('instructorCourseSettings', cid=c.id)}}">Administer</a></td>
           <td><a class="btn btn-danger" href="{{url_for('deactivateCourse', cid=c.id)}}">Deactivate</a></td>
         </tr>
         {% endif %}

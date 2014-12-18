@@ -72,7 +72,7 @@ body {
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Instructor<b class="caret"></b></a>
           <ul class="dropdown-menu">
             {% for c in g.user.instructorActive()|sort(attribute='name') %}
-            <li><a href="{{url_for('administerCourse', cid=c.id)}}">{{c.name}}</a></li>
+            <li><a href="{{url_for('instructorCourseSettings', cid=c.id)}}">{{c.name}}</a></li>
             {% endfor %}
           </ul>
         </li>
@@ -107,7 +107,7 @@ body {
   <div class="row">
     <div class="col-sm-2">
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-8" id="flashBox">
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       {% for category, message in messages %}
@@ -131,4 +131,5 @@ body {
 {{super()}}
 <script src="{{url_for('static', filename='bootbox.min.js')}}"></script>
 <script src="{{url_for('static', filename='moment.js')}}"></script>
+<script src="{{url_for('static', filename='customjs/flash.js')}}"></script>
 {% endblock %}

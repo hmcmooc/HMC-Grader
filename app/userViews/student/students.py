@@ -10,16 +10,16 @@ from flask.ext.mongoengine import DoesNotExist
 
 from werkzeug import secure_filename
 
-from app.models.user import *
-from app.models.gradebook import *
-from app.models.course import *
-from app.models.stats import StudentStats
+from app.structures.models.user import *
+from app.structures.models.gradebook import *
+from app.structures.models.course import *
+from app.structures.models.stats import StudentStats
 
-from app.forms import SubmitAssignmentForm, AttendanceForm
-from app.autograde import gradeSubmission
+from app.structures.forms import SubmitAssignmentForm, AttendanceForm
+from app.helpers.autograder import gradeSubmission
 
 from app.helpers.filestorage import *
-from app.latework import getLateCalculators
+from app.plugins.latework import getLateCalculators
 
 import os, datetime, shutil
 

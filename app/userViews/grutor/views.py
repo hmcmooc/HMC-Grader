@@ -7,21 +7,18 @@ This module contains the view functions for the grutor module
 #import the app and the login manager
 from app import app, loginManager
 
-from flask import g, request, render_template, redirect, url_for, flash, send_file, abort
+#Standard flask importsi
+from flask import g, request, render_template, redirect, url_for, flash, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
-from flask.ext.mongoengine import DoesNotExist
+#Import models needed for these pages
+from app.structures.models.user import *
+from app.structures.models.gradebook import *
+from app.structures.models.course import *
 
-from werkzeug import secure_filename
-
-from app.models.user import *
-from app.models.gradebook import *
-from app.models.course import *
-
-from app.forms import SubmitAssignmentForm
-
+#Generic python imports
 import os, datetime, fcntl, random
-import markdown
+from werkzeug import secure_filename
 
 @app.route('/grutor/assignments/<cid>')
 @login_required

@@ -10,8 +10,8 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-4">
     <h1>{{course.name}}</h1>
-    <a href="{{url_for('viewGradebook', cid=course.id)}}" class="btn btn-primary"><span class="octicon octicon-book"></span> Grade Book</a>
-    <a href="{{url_for('viewCourseStats', cid=course.id)}}" class="btn btn-primary"><span class="octicon octicon-graph"></span> Statistics</a>
+    <a href="#" class="btn btn-primary"><span class="octicon octicon-book"></span> Grade Book</a>
+    <a href="#" class="btn btn-primary"><span class="octicon octicon-graph"></span> Statistics</a>
   </div>
   <div class="col-sm-4">
   </div>
@@ -23,7 +23,7 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-8">
     <h2 id="assignments">Assignments</h2>
-    <form class="form-inline" action="{{url_for('createAssignment', cid=course.id)}}" method="POST" role="form">
+    <form class="form-inline" action="{{url_for('instructorCreateAssignmentGroup', cid=course.id)}}" method="POST" role="form">
       {{ form.hidden_tag() }}
       <div class="form-group">
         {{ form.name(placeholder="eg. Week 0", class="form-control")}}
@@ -43,22 +43,22 @@ Edit Course: {{course.name}}
       </thead>
       <tbody>
         {% for a in course.assignments[::-1] %}
-        <tr>
+        <tr assignmentName='{{a.name}}'>
           <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
-          <td><a href="{{url_for('addProblem', cid=course.id, aid=a.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></a></td>
+          <td><a href="{{url_for('instructorAddProblem', cid=course.id, aid=a.id)}}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></a></td>
           <td class="active" colspan="2"></td>
           <td>
-            <btn onclick="confirmDelete('{{a.name}}', '{{url_for("delAssignment", cid=course.id, aid=a.id)}}')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
+            <btn onclick="confirmDelete('{{a.name}}', '{{url_for("instructorDeleteAssignmentGroup", cid=course.id, aid=a.id)}}', true)" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
           </td>
         </tr>
         {% for p in a.problems|sort(attribute="name") %}
-        <tr>
+        <tr assignmentName='{{a.name}}' problemName='{{a.name}}/{{p.name}}'>
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           <td>{{p.totalPoints()}}</td>
           <td>
-            <a href="{{url_for('editProblem', pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
-            &nbsp;&nbsp;&nbsp;<btn onclick="confirmDelete('{{a.name}}/{{p.name}}', '{{url_for('remProblem', cid=course.id, pid=p.id, aid=a.id)}}')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
+            <a href="{{url_for('editProblemSettings', pid=p.id)}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-cog"></span></a>
+            &nbsp;&nbsp;&nbsp;<btn onclick="confirmDelete('{{a.name}}/{{p.name}}', '{{url_for('instructorDeleteProblem', cid=course.id, pid=p.id, aid=a.id)}}', false)" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></btn>
           </td>
         </tr>
         {% endfor %}
@@ -97,7 +97,7 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-2">
     <h1>Students</h2>
-    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+    <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ suserform.hidden_tag() }}
       <div class="form-group">
         {{ suserform.uname(placeholder="eg. jdoe", class="form-control")}}
@@ -118,7 +118,7 @@ Edit Course: {{course.name}}
           {% for s in students %}
           <tr>
           <td class="name">{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
-          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
           <tr>
           {% endfor %}
         </tbody>
@@ -127,7 +127,7 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-2">
     <h1>Grutors</h2>
-    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+    <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ guserform.hidden_tag() }}
       <div class="form-group">
         {{ guserform.uname(placeholder="eg. jdoe", class="form-control")}}
@@ -148,7 +148,7 @@ Edit Course: {{course.name}}
           {% for s in grutors %}
           <tr>
           <td class="name">{{s.username}}</td>
-          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
           <tr>
           {% endfor %}
         </tbody>
@@ -157,7 +157,7 @@ Edit Course: {{course.name}}
   </div>
   <div class="col-sm-2">
     <h1>Instructors</h2>
-    <form class="form-inline" action="{{url_for('addUserCourse', cid=course.id)}}" method="POST" role="form">
+    <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ iuserform.hidden_tag() }}
       <div class="form-group">
         {{ iuserform.uname(placeholder="eg. jdoe", class="form-control")}}
@@ -179,7 +179,7 @@ Edit Course: {{course.name}}
           {% if not s.isAdmin %}
           <tr>
           <td class="name">{{s.username}}</td>
-          <td><a href="{{url_for('remUserCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
           <tr>
           {% endif %}
           {% endfor %}
@@ -218,7 +218,7 @@ function saveSettings(){
   values['lateGradePolicy'] = $('#latePolicy').val()
   values['homepage'] = $('#homepage').val()
   $.ajax({
-    url:"{{url_for('instructorSaveSettings', cid=course.id)}}",
+    url:"{{url_for('instructorSaveCourseSettings', cid=course.id)}}",
     type:'POST',
     contentType:'application/json',
     data: JSON.stringify(values),
@@ -235,7 +235,7 @@ function saveSettings(){
 </script>
 
 <script>
-function confirmDelete(name, url){
+function confirmDelete(name, url, isAssignment){
   bootbox.dialog({
     message: "Are you sure you want to delete "+name+"?<br>Student files will be saved.<br>Grades for this will be lost.",
     title:"Confirm Delete",
@@ -246,7 +246,15 @@ function confirmDelete(name, url){
         callback: function(){
           $.ajax({url:url,
           success:function(){
-            location.reload();
+            //location.reload();
+            //TODO: Instead of reloading use jquery to remove the objects
+            if (isAssignment) {
+              $("[assignmentName='"+name+"']").remove();
+              flash("Assignment group " + name + " removed", "success")
+            } else {
+              $("[problemName='"+name+"']").remove();
+              flash("Problem " + name + " removed", "success")
+            }
           }})
         }
       },

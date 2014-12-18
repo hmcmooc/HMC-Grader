@@ -1,7 +1,7 @@
 import markdown, re
 
-from app.models.course import *
-from app.models.pages import *
+from app.structures.models.course import *
+from app.structures.models.pages import *
 
 from flask import url_for
 

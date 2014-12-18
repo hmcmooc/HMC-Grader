@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, sys
 
-from flask import Flask
+from flask import Flask, g
 from flask.ext.login import LoginManager, current_user
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.bootstrap import Bootstrap
@@ -58,9 +58,9 @@ def activeCourses():
 
 app.jinja_env.globals.update(activeCourses=activeCourses)
 
-#We perform imports here for all the other files which contain pages
-#By importing these here the decorators execute and the view functions become
-#available. If you add another file with view functions you must import it here
+#We import all of the various modules in userViews. These modules contain functions
+#which generate URL->enpoint bindings which allows the pages to be rendered or
+#allows redirects and AJAX calls to be executed
 from userViews.common import *
 from userViews.admin import *
 from userViews.instructor import *

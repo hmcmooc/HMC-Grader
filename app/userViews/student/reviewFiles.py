@@ -4,9 +4,9 @@ from flask import g, request, render_template, redirect, url_for, flash, send_fi
 from flask import jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
-from app.models.user import *
-from app.models.gradebook import *
-from app.models.course import *
+from app.structures.models.user import *
+from app.structures.models.gradebook import *
+from app.structures.models.course import *
 
 from app.helpers.filestorage import *
 

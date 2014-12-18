@@ -1,16 +1,16 @@
 # coding=utf-8
 
 from app import app, celery, db
-from models.user import User
-from models.course import Problem , Course, AssignmentGroup
-from models.gradebook import GBGrade
+from app.structures.models.user import User
+from app.structures.models.course import Problem , Course, AssignmentGroup
+from app.structures.models.gradebook import GBGrade
 
 import os,shutil, json
 from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
 
-from app.autograder import getTestRunners
+from app.plugins.autograder import getTestRunners
 
 from app.helpers.filestorage import *
 

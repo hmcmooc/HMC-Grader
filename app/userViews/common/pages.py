@@ -3,23 +3,25 @@
 #import the app
 from app import app
 
-from app import markdown as app_md
-
-from flask import g, request, render_template, redirect, url_for, flash, abort, jsonify
-from flask import send_file
+#Import the flask functions we need
+from flask import g, request, render_template, redirect, url_for, flash, abort
+from flask import send_file, jsonify
 from flask.ext.login import current_user, login_required
 
-from app.models.course import *
-from app.models.pages import *
+#Import the models we need for these pages
+from app.structures.models.pages import *
 
-from app.forms import PageImageForm
+#Import the forms we need for these pages
+from app.structures.forms import PageImageForm
 
-from werkzeug import secure_filename
-from helpers.filestorage import getPagePhotoPath, getPagePhotoDir, ensurePathExists
-import re, markdown
-
+#Import app helpers for these pages
+from app.helpers.filestorage import getPagePhotoPath, getPagePhotoDir, ensurePathExists
 from app.helpers.wikiextension import WikiExtension
+
+#Generic python imports from other libraries
+from werkzeug import secure_filename
 from markdown.extensions.attr_list import AttrListExtension
+import re, markdown
 
 @app.route('/page/view/id/<pgid>')
 def viewPage(pgid):

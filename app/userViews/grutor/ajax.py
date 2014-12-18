@@ -14,11 +14,11 @@ from flask.ext.mongoengine import DoesNotExist
 
 from werkzeug import secure_filename
 
-from app.models.user import *
-from app.models.gradebook import *
-from app.models.course import *
+from app.structures.models.user import *
+from app.structures.models.gradebook import *
+from app.structures.models.course import *
 
-from app.forms import SubmitAssignmentForm
+from app.structures.forms import SubmitAssignmentForm
 
 import os, datetime, fcntl, random
 import markdown
