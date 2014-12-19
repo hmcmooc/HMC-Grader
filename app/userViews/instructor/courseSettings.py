@@ -400,4 +400,4 @@ def instructorRemoveUserFromCourse(cid, uid, t):
     flash("Failed to find user")
   except Course.DoesNotExist:
     abort(404)
-  return redirect(url_for('administerCourse', cid=cid))
+  return redirect(url_for('instructorCourseSettings', cid=cid))
