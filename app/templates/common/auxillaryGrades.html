@@ -21,7 +21,7 @@ Grade book column
     <form>
       <div class="form-group">
         <label for="maxPoints">Maximum Points</label>
-        <input type="number" disabled value="{{col.maxScore}}" name="maxPoints" id="maxPoints" class="form-control"></input>
+        <input type="number" value="{{col.maxScore}}" name="maxPoints" id="maxPoints" class="form-control" {% if not instructor %}disabled{%endif%}></input>
       </div>
     </form>
     <button id="save" class="btn btn-primary" onclick="save()">Save</button>
@@ -45,7 +45,7 @@ Grade book column
         <tbody>
           {% for u in users %}
           <tr>
-            <td>{% if not course.anonymousGrading %}{{u.username}}{% else %}{{course.getIdentifier(u.username)}}{% endif %}</td>
+            <td>{% if instructor %}{{u.username}}{% if course.anonymousGrading %} ({{course.getIdentifier(u.username)}}){% endif %}{% else %}{% if course.anonymousGrading %} {{course.getIdentifier(u.username)}}{% else %}{{u.username}}{% endif %}{%endif%}</td>
             <td><input id="{{u.id}}" type="number" class="form-control" value="{{col.scores[u.username].totalScore()}}"></input></td>
           </tr>
           {% endfor %}

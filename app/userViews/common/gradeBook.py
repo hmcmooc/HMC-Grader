@@ -24,7 +24,6 @@ from app.structures.forms import CreateGradeColumnForm, CreateGradebookGroupForm
 #Import app helpers
 from app.helpers.gradebook import getStudentAssignmentScores, getStudentAuxScores
 
-
 @app.route('/gradebook/<cid>/<bool:instr>')
 @login_required
 def viewGradebook(cid, instr):
@@ -261,7 +260,48 @@ def redirectGradebook(cid, col, instr):
     for p in a.problems:
       if p.gradeColumn == col:
         return redirect(url_for('grutorGradelistProblem', pid=p.id))
-  if instr:
-    return redirect(url_for('editGradebook', cid=c.id, col=col.id))
-  else:
-    return redirect(url_for('grutorEditGradebook', cid=c.id, col=col.id))
+
+  return redirect(url_for('editAuxillaryGrades', cid=cid, instr=instr, col=col.id))
+
+
+#
+# We are lumping the gradebook column in here with the gradebook table
+#
+
+@app.route('/gradebook/<cid>/<bool:instr>/<col>')
+@login_required
+def editAuxillaryGrades(cid, instr, col):
+  '''
+  Function Type: View Function
+  Template: instructor/editcolumn.html
+  Purpose: Allows the grutor to edit one column of the gradebook manually
+
+  Inputs:
+    cid: The object ID of the course to authenticate the grader
+    col: The object ID of the column to be edited
+
+  Template Parameters: TODO
+  '''
+  try:
+    course = Course.objects.get(id=cid)
+    column = GBColumn.objects.get(id=col)
+
+    if instr and not course in current_user.courseInstructor:
+      abort(403)
+    elif not instr and not course in current_user.gradingCourses():
+      abort(403)
+
+    users = User.objects.filter(courseStudent=course)
+
+    for u in users:
+      if not u.username in column.scores:
+        grade = GBGrade()
+        grade.scores['score'] = 0
+        grade.save()
+        column.scores[u.username] = grade
+
+    column.save()
+
+    return render_template("common/auxillaryGrades.html", course = course, col=column, users=users, instructor=instr)
+  except (Course.DoesNotExist, GBColumn.DoesNotExist):
+    abort(404)
