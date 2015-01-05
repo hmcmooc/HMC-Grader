@@ -91,6 +91,10 @@ def commonRenderGrade(cid, instr):
     c = Course.objects.get(id=cid)
     u = User.objects.get(id=content['uid'])
 
+    #If we are accessing the instructor version check that they are an instr
+    if instr and not c in current_user.courseInstructor:
+      abort(403)
+
     if not c in current_user.gradingCourses():
       abort(403)
 
