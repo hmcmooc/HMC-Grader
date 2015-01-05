@@ -68,9 +68,9 @@ $(function() {
   courses = {{courses|tojson}};
 
   for(var i = 0; i < courses.length; i++) {
-    data = {'uid':"{{g.user.id}}", 'cid': courses[i], 'links':false};
+    data = {'cid': courses[i]};
     $.ajax({
-      url:"{{url_for('ajaxRenderGrade')}}",
+      url:"{{url_for('studentRenderGrades')}}",
       type:'POST',
       async:true,
       contentType:'application/json',

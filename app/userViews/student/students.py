@@ -4,6 +4,7 @@
 from app import app
 
 from flask import g, request, render_template, redirect, url_for, flash, send_file, abort
+from flask import jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 from flask.ext.mongoengine import DoesNotExist
@@ -22,6 +23,8 @@ from app.helpers.filestorage import *
 from app.plugins.latework import getLateCalculators
 
 import os, datetime, shutil
+
+from app.helpers.gradebook import getStudentAssignmentScores, getStudentAuxScores
 
 @app.route('/assignments/<cid>')
 @login_required
@@ -393,74 +396,75 @@ def viewGrades():
   courses = [str(c.id) for c in g.user.courseStudent]
   return render_template('student/viewgrades.html', courses=courses)
 
-@app.route('/student/clockin/<cid>')
-@login_required
-def studentClockIn(cid):
-  try:
-    c = Course.objects.get(id=cid)
-    if not c in current_user.courseStudent:
-      abort(403)
+def createHighlight(gradeSpec):
+  if 'highlight' in gradeSpec:
+    if gradeSpec['highlight'] == 'red':
+      return "class='danger'"
+    elif gradeSpec['highlight'] == 'yellow':
+      return "class='warning'"
+    elif gradeSpec['highlight'] == 'blue':
+      return "class='info'"
+    elif gradeSpec['highlight'] == 'green':
+      return "class='success'"
+  else:
+    return ""
 
+@app.route('/student/renderGrade', methods=['POST'])
+@login_required
+def studentRenderGrades():
+  try:
+    content = request.get_json()
+    c = Course.objects.get(id=content['cid'])
     u = User.objects.get(id=current_user.id)
 
-    now = datetime.datetime.utcnow()
-    diff = datetime.timedelta(hours=1)
-    then = now - diff
-    sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
+    assignmentScores = getStudentAssignmentScores(c, u)
 
-    if len(sl) == 0:
-      s = StudentStats()
-      s.user = u
-      s.course = c
-      s.clockIn = datetime.datetime.utcnow()
-      s.save()
-      flash("You have been signed in to " +  str(c.name), "success")
-    else:
-      flash("You already signed in within the past hour", "warning")
+    userCourseScore = 0
 
-    return redirect(url_for('index'))
-  except Course.DoesNotExist:
-    abort(404)
+    outString = "<tr>"
+    # <td>{{link to problem grading}}</td>
+    for assignment, a in zip(assignmentScores, c.assignments):
+      #If this assignment doesn't have any problems we put a blank column in
+      if len(assignment) == 0:
+        outString += "<td class='active'></td>"
+        continue
 
-@app.route('/student/signin', methods=['POST'])
-@login_required
-def studentSignin():
-  '''
-  Function Type: Callback-Redirect Function
-  Purpose: Allow a student to say that they are at tutoring or lab time
-
-  Inputs: None
-  '''
-  try:
-    if request.method == 'POST':
-      form = AttendanceForm(request.form)
-      form.course.choices = [(str(x.id), x.name) for x in g.user.studentActive()]
-      if form.validate():
-        cid = form.course.data
-        c = Course.objects.get(id=cid)
-
-        if not c in current_user.courseStudent:
-          abort(403)
-
-        u = User.objects.get(id=current_user.id)
-
-        now = datetime.datetime.utcnow()
-        diff = datetime.timedelta(hours=1)
-        then = now - diff
-        sl = StudentStats.objects.filter(user=u, course=c, clockIn__gt=then)
-
-        if len(sl) == 0:
-          s = StudentStats()
-          s.user = u
-          s.course = c
-          s.clockIn = datetime.datetime.utcnow()
-          s.save()
-          flash("You have been signed in " + str(u.id) + " " + str(c.id), "success")
+      for problem, p in zip(assignment, a.problems):
+        if problem == None:
+          #If there was no submission link to the make blank page
+          outString += "<td class='active'>"
+          outString += ">0.00/%.2f"%(p.gradeColumn.maxScore)
+          outString += "</td>"
         else:
-          flash("You already signed in within the past hour", "warning")
-      else:
-        flash("Form validation failed " + str(form.course.errors), "error")
-  except Course.DoesNotExist:
-    #If either p can't be found or we can't get its parents then 404
+          highlight = createHighlight(problem)
+          if 'finalTotalScore' in problem:
+            points =  problem['finalTotalScore']
+            userCourseScore += problem['finalTotalScore']
+          else:
+            points = problem['rawTotalScore']
+            userCourseScore += problem['rawTotalScore']
+
+          maxPoints = p.gradeColumn.maxScore
+          cellTemplate = "<td %s>%.2f/%.2f</td>" % (highlight, points, maxPoints)
+          outString += cellTemplate
+
+    for group in c.gradeBook.auxillaryGrades:
+      if len(group.columns) == 0:
+        outString += "<td class='active'></td>"
+        continue
+
+      for col in group.columns:
+        score = col.scores.setdefault(u.username, None)
+        if score:
+          outString += "<td>%.2f/%.2f</td>" % (score.totalScore(), col.maxScore)
+          userCourseScore += score.totalScore()
+        else:
+          outString += "<td>%.2f/%.2f</td>" % (0, col.maxScore)
+
+    outString += "<td>%.2f/%.2f</td></tr>" % (userCourseScore, c.gradeBook.totalPoints())
+    return jsonify(res=outString, cid=str(c.id))
+
+  except (Course.DoesNotExist,User.DoesNotExist):
     abort(404)
-  return redirect(url_for('index'))
+  except Exception as e:
+    return jsonify(res=str(e))

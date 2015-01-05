@@ -161,8 +161,6 @@ def commonRenderGrade(cid, instr):
 
   except (Course.DoesNotExist,User.DoesNotExist):
     abort(404)
-  except Exception as e:
-    return jsonify(res=str(e))
 
 @app.route('/gradebook/<cid>/addGroup', methods=['POST'])
 @login_required

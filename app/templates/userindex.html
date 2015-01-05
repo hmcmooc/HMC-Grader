@@ -14,11 +14,12 @@ Submission Site
   <div class="col-sm-2"></div>
 </div>
 
-{% if g.user.studentActive()|length > 0%}
+{% if g.user.studentActive()|length > 0 or g.user.gradingActive()|length > 0%}
 <hr>
 <div class="row">
   <div class="col-sm-2"></div>
-  <div class="col-sm-8">
+  {% if g.user.studentActive()|length > 0%}
+  <div class="col-sm-4" style="text-align:center;">
     <h2>Students</h2>
     <div class="btn-group btn-group-lg">
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -42,110 +43,14 @@ Submission Site
       </ul>
     </div>#}
   </div>
-  <div class="col-sm-2"></div>
-</div>
-{% endif %}
-
-{% if g.user.gradingActive()|length > 0%}
-{% if numInProgress > 0 %}
-<br>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <div class="panel {% if numInProgress < 10 %}panel-success{% elif numInProgress < 20 %}panel-warning{%else%}panel-danger{%endif%}">
-      <div class="panel-heading">
-        <b>Current in progress grading</b>
-      </div>
-      <div class="panel-body">
-        You have {{numInProgress}} grade(s) that you havent finished.
-      </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Course</th><th>Assignment</th><th>Problem</th><th>User</th><th>Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for ip in inProgress %}
-          <tr>
-            {% with p = ip.problem %}
-            {% with c,a = p.getParents() %}
-            {% with u,num = p.getSubmissionInfo(ip) %}
-            <td>{{c.semester}}/{{c.name}}</td>
-            <td>{{a.name}}</td>
-            <td>{{p.name}}</td>
-            <td>{% if not c.anonymousGrading %}{{u.username}}{% else %}{{c.getIdentifier(u.username)}}{% endif %}</td>
-            <td><a href="{{url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=num)}}" class="btn btn-primary btn-xs">Grade</a></td>
-            {% endwith %}
-            {% endwith %}
-            {% endwith %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  {% endif %}
+  {% if g.user.gradingActive()|length > 0%}
+  <div class="col-sm-4" style="text-align:center;">
+    <h2>Grutors</h2>
+    <a href="#" class="btn btn-primary btn-lg">Clock In</a>
   </div>
+  {% endif %}
   <div class="col-sm-2"></div>
 </div>
-{%endif%}
-
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <h2>Grutors! Clock in for grutoring hours!</h2>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <b>Sign in to tutoring or lab!<b>
-      </div>
-      <div class="panel-body">
-        <form class="form" method="POST" action="{{url_for('grutorClockIn')}}">
-          {{ clockForm.hidden_tag() }}
-          <div class="form-group">
-            {{clockForm.course.label}}
-            {{clockForm.course(class="form-control")}}
-          </div>
-          <div class="form-group">
-            {{clockForm.location.label}}
-            {{clockForm.location(class="form-control")}}
-          </div>
-          <div class="form-group">
-            {{clockForm.other.label}}
-            {{clockForm.other(class="form-control", placeholder="e.g. SHAN 1430")}}
-          </div>
-          <button type="submit" class="btn btn-primary">Clock In!</button>
-        </form>
-      </div>
-
-      <!-- Table here -->
-      {% if activeHours|length > 0 %}
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Active Course</th>
-            <th>Clock Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for hour in activeHours %}
-          <tr>
-            <td>{{hour.course.name}}</td>
-            <td><a href="{{url_for('grutorClockOut', sid=hour.id)}}" class="btn btn-primary">Clock Out</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endif %}
-    </div>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-
 {% endif %}
 {% endblock %}
