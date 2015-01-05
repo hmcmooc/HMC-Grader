@@ -129,11 +129,11 @@ def commonRenderGrade(cid, instr):
           highlight = createHighlight(problem)
           url = url_for('grutorGradeSubmission', pid=p, uid=u.id, subnum=p.getSubmissionNumber(u))
           if 'finalTotalScore' in problem:
-            points =  p['finalTotalScore']
-            userCourseScore += p['finalTotalScore']
+            points =  problem['finalTotalScore']
+            userCourseScore += problem['finalTotalScore']
           else:
-            points = p['rawTotalScore']
-            userCourseScore += p['rawTotalScore']
+            points = problem['rawTotalScore']
+            userCourseScore += problem['rawTotalScore']
 
           maxPoints = p.gradeColumn.maxScore
           cellTemplate = "<td %s><a href='%s'>%.2f/%.2f</a></td>" % (highlight, url, points, maxPoints)
@@ -157,6 +157,8 @@ def commonRenderGrade(cid, instr):
 
   except (Course.DoesNotExist,User.DoesNotExist):
     abort(404)
+  except Exception as e:
+    return jsonify(res=str(e))
 
 @app.route('/gradebook/<cid>/addGroup', methods=['POST'])
 @login_required
