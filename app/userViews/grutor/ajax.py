@@ -35,7 +35,8 @@ def grutorSubArchive(p, c, a, user, sub):
       f.write("partner: None\n")
     else:
       f.write("partner: " + sub.partner.username + "\n")
-    f.write("gradedBy: " + sub.gradedBy.username + "\n")
+    if sub.gradedBy != None: #This should always be true
+      f.write("gradedBy: " + sub.gradedBy.username + "\n")
     f.write('\n')
     f.write(sub.comments)
 

@@ -93,18 +93,18 @@ def uploadFiles(pid):
       if form.validate():
         #Create the submissions
         userSub, userSubPath = createSubmission(p, user)
+        userSub.save()
         if form.partner.data != "None":
           partner = User.objects.get(id=form.partner.data)
           partnerSub, partnerSubPath = createSubmission(p, partner)
+          partnerSub.save()
 
           #Link the submissions
           userSub.partner = partner
           userSub.partnerSubmission = partnerSub
+          userSub.save()
           partnerSub.partner = user
           partnerSub.partnerSubmission = userSub
-
-          #Save the submissions
-          userSub.save()
           partnerSub.save()
 
         #Save the files to the folder
