@@ -127,20 +127,31 @@ def grutorGradeSubmission(pid, uid, subnum):
     #If this is not in progress by anyone try to claim it atomically
     if submission.status < 3:
       subCol = Submission._get_collection()
-      res = subCol.find_and_modify(query={'_id':submission.id, 'status_lt': 3}, update={"$set": {"status":3, "gradedBy": u.id}})
-      #submission.gradedBy = u
+      if submission.partner == None:
+        res = subCol.find_and_modify(query={'_id':submission.id, 'status_lt': 3}, update={"$set": {"status":3, "gradedBy": u.id}})
+        #submission.gradedBy = u
+      else:
+        otherSub = submission.partnerSubmission
+        subList = sorted([submission, otherSub], key=lambda x: x.id)
+        res = subCol.find_and_modify(query={'_id': subList[0].id, 'status':2, 'isLatest':True}, \
+          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+        #res = Submission.objects.exec_js(LOCK_QUERY, id=subList[0].id, uid=g.user.id)
+        if res == None:
+          flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
+        res = subCol.find_and_modify(query={'_id': subList[1].id, 'status':2, 'isLatest':True}, \
+          update={'$set': {'status':3, 'gradedBy': g.user.id}})
       if res == None:
         flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
-    elif submission.gradedBy != u:
+    elif submission.gradedBy != u and not submission.status == 4:
       flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
 
     submission.status = max(submission.status, 3)
 
-    if submission.partnerInfo != None:
-      if submission.partnerInfo.submission.status < 3:
-        submission.partnerInfo.submission.gradedBy = u
-      submission.partnerInfo.submission.status = max(submission.partnerInfo.submission.status, 3)
-      submission.partnerInfo.submission.save()
+    if submission.partner != None:
+      if submission.partnerSubmission.status < 3:
+        submission.partnerSubmission.gradedBy = u
+      submission.partnerSubmission.status = max(submission.partnerSubmission.status, 3)
+      submission.partnerSubmission.save()
 
     submission.save()
 

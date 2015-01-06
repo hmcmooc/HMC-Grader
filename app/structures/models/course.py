@@ -8,22 +8,13 @@ from app.helpers.filestorage import *
 
 from app.structures.models.user import User
 
-
-#TODO: Figure out what to do when a user is removed from a course
-class PartnerInfo(db.Document):
-  '''
-  A database model for storing information about the partner of a specific
-  submission
-  '''
-  user = db.ReferenceField('User')
-  submission = db.ReferenceField('Submission')
-
 class Submission(db.Document):
   '''
   A submission contains all the information about one attempt at a given problem
   by a student.
   '''
   #bookkeeping
+  submitter = db.ReferenceField('User')
   problem = db.ReferenceField('Problem')
   isLatest = db.BooleanField(default=True)
 
@@ -40,7 +31,9 @@ class Submission(db.Document):
   # 4 = Manual grade complete
   comments = db.StringField(default="")
 
-  partnerInfo = db.ReferenceField("PartnerInfo", reverse_delete_rule=NULLIFY, default=None)
+  #partnerinfo
+  partner = db.ReferenceField('User')
+  partnerSubmission = db.ReferenceField('Submission')
 
   meta = {"cascade": True}
 

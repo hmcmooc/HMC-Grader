@@ -43,8 +43,8 @@ Assignments for {{course.name}}
       </tr>
       <tr>
         <th>Partner</th>
-        {% if submission.partnerInfo != None %}
-        <td>{{submission.partnerInfo.user.username}}</td>
+        {% if submission.partner != None %}
+        <td>{{submission.partner.username}}</td>
         {% else %}
         <td>None</td>
         {% endif %}

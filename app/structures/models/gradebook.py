@@ -9,6 +9,7 @@ class GBGrade(db.Document):
   A grade contains a dictionary mapping rubric sections to scores.
   '''
   #Map score name (eg. GrutorScore or TestScore) to scores
+  submission = db.ReferenceField('Submission')
   scores = db.MapField(db.DecimalField())
 
   def totalScore(self):

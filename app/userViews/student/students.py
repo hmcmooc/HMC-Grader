@@ -185,18 +185,12 @@ def uploadFiles(pid):
           partnerSub.save()
 
           #Create the partner info for the first user
-          uPartnerInfo = PartnerInfo()
-          uPartnerInfo.user = partner
-          uPartnerInfo.submission = partnerSub
-          uPartnerInfo.save()
-          userSub.partnerInfo = uPartnerInfo
+          userSub.partner = partner
+          userSub.partnerSubmission = partnerSub
 
           #Create the partner info for the partner
-          pPartnerInfo = PartnerInfo()
-          pPartnerInfo.user = User.objects.get(id=g.user.id)
-          pPartnerInfo.submission = userSub
-          pPartnerInfo.save()
-          partnerSub.partnerInfo = pPartnerInfo
+          partnerSub.partner = User.objects.get(id=g.user.id)
+          partnerSub.partnerSubmission = userSub
 
           #Save the submissions
           userSub.save()

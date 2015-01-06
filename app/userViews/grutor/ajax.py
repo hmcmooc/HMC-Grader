@@ -31,10 +31,10 @@ def grutorSubArchive(p, c, a, user, sub):
       f.write(sec+":"+str(score)+"\n")
     f.write("\n#info#\n")
     f.write("isLate:" + str(sub.isLate)+"\n")
-    if sub.partnerInfo == None:
+    if sub.partner == None:
       f.write("partner: None\n")
     else:
-      f.write("partner: " + sub.partnerInfo.user.username + "\n")
+      f.write("partner: " + sub.partner.username + "\n")
     f.write("gradedBy: " + sub.gradedBy.username + "\n")
     f.write('\n')
     f.write(sub.comments)
@@ -88,9 +88,9 @@ def grutorSaveGrades(pid, uid, subnum):
 
     score(sub)
     grutorSubArchive(p, c, a, user, sub)
-    if sub.partnerInfo != None:
-      score(sub.partnerInfo.submission)
-      grutorSubArchive(p, c, a, sub.partnerInfo.user, sub.partnerInfo.submission)
+    if sub.partner != None:
+      score(sub.partnerSubmission)
+      grutorSubArchive(p, c, a, sub.partner, sub.partnerSubmission)
 
     return jsonify(res=True)
 
@@ -164,9 +164,9 @@ def grutorSaveComment(pid, uid, subnum):
     comment(sub)
 
     grutorSubArchive(p, c, a, user, sub)
-    if sub.partnerInfo != None:
-      comment(sub.partnerInfo.submission)
-      grutorSubArchive(p, c, a, sub.partnerInfo.user, sub.partnerInfo.submission)
+    if sub.partner != None:
+      comment(sub.partnerSubmission)
+      grutorSubArchive(p, c, a, sub.partner, sub.partnerSubmission)
 
 
     #Save changes to the problem
@@ -237,8 +237,8 @@ def grutorToggleLate(pid, uid, subnum):
     #if not submission.status == 4:
     toggle(submission)
 
-    if submission.partnerInfo != None:
-      toggle(submission.partnerInfo.submission)
+    if submission.partner != None:
+      toggle(submission.partnerSubmission)
 
     p.save()
 

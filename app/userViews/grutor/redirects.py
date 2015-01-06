@@ -57,11 +57,11 @@ def grutorGradeRandom(pid):
       #the mongoengine wrapper
       subCol = Submission._get_collection()
       sub = p.getLatestSubmission(user)
-      if sub.partnerInfo == None:
+      if sub.partner == None:
         res = subCol.find_and_modify(query={'_id': sub.id, 'status':2, 'isLatest':True}, \
           update={'$set': {'status':3, 'gradedBy': g.user.id}})
       else:
-        otherSub = sub.partnerInfo.submission
+        otherSub = sub.partnerSubmission
         #We use total lock oerdering to prevent deadlock
         subList = sorted([sub, otherSub], key=lambda x: x.id)
         res = subCol.find_and_modify(query={'_id': subList[0].id, 'status':2, 'isLatest':True}, \
@@ -123,8 +123,8 @@ def grutorFinishSubmission(pid, uid, subnum):
     finish(submission)
 
     #Handle the partners submission as well
-    if submission.partnerInfo != None:
-      finish(submission.partnerInfo.submission)
+    if submission.partner != None:
+      finish(submission.partnerSubmission)
 
     p.save()
 
@@ -169,8 +169,8 @@ def grutorReleaseSubmission(pid, uid, subnum):
     #if not submission.status == 4:
     release(submission)
 
-    if submission.partnerInfo != None:
-      release(submission.partnerInfo.submission)
+    if submission.partner != None:
+      release(submission.partnerSubmission)
 
     p.save()
 
