@@ -18,7 +18,7 @@ from app.structures.models.gradebook import *
 from app.structures.models.course import *
 from app.structures.models.stats import GraderStats
 
-from app.forms import SubmitAssignmentForm, ClockInForm
+from app.structures.forms import SubmitAssignmentForm, ClockInForm
 
 import os, datetime, fcntl, random
 import markdown
