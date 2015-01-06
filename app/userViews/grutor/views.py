@@ -129,7 +129,6 @@ def grutorGradeSubmission(pid, uid, subnum):
       subCol = Submission._get_collection()
       if submission.partner == None:
         res = subCol.find_and_modify(query={'_id':submission.id, 'status_lt': 3}, update={"$set": {"status":3, "gradedBy": u.id}})
-        #submission.gradedBy = u
       else:
         otherSub = submission.partnerSubmission
         subList = sorted([submission, otherSub], key=lambda x: x.id)

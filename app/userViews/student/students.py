@@ -314,6 +314,7 @@ def createSubmission(problem, user, filepath, files):
   #Make a new submission for the submission list
   sub = Submission()
   #Initial fields for submission
+  sub.submitter = user
   sub.grade = problem.gradeColumn.scores[user.username]
   sub.submissionTime = datetime.datetime.utcnow()
 
