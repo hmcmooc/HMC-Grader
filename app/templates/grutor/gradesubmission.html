@@ -45,7 +45,7 @@ Assignments for {{course.name}}
       <tr>
         <th>Partner</th>
         {% if submission.partner != None %}
-        <td>{% if not course.anonymousGrading %}{{submission.partner.username}}{% else %}{{course.getIdentifier(submission.partner.username)}}{% endif %} {{submission.partnerSubmission.submitter.username}}</td>
+        <td>{% if not course.anonymousGrading %}{{submission.partner.username}}{% else %}{{course.getIdentifier(submission.partner.username)}}{% endif %}</td>
         {% else %}
         <td>None</td>
         {% endif %}
