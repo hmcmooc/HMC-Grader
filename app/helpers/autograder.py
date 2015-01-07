@@ -145,7 +145,10 @@ def gradeSubmission(pid, uid, subnum):
     shutil.rmtree(testDirPath)
 
     sub = problem.getSubmission(user, subnum)
-    sub.status = max(sub.status, 2)
+    if problem.autoGradeOnly:
+      sub.status = 4
+    else:
+      sub.status = max(sub.status, 2)
     sub.save()
 
   except (User.DoesNotExist, Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):

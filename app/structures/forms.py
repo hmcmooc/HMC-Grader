@@ -97,6 +97,8 @@ class ProblemOptionsForm(Form):
   problemPage = TextField("Problem Description URL")
   requiredFiles = TextField("Required Files (separated by commas)")
   allowPartners = BooleanField("Allow Partners")
+  releaseAutoComments = BooleanField("Release autograder comments")
+  autoGradeOnly = BooleanField("Finish grading after autograder (Releases scores and comments)")
   hiddentime = TextField("")
 
 class AddTestForm(Form):

@@ -100,6 +100,8 @@ def instructorSaveProblemSettings(pid):
         p.gradeColumn.save()
         p.duedate = dateutil.parser.parse(form.hiddentime.data)
         p.allowPartners = form.allowPartners.data
+        p.releaseAutoComments = form.releaseAutoComments.data
+        p.autoGradeOnly = form.autoGradeOnly.data
 
         #Assign gradenotes
         if len(form.gradeNotes.data) > 0:

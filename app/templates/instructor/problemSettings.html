@@ -68,6 +68,16 @@ Edit Problem
         {{form.allowPartners()}} {{form.allowPartners.label}}
         </label>
       </div>
+      <div class="form-group">
+        <label>
+          {{form.releaseAutoComments()}} {{form.releaseAutoComments.label}}
+        </label>
+      </div>
+      <div class="form-group">
+        <label>
+          {{form.autoGradeOnly()}} {{form.autoGradeOnly.label}}
+        </label>
+      </div>
       <div style="display:none;">
         {{form.hiddentime()}}
       </div>
@@ -168,6 +178,8 @@ $(function(){
   if ("{{problem.name}}"!="") {
     $('#name').val("{{problem.name}}")
     $('#allowPartners').prop("checked", {{problem.allowPartners|tojson}})
+    $('#releaseAutoComments').prop("checked", {{problem.releaseAutoComments|tojson}})
+    $('#autoGradeOnly').prop("checked", {{problem.autoGradeOnly|tojson}})
   }
 
   {% if problem.duedate == None %}

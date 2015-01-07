@@ -31,11 +31,7 @@ class Submission(db.Document):
   status = db.IntField(default=0)
   gradedBy = db.ReferenceField('User')
 
-  # 0 = Ungraded
-  # 1 = Autograde inprogress
-  # 2 = Autograde complete
-  # 3 = Manual grading in progress
-  # 4 = Manual grade complete
+  #Comment fields
   comments = db.StringField(default="")
   autoGraderComments = db.StringField(default="")
 
@@ -92,15 +88,27 @@ class Problem(db.Document):
   name = db.StringField()
   gradeColumn = db.ReferenceField('GBColumn', reverse_delete_rule=NULLIFY)
   duedate = db.DateTimeField()
+
+  #The problem rubric
   rubric = db.MapField(db.DecimalField())
+
+  #List of the names of the files we test with
   testfiles = db.ListField(db.StringField())
+
+  #Can students have partners
   allowPartners = db.BooleanField(default=True)
+
+  #Which files must a student submit
+  requiredFiles = db.StringField()
 
   #URLs for grader notes and for problem specification
   gradeNotes = db.StringField()
   problemPage = db.StringField()
 
-  requiredFiles = db.StringField()
+  #Settings for releasing grades
+  releaseAutoComments = db.BooleanField(default=False)
+  autoGradeOnly = db.BooleanField(default=False)
+
 
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))

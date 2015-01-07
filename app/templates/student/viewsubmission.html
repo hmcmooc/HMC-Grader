@@ -128,7 +128,7 @@ Assignments for {{course.name}}
       </div>
       <div id="collapseAutoComments" class="panel-collapse collapse in">
         <div class="panel-body">
-          {% if submission.status == 4 %}
+          {% if submission.status == 4 or problem.releaseAutoComments %}
           {{ submission.autoGraderComments|markdown}}
           {% elif submission.status <= 1 %}
           Autograding incomplete
