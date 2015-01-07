@@ -86,7 +86,6 @@ def gradeSubmission(pid, uid, subnum):
 
     #Run each test function and parse the results
     for f in problem.testfiles:
-      print f
       #TODO: change user to prevent bad things
       with open(f+".json") as spec:
         gradeSpec = json.load(spec)
