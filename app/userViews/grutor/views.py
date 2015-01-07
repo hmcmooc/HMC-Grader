@@ -125,33 +125,26 @@ def grutorGradeSubmission(pid, uid, subnum):
     u = User.objects.get(id=g.user.id)
 
     #If this is not in progress by anyone try to claim it atomically
-    if submission.status < 3:
+    if submission.status < SUBMISSION_GRADING:
       subCol = Submission._get_collection()
       if submission.partner == None:
-        res = subCol.find_and_modify(query={'_id':submission.id, 'status_lt': 3}, update={"$set": {"status":3, "gradedBy": u.id}})
+        res = subCol.find_and_modify(query={'_id':submission.id, 'status': {"$lt": SUBMISSION_GRADING}}, update={"$set": {"status":SUBMISSION_GRADING, "gradedBy": g.user.id}})
+        submission.reload()
       else:
         otherSub = submission.partnerSubmission
         subList = sorted([submission, otherSub], key=lambda x: x.id)
-        res = subCol.find_and_modify(query={'_id': subList[0].id, 'status':2, 'isLatest':True}, \
-          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+        res = subCol.find_and_modify(query={'_id': subList[0].id, 'status':{"$lt": SUBMISSION_GRADING}}, \
+          update={'$set': {'status':SUBMISSION_GRADING, 'gradedBy': g.user.id}})
         #res = Submission.objects.exec_js(LOCK_QUERY, id=subList[0].id, uid=g.user.id)
-        if res == None:
-          flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
-        res = subCol.find_and_modify(query={'_id': subList[1].id, 'status':2, 'isLatest':True}, \
-          update={'$set': {'status':3, 'gradedBy': g.user.id}})
+        if res != None:
+          res = subCol.find_and_modify(query={'_id': subList[1].id, 'status':{"$lt": SUBMISSION_GRADING}}, \
+            update={'$set': {'status':SUBMISSION_GRADING, 'gradedBy': g.user.id}})
       if res == None:
         flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
     elif submission.gradedBy != u and not submission.status == 4:
       flash("It appears another grader has already claimed this assignment are you sure you want to grade it?", "warning")
 
-    submission.status = max(submission.status, 3)
-
-    if submission.partner != None:
-      if submission.partnerSubmission.status < 3:
-        submission.partnerSubmission.gradedBy = u
-      submission.partnerSubmission.status = max(submission.partnerSubmission.status, 3)
-      submission.partnerSubmission.save()
-
+    submission.reload()
     submission.save()
 
     p.save()
