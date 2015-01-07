@@ -20,6 +20,13 @@ AUTOGRADER_HEADER = \
 
 """
 
+def ensureFiles(reqFiles, filePath):
+  for root, dirs, files in os.walk(filePath):
+    for f in files:
+      if f in reqFiles:
+        reqFiles.remove(f)
+  return reqFiles
+
 @celery.task()
 def gradeSubmission(pid, uid, subnum):
   try:
@@ -53,10 +60,12 @@ def gradeSubmission(pid, uid, subnum):
 
     #Move the files
     requiredFiles = problem.getRequiredFiles()
-    for f in submittedFiles:
-      if f in requiredFiles:
-        requiredFiles.remove(f)
-      shutil.copy(os.path.join(submissionDir, f), testDirPath)
+    # for f in submittedFiles:
+    #   if f in requiredFiles:
+    #     requiredFiles.remove(f)
+    #   shutil.copy(os.path.join(submissionDir, f), testDirPath)
+
+    requiredFiles = ensureFiles(requiredFiles, submissionDir)
 
     if len(requiredFiles) > 0:
       sub = problem.getSubmission(user, subnum)
@@ -66,6 +75,9 @@ def gradeSubmission(pid, uid, subnum):
       shutil.rmtree(testDirPath)
       return
 
+    for f in os.listdir(submissionDir):
+      shutil.copy(os.path.join(submissionDir, f), testDirPath)
+
     #Move the test files
     #NOTE: We move these files second so that if a student submits a file that
     #has the same name as one of the test files it will get overwritten. This
@@ -74,9 +86,7 @@ def gradeSubmission(pid, uid, subnum):
     #but we want to be secure none the less)
     for f in os.listdir(testsDir):
       shutil.copy(os.path.join(testsDir,f), testDirPath)
-    #for f in problem.testfiles:
-    #  shutil.copy(os.path.join(testsDir,f), testDirPath)
-    #  shutil.copy(os.path.join(testsDir,f)+".json", testDirPath)
+
 
     #Get the submission so we can print results
     sub = problem.getSubmission(user, subnum)
