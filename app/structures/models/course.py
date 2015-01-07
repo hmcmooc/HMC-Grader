@@ -8,6 +8,13 @@ from app.helpers.filestorage import *
 
 from app.structures.models.user import User
 
+#Some constants for doing submission status stuff
+SUBMISSION_UNGRADED = 0
+SUBMISSION_TESTING = 1
+SUBMISSION_TESTED = 2
+SUBMISSION_GRADING = 3
+SUBMISSION_GRADED = 4
+
 class Submission(db.Document):
   '''
   A submission contains all the information about one attempt at a given problem
@@ -30,6 +37,7 @@ class Submission(db.Document):
   # 3 = Manual grading in progress
   # 4 = Manual grade complete
   comments = db.StringField(default="")
+  autoGraderComments = db.StringField(default="")
 
   #partnerinfo
   partner = db.ReferenceField('User')
@@ -46,15 +54,15 @@ class Submission(db.Document):
       pass
 
   def getStatus(self):
-    if self.status == 0:
+    if self.status == SUBMISSION_UNGRADED:
       return "info", "Submitted (Ungraded)"
-    elif self.status == 1:
+    elif self.status == SUBMISSION_TESTING:
       return "warning", "Autograde in progress"
-    elif self.status == 2:
+    elif self.status == SUBMISSION_TESTED:
       return "info", "Submitted (Tested, Ungraded)"
-    elif self.status == 3:
+    elif self.status == SUBMISSION_GRADING:
       return "warning", "Grading in progress"
-    elif self.status == 4:
+    elif self.status == SUBMISSION_GRADED:
       return "success", "Graded"
 
 class StudentSubmissionList(db.EmbeddedDocument):
