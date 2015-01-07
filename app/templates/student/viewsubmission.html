@@ -114,6 +114,35 @@ Assignments for {{course.name}}
   </div>
 </div>
 
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <div class="panel panel-default" id="panelautocomments">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-target="#collapseAutoComments" href="#collapseAutoComments" class="collapsed">
+            Autograder Comments
+          </a>
+        </h4>
+      </div>
+      <div id="collapseAutoComments" class="panel-collapse collapse in">
+        <div class="panel-body">
+          {% if submission.status == 4 %}
+          {{ submission.autoGraderComments|markdown}}
+          {% elif submission.status <= 1 %}
+          Autograding incomplete
+          {% else %}
+          Waiting for grader review
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+
 {% with user = g.user %}
 {% include 'widgets/filebrowser.html' %}
 {% endwith %}

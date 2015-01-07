@@ -108,55 +108,87 @@ Assignments for {{course.name}}
   </div>
 </div>
 
-
+<!-- Grader comments -->
 <div class="row">
-  <div class="col-sm-2">
-  </div>
+  <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    <div class="panel panel-default" id="panelcomments">
-      <div class="panel-heading">
-        <h4 class="panel-title">
-          <a data-toggle="collapse" data-target="#collapseComments" href="#collapseComments" class="collapsed">
-            Grader Comments
-          </a>
-        </h4>
-      </div>
-      <div id="collapseComments" class="panel-collapse collapse in">
-        <div class="panel-body">
-          <textarea id="commentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.comments }}</textarea>
+    <div class="panel-group" id="graderAccordion" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingOne">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#graderAccordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Grader Comments
+            </a>
+            <div class="btn-group pull-right">
+              <button class="btn btn-primary btn-xs" onclick="saveComments()"><span class="glyphicon glyphicon-save"></span> Save</a>
+            </div>
+          </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            <textarea id="commentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.comments }}</textarea>
+          </div>
         </div>
       </div>
-      <div class="panel-footer">
-        <button type="button" class="btn btn-default" id="previewBtn">Preview</button>
-        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveComments()"><span class="glyphicon glyphicon-floppy-disk"></span> Save Comments</button>
-    </div>
-    </div>
-  </div>
-  <div class="col-sm-2">
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-sm-2">
-  </div>
-  <div class="col-sm-8">
-    <div class="panel panel-default" id="panelcomments">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-target="#collapsePreview" href="#collapsePreview" class="collapsed">
-          Grader Comments (Preview)
-        </a>
-      </h4>
-    </div>
-    <div id="collapsePreview" class="panel-collapse collapse in">
-      <div class="panel-body" id="preview">
-        {{ submission.comments|markdown}}
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingTwo">
+          <h4 class="panel-title">
+            <a id="previewLink" class="collapsed" data-toggle="collapse" data-parent="#graderAccordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Grader Comments (Preview)
+            </a>
+          </h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body" id="preview">
+            {{ submission.comments|markdown}}
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  <div class="col-sm-2"></div>
+</div>
+<!-- Autograder comments -->
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel-group" id="graderAutoAccordion" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingAutoOne">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoOne" aria-expanded="true" aria-controls="collapseAutoOne">
+              Auto-Grader Comments
+            </a>
+            <div class="btn-group pull-right">
+              <button class="btn btn-primary btn-xs" onclick="saveComments()"><span class="glyphicon glyphicon-save"></span> Save</a>
+            </div>
+          </h4>
+        </div>
+        <div id="collapseAutoOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAutoOne">
+          <div class="panel-body">
+            <textarea id="autocommentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.autoGraderComments }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingAutoTwo">
+          <h4 class="panel-title">
+            <a id="previewAutoLink" class="collapsed" data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoTwo" aria-expanded="false" aria-controls="collapseAutoTwo">
+              Auto-Grader Comments (Preview)
+            </a>
+          </h4>
+        </div>
+        <div id="collapseAutoTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAutoTwo">
+          <div class="panel-body" id="autopreview">
+            {{ submission.autoGraderComments|markdown}}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-sm-2">
-  </div>
+  <div class="col-sm-2"></div>
 </div>
 
 {% include 'widgets/filebrowser.html' %}
@@ -165,6 +197,7 @@ Assignments for {{course.name}}
 {% block scripts %}
 {{super()}}
 <script>
+
 function saveGrades(){
   var values = {};
   console.log("called")
@@ -189,6 +222,7 @@ function saveGrades(){
 function saveComments(){
   values = {}
   values["text"] = $("#commentarea").val()
+  values["autotext"] = $("#autocommentarea").val()
   $.ajax({
     url:"{{url_for('grutorSaveComment', pid=problem.id, uid=user.id, subnum=subnum)}}",
     type:'POST',
@@ -201,9 +235,11 @@ function saveComments(){
   });
 }
 
-$("#previewBtn").click(function(){
+$("#previewLink").click(function(){
   values = {}
   values["text"] = $("#commentarea").val()
+  values["autotext"] = $("#autocommentarea").val()
+  $("#preview").html("<b>Loading</b>")
   $.ajax({
     url:"{{url_for('grutorPreview')}}",
     type:'POST',
@@ -212,6 +248,23 @@ $("#previewBtn").click(function(){
     dataType: 'json',
     success: function(data) {
       $("#preview").html(data["res"]);
+    }
+  });
+})
+
+$("#previewAutoLink").click(function(){
+  values = {}
+  values["text"] = $("#commentarea").val()
+  values["autotext"] = $("#autocommentarea").val()
+  $("#autopreview").html("<b>Loading</b>")
+  $.ajax({
+    url:"{{url_for('grutorPreview')}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(values),
+    dataType: 'json',
+    success: function(data) {
+      $("#autopreview").html(data["autores"]);
     }
   });
 })

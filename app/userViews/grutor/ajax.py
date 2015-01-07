@@ -116,7 +116,8 @@ def grutorPreview():
   '''
   content = request.get_json()
   html = markdown.markdown(content["text"])
-  return jsonify(res=html)
+  autohtml = markdown.markdown(content['autotext'])
+  return jsonify(res=html, autores=autohtml)
 
 @app.route('/grutor/grade/<pid>/<uid>/<subnum>/savecomment', methods=['POST'])
 @login_required
@@ -157,6 +158,7 @@ def grutorSaveComment(pid, uid, subnum):
     #Define function for saving comments
     def comment(sub):
       sub.comments = content['text']
+      sub.autoGraderComments = content['autotext']
       sub.save()
 
     user = User.objects.get(id=uid)

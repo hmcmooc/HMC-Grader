@@ -16,8 +16,6 @@ from app.helpers.filestorage import *
 
 AUTOGRADER_HEADER = \
 """
-# Grader #
-* * *
 # Autograder #
 
 """
@@ -36,7 +34,7 @@ def gradeSubmission(pid, uid, subnum):
       #Set the status as awaiting grader unless it is already at a higher point
       #than that
       sub.status = max(sub.status, 2)
-      sub.comments = AUTOGRADER_HEADER + "No tests provided. Testing complete."
+      sub.autoGraderComments = "No tests provided. Testing complete."
       sub.save()
       return
 
@@ -63,7 +61,7 @@ def gradeSubmission(pid, uid, subnum):
     if len(requiredFiles) > 0:
       sub = problem.getSubmission(user, subnum)
       sub.status = max(sub.status, 2)
-      sub.comments = AUTOGRADER_HEADER + "Submission missing files."
+      sub.autoGraderComments = "Submission missing files."
       sub.save()
       shutil.rmtree(testDirPath)
       return
@@ -84,7 +82,7 @@ def gradeSubmission(pid, uid, subnum):
     sub.status = max(sub.status, 1)
     sub.save()
 
-    sub.comments = AUTOGRADER_HEADER
+    sub.autoGraderComments = ""
 
     #Run each test function and parse the results
     for f in problem.testfiles:
@@ -94,7 +92,7 @@ def gradeSubmission(pid, uid, subnum):
         gradeSpec = json.load(spec)
 
       #Start a section for this file
-      sub.comments += "### **Test file**: " + f + " ###\n"
+      sub.autoGraderComments += "### **Test file**: " + f + " ###\n"
 
       try:
         testRunner = getTestRunners()[gradeSpec['type']]
@@ -102,16 +100,16 @@ def gradeSubmission(pid, uid, subnum):
         summary, failedTests = testRunner([], f, 30)
 
         if summary['timeout']:
-          sub.comments += "<font color='Red'>A timeout occured</font>\n\n"
+          sub.autoGraderComments += "<font color='Red'>A timeout occured</font>\n\n"
           continue
 
         if summary['died']:
-          sub.comments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
-          sub.comments += "<pre>" + summary['generalError'] + "</pre>\n"
+          sub.autoGraderComments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
+          sub.autoGraderComments += "<pre>" + summary['generalError'] + "</pre>\n"
           continue
 
-        sub.comments += "**" + str(summary['totalTests']) + " tests run**\n\n"
-        sub.comments += "**" + str(summary['failedTests']) + " tests failed**\n\n"
+        sub.autoGraderComments += "**" + str(summary['totalTests']) + " tests run**\n\n"
+        sub.autoGraderComments += "**" + str(summary['failedTests']) + " tests failed**\n\n"
 
         #Go through the sections and find assign points
         for section in gradeSpec['sections']:
@@ -133,15 +131,15 @@ def gradeSubmission(pid, uid, subnum):
           assignedString = "%.2f" % float(assignedPoints)
           pointsString = "%.2f" % float(section['points'])
 
-          sub.comments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
-          sub.comments += sectionContent
+          sub.autoGraderComments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
+          sub.autoGraderComments += sectionContent
 
           if section['rubric'] in sub.grade.scores:
             sub.grade.scores[section['rubric']] += assignedPoints
           else:
             sub.grade.scores[section['rubric']] = assignedPoints
       except Exception as e:
-        sub.comments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
+        sub.autoGraderComments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
 
     #Remove the testing directory and all of the files
     shutil.rmtree(testDirPath)
