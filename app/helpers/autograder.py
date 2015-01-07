@@ -72,9 +72,11 @@ def gradeSubmission(pid, uid, subnum):
     #is to try to prevent test spoofing where a student could submit a test file
     #in which all tests trvially pass. (Not that that should happen with Mudders
     #but we want to be secure none the less)
-    for f in problem.testfiles:
+    for f in os.listdir(testsDir):
       shutil.copy(os.path.join(testsDir,f), testDirPath)
-      shutil.copy(os.path.join(testsDir,f)+".json", testDirPath)
+    #for f in problem.testfiles:
+    #  shutil.copy(os.path.join(testsDir,f), testDirPath)
+    #  shutil.copy(os.path.join(testsDir,f)+".json", testDirPath)
 
     #Get the submission so we can print results
     sub = problem.getSubmission(user, subnum)
