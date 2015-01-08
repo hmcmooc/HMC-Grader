@@ -61,7 +61,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
 
   summary = {}
   summary['rawOut'] = testOut
-  summary['rawErr'] = testErr
+  summary['rawErr'] = testError
 
   #Parse the results
   testSummarySearch = re.search("Ran ([0-9]+) tests in", testError)

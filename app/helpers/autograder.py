@@ -146,10 +146,11 @@ def gradeSubmission(pid, uid, subnum):
               sectionContent += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
             else:
               sectionContent += '##### <font color="Green">Passed</font>:' + test +" #####\n"
+
             if len(testOut) != 0:
-              sectionContent += 'Test output:\n<pre>' + testOut + "</pre>"
+              sectionContent += 'Test output (stdout):\n<pre>' + testOut + "</pre>\n"
             if len(testErr) != 0:
-              sectionContent += 'Test output:\n<pre>' + testErr + "</pre>"
+              sectionContent += 'Test output (stderr):\n<pre>' + testErr + "</pre>\n"
 
           sectionContent += "***\n"
 

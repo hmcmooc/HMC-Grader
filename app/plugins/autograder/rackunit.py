@@ -77,7 +77,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
   testOut, testError = testProc.communicate()
 
   summary['rawOut'] = testOut
-  summary['rawErr'] = testErr
+  summary['rawErr'] = testError
 
   if testProc.returncode != 0:
     return {'timeout':False, 'died':True, 'generalError': testError}, {}

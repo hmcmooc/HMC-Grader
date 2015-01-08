@@ -59,8 +59,8 @@ def runTests(cmdPrefix, testFile, timeLimit):
   stdout,stderr = runner.communicate()
 
   summary = {}
-  summary['rawOut'] = stdOut
-  summary['rawErr'] = stdErr
+  summary['rawOut'] = stdout
+  summary['rawErr'] = stderr
 
   #Find all error reports
   #failedTests= re.finditer("[0-9]*\) (.+)\(\w+\)\n(?:(?:java\.lang\..+Error)|(?:org\.junit\..+Failure)): (.*)", stdout)
