@@ -72,7 +72,12 @@ def runTests(cmdPrefix, testFile, timeLimit):
       #Report a timeout
       return {'timeout':True, 'died':False}, {}
 
+  summary = {}
+
   testOut, testError = testProc.communicate()
+
+  summary['rawOut'] = testOut
+  summary['rawErr'] = testErr
 
   if testProc.returncode != 0:
     return {'timeout':False, 'died':True, 'generalError': testError}, {}
@@ -92,7 +97,6 @@ def runTests(cmdPrefix, testFile, timeLimit):
         msg = err.group(2)
         failedTests[testname] = {'hint': msg}
 
-    summary = {}
     summary['died'] = False
     summary['timeout'] = False
     summary['totalTests'] = 0

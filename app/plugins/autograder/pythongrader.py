@@ -52,17 +52,22 @@ def runTests(cmdPrefix, testFile, timeLimit):
     summary['timeout'] = timeoutReached
     summary['died'] = False
     summary['generalError'] = ""
+    summary['rawOut'] = ""
+    summary['rawErr'] = ""
 
     return summary, {}
 
   testOut, testError = testProc.communicate()
+
+  summary = {}
+  summary['rawOut'] = testOut
+  summary['rawErr'] = testErr
 
   #Parse the results
   testSummarySearch = re.search("Ran ([0-9]+) tests in", testError)
 
   #If we don't find the test summary the tests died so we report that
   if not testSummarySearch:
-    summary = {}
     summary['totalTests'] = 0
     summary['failedTests'] = 0
     summary['timeout'] = timeoutReached
@@ -83,7 +88,6 @@ def runTests(cmdPrefix, testFile, timeLimit):
   sections = list(itertools.chain.from_iterable(splitList))
 
   #Create the summary
-  summary = {}
   summary['totalTests'] = int(testSummarySearch.group(1))
 
   failedSections = sections[1:-1]

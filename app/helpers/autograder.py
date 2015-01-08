@@ -5,7 +5,7 @@ from app.structures.models.user import User
 from app.structures.models.course import Problem , Course, AssignmentGroup
 from app.structures.models.gradebook import GBGrade
 
-import os,shutil, json
+import os,shutil, json, re
 from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
@@ -26,6 +26,18 @@ def ensureFiles(reqFiles, filePath):
       if f in reqFiles:
         reqFiles.remove(f)
   return reqFiles
+
+def getTestPrints(summary, testName):
+  pattern = "%s:(.*)" % testName
+
+  out = ""
+  for m in re.finditer(pattern, summary.setdefault('rawOut', "")):
+    out += m.group(1) + "\n"
+  err = ""
+  for m in re.finditer(pattern, summary.setdefault('rawErr', "")):
+    err += m.group(1) + "\n"
+  return out, err
+
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):
@@ -127,12 +139,17 @@ def gradeSubmission(pid, uid, subnum):
           sectionContent = ""
           failed = 0
           for test in section['tests']:
+            testOut, testErr = getTestPrints(summary, test)
             if test in failedTests:
               failed += 1
               sectionContent += '##### <font color="Red">Failed</font>:' + test +" #####\n"
               sectionContent += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
             else:
               sectionContent += '##### <font color="Green">Passed</font>:' + test +" #####\n"
+            if len(testOut) != 0:
+              sectionContent += 'Test output:\n<pre>' + testOut + "</pre>"
+            if len(testErr) != 0:
+              sectionContent += 'Test output:\n<pre>' + testErr + "</pre>"
 
           sectionContent += "***\n"
 

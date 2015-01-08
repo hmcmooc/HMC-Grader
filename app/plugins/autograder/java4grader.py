@@ -58,6 +58,10 @@ def runTests(cmdPrefix, testFile, timeLimit):
 
   stdout,stderr = runner.communicate()
 
+  summary = {}
+  summary['rawOut'] = stdOut
+  summary['rawErr'] = stdErr
+
   #Find all error reports
   #failedTests= re.finditer("[0-9]*\) (.+)\(\w+\)\n(?:(?:java\.lang\..+Error)|(?:org\.junit\..+Failure)): (.*)", stdout)
   testSplit = re.split(r"[0-9]*\) (.+)\(\w+\)", stdout)
@@ -65,7 +69,6 @@ def runTests(cmdPrefix, testFile, timeLimit):
   testSplit = testSplit[1:]
 
   failedTests = {}
-  summary = {}
   #Parse error reports for outputting to json
   for i in range(0, len(testSplit), 2):
       # testName = fail.group(1)
