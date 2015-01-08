@@ -99,6 +99,7 @@ def gradeSubmission(pid, uid, subnum):
     for f in os.listdir(testsDir):
       shutil.copy(os.path.join(testsDir,f), testDirPath)
 
+    #TODO: Fix permissions so that the grader user can read files
     #Edit permissions so the grader user can read the files
     if app.config['GRADER_USER'] != None:
       for root, dirs, files in os.walk('.'):
@@ -116,8 +117,8 @@ def gradeSubmission(pid, uid, subnum):
 
     #Run each test function and parse the results
     for f in problem.testfiles:
-      #TODO: change user to prevent bad things
 
+      #TODO: Fix this so that it actually works
       if app.config['GRADER_USER'] == None:
         prefix = []
       else:
@@ -125,6 +126,10 @@ def gradeSubmission(pid, uid, subnum):
 
       with open(f+".json") as spec:
         gradeSpec = json.load(spec)
+
+      #If this test file has no tests we won't bother running it
+      if len(gradeSpec['tests']) == 0:
+        continue
 
       #Start a section for this file
       sub.autoGraderComments += "### **Test file**: " + f + " ###\n"
