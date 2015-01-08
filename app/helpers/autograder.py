@@ -5,7 +5,7 @@ from app.structures.models.user import User
 from app.structures.models.course import Problem , Course, AssignmentGroup
 from app.structures.models.gradebook import GBGrade
 
-import os,shutil, json, re
+import os,shutil, json, re, stat
 from decimal import *
 from subprocess import Popen, PIPE
 from datetime import datetime
@@ -99,6 +99,12 @@ def gradeSubmission(pid, uid, subnum):
     for f in os.listdir(testsDir):
       shutil.copy(os.path.join(testsDir,f), testDirPath)
 
+    #Edit permissions so the grader user can read the files
+    if app.config['GRADER_USER'] != None:
+      for root, dirs, files in os.walk('.'):
+        for f in files:
+          os.chmod(os.path.join(root, f), stat.S_IRWXO | stat.S_IRWXU| stat.S_IRWXG)
+
 
     #Get the submission so we can print results
     sub = problem.getSubmission(user, subnum)
@@ -111,6 +117,12 @@ def gradeSubmission(pid, uid, subnum):
     #Run each test function and parse the results
     for f in problem.testfiles:
       #TODO: change user to prevent bad things
+
+      if app.config['GRADER_USER'] == None:
+        prefix = []
+      else:
+        prefix = ['sudo', '-u', app.config['GRADER_USER']]
+
       with open(f+".json") as spec:
         gradeSpec = json.load(spec)
 
@@ -120,7 +132,7 @@ def gradeSubmission(pid, uid, subnum):
       try:
         testRunner = getTestRunners()[gradeSpec['type']]
 
-        summary, failedTests = testRunner([], f, 30)
+        summary, failedTests = testRunner(prefix, f, gradeSpec.setdefault('timeout', 30))
 
         if summary['timeout']:
           sub.autoGraderComments += "<font color='Red'>A timeout occured</font>\n\n"
