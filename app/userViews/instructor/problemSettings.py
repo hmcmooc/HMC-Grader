@@ -227,7 +227,7 @@ def addTestFile(pid):
 
         filename = secure_filename(request.files[form.testFile.name].filename)
 
-        if os.path.isdir(os.path.join(filepath, filename)):
+        if os.path.isfile(os.path.join(filepath, filename)):
           flash("This file already exists")
           return redirect(url_for('instructorProblemSettings', pid=p.id))
 

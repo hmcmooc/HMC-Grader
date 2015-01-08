@@ -11,6 +11,9 @@ class SimpleTests(unittest.TestCase):
   def testB(self):
     assert hw.bar(2) == 4
 
+  def testC(self):
+    print "testC: BLAH BLAH BLAH"
+    assert True
 
 if __name__ == '__main__':
   unittest.main() #run all tests

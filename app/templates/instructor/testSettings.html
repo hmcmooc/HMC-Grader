@@ -33,8 +33,31 @@ Edit Tests
       </tbody>
     </table>
   </div>
-  <div class="col-sm-2" style="text-align:right">
+  <div class="col-sm-1">
+    Timeout:
+    <input type="number" mytype="timeout" value="{{data.setdefault('timeout', 30)}}" class="form-control">
+  </div>
+  <div class="col-sm-1" style="text-align:right">
     <button class="btn btn-success" id="save"><span class='glyphicon glyphicon-saved'></span> Saved</button>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <form class="form" enctype="multipart/form-data" action="{{url_for('instructorReuploadTestFile', pid=problem.id, filename=filename)}}" method="POST">
+      {{ form.hidden_tag() }}
+      <div class="heading">
+        <h4 class="form-heading">Reupload File</h4>
+      </div>
+      <div class="form-group">
+        {{form.testFile.label}}
+        {{form.testFile(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary">Re-upload File</button>
+    </form>
   </div>
   <div class="col-sm-2">
   </div>
@@ -145,6 +168,11 @@ function buildPage(){
   })
   updateRubric();
 }
+
+$("input[mytype='timeout']").change(function(){
+  gradeSpec.timeout = $(this).val();
+  unsaved();
+});
 
 function makeTestSelector(name, index){
   var sec = gradeSpec.sections[index];

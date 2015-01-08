@@ -124,6 +124,8 @@ class CourseSettingsForm(Form):
   homepage = TextField("Course Homepage (include http:// for external sites)")
   latePolicy = SelectField("Late Work Policy")
 
+class ReuploadTestForm(Form):
+  testFile = FileField("File")
 # '''
 # Grutor forms
 # '''
