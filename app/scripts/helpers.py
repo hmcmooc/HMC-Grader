@@ -1,5 +1,5 @@
-from app.models.user import *
-from app.models.course import *
+from app.structures.models.user import *
+from app.structures.models.course import *
 
 def createUsername(firstName, lastName):
   firstName = firstName.lower()
