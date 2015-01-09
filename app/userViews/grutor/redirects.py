@@ -116,6 +116,7 @@ def grutorFinishSubmission(pid, uid, subnum):
     #Define a function for performing closing operations
     def finish(sub):
       sub.status = max(sub.status, SUBMISSION_GRADED)
+      sub.gradedBy = User.objects.get(id=g.user.id)
       sub.save()
     #End definition
 
@@ -159,8 +160,9 @@ def grutorReleaseSubmission(pid, uid, subnum):
 
     #Define function for releasing submissions
     def release(sub):
-      sub.status = min(submission.status, 2)
-      sub.gradedBy = None
+      if sub.gradedBy.id == g.user.id:
+        sub.status = min(submission.status, 2)
+        sub.gradedBy = None
       sub.grade.save()
       sub.save()
     #End definition
