@@ -72,10 +72,6 @@ def gradeSubmission(pid, uid, subnum):
 
     #Move the files
     requiredFiles = problem.getRequiredFiles()
-    # for f in submittedFiles:
-    #   if f in requiredFiles:
-    #     requiredFiles.remove(f)
-    #   shutil.copy(os.path.join(submissionDir, f), testDirPath)
 
     requiredFiles = ensureFiles(requiredFiles, submissionDir)
 
@@ -152,16 +148,49 @@ def gradeSubmission(pid, uid, subnum):
         sub.autoGraderComments += "**" + str(summary['failedTests']) + " tests failed**\n\n"
 
         #Go through the sections and find assign points
-        for section in gradeSpec['sections']:
+        if len(gradeSpec['sections']) > 0:
+          for section in gradeSpec['sections']:
+            sectionContent = ""
+            failed = 0
+            for test in section['tests']:
+              testOut, testErr = getTestPrints(summary, test)
+              if test in failedTests:
+                failed += 1
+                sectionContent += '##### <font color="Red">Failed</font>:' + test +" #####\n"
+                sectionContent += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
+              else:
+                sectionContent += '##### <font color="Green">Passed</font>:' + test +" #####\n"
+
+              if len(testOut) != 0:
+                sectionContent += 'Test output (stdout):\n<pre>' + testOut + "</pre>\n"
+              if len(testErr) != 0:
+                sectionContent += 'Test output (stderr):\n<pre>' + testErr + "</pre>\n"
+
+            sectionContent += "***\n"
+
+            #Assign the score
+            assignedPoints = Decimal(section['points']) * (Decimal(1)-(Decimal(failed)/Decimal(len(section['tests']))))
+
+            assignedString = "%.2f" % float(assignedPoints)
+            pointsString = "%.2f" % float(section['points'])
+
+            sub.autoGraderComments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
+            sub.autoGraderComments += sectionContent
+
+            if section['rubric'] in sub.grade.scores:
+              sub.grade.scores[section['rubric']] += assignedPoints
+            else:
+              sub.grade.scores[section['rubric']] = assignedPoints
+        else:
           sectionContent = ""
-          failed = 0
-          for test in section['tests']:
+          passed = 0
+          for test in gradeSpec['tests']:
             testOut, testErr = getTestPrints(summary, test)
             if test in failedTests:
-              failed += 1
               sectionContent += '##### <font color="Red">Failed</font>:' + test +" #####\n"
               sectionContent += '<pre>' + failedTests[test]['hint'] + '</pre>\n'
             else:
+              passed += 1
               sectionContent += '##### <font color="Green">Passed</font>:' + test +" #####\n"
 
             if len(testOut) != 0:
@@ -169,21 +198,15 @@ def gradeSubmission(pid, uid, subnum):
             if len(testErr) != 0:
               sectionContent += 'Test output (stderr):\n<pre>' + testErr + "</pre>\n"
 
-          sectionContent += "***\n"
-
-          #Assign the score
-          assignedPoints = Decimal(section['points']) * (Decimal(1)-(Decimal(failed)/Decimal(len(section['tests']))))
-
-          assignedString = "%.2f" % float(assignedPoints)
-          pointsString = "%.2f" % float(section['points'])
-
-          sub.autoGraderComments += "#### **Test Section**: " + section['name'] +" (" + assignedString + "/" + pointsString + ") ####\n"
+          sub.autoGraderComments += "#### **Test Section**: Default (%.2f/%.2f) ###\n" %(float(passed), float(len(gradeSpec['tests'])))
           sub.autoGraderComments += sectionContent
 
-          if section['rubric'] in sub.grade.scores:
-            sub.grade.scores[section['rubric']] += assignedPoints
+          if "Autograder" in sub.grade.scores:
+            sub.grade.scores["Autograder"] += passed
           else:
-            sub.grade.scores[section['rubric']] = assignedPoints
+            sub.grade.scores["Autograder"] = passed
+
+
       except Exception as e:
         sub.autoGraderComments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
 
