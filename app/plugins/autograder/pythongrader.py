@@ -2,7 +2,6 @@ import re
 from subprocess import Popen, PIPE
 from os import environ
 from datetime import datetime
-import re
 
 import itertools, json
 

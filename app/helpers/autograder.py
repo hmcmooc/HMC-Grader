@@ -141,7 +141,8 @@ def gradeSubmission(pid, uid, subnum):
 
         if summary['died']:
           sub.autoGraderComments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
-          sub.autoGraderComments += "<pre>" + summary['generalError'] + "</pre>\n"
+          sub.autoGraderComments += "Stdout:\n<pre>" + summary.setdefault("stdOut","") + "</pre>\n"
+          sub.autoGraderComments += "Stderr:\n<pre>" + summary.setdefault("stdErr","") + "</pre>\n"
           continue
 
         sub.autoGraderComments += "**" + str(summary['totalTests']) + " tests run**\n\n"
