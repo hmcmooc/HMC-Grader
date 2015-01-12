@@ -72,7 +72,7 @@ def viewActiveGrutors():
   grutorLists = {}
   for c in courses:
     grutorLists[c.id] = GraderStats.objects.filter(course=c, clockOut=None)
-  return render_template("activeGrutors.html", courses=courses, \
+  return render_template("common/activeGrutors.html", courses=courses, \
                           grutorLists=grutorLists)
 
 #
