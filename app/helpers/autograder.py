@@ -38,6 +38,15 @@ def getTestPrints(summary, testName):
     err += m.group(1) + "\n"
   return out, err
 
+def makeTestInfo(problem, user, subnum):
+  with open(".info", "w") as f:
+    f.write("username: " + user.username)
+    f.write("subnum: " + subnum)
+    c, a = problem.getParents()
+    f.write("courseName: " + c.name)
+    f.write("assignmentName: " + a.name)
+    f.write("problemName: " + problem.name)
+
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):
@@ -45,6 +54,8 @@ def gradeSubmission(pid, uid, subnum):
     user = User.objects.get(id=uid)
     problem = Problem.objects.get(id=pid)
     course, assignment = problem.getParents()
+
+    makeTestInfo(problem, user, subnum)
 
     #First check if tests have even been assigned
     if len(problem.testfiles) == 0:
