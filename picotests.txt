@@ -1,0 +1,6 @@
+emptyMap
+testpico.txt
+###
+corner: 1,1
+middle: 20, 20
+random: random
