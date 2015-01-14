@@ -45,10 +45,10 @@ Submission Site
   </div>
   {% endif %}
   {% if g.user.gradingActive()|length > 0%}
-  {#<div class="col-sm-4" style="text-align:center;">
+  <div class="col-sm-4" style="text-align:center;">
     <h2>Grutors</h2>
-    <a href="#" class="btn btn-primary btn-lg">Clock In</a>
-  </div>#}
+    <a href="{{url_for('viewActiveGrutors')}}" class="btn btn-primary btn-lg">Clock In</a>
+  </div>
   {% endif %}
   <div class="col-sm-2"></div>
 </div>
