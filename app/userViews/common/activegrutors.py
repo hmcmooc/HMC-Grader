@@ -62,7 +62,6 @@ def grutorClockIn():
           u = User.objects.get(id=current_user.id)
 
           s = TutoringSession.objects.filter(grutor=u, course=c, endTime=None)
-          flash(len(TutoringSession.objects))
 
           if len(s) == 0:
             s = TutoringSession()
