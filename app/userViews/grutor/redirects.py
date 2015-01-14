@@ -16,7 +16,7 @@ from werkzeug import secure_filename
 from app.structures.models.user import *
 from app.structures.models.gradebook import *
 from app.structures.models.course import *
-from app.structures.models.stats import GraderStats
+from app.structures.models.stats import TutoringSession
 
 from app.structures.forms import SubmitAssignmentForm, ClockInForm
 
@@ -245,55 +245,3 @@ def grutorMakeBlank(pid, uid):
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
     abort(404)
-
-@app.route('/grutor/clockin', methods=['POST'])
-@login_required
-def grutorClockIn():
-  try:
-    if request.method == 'POST':
-      form = ClockInForm(request.form)
-      form.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
-      if form.validate():
-        if form.location.data != "Other" or len(form.other.data) > 0:
-          cid = form.course.data
-          c = Course.objects.get(id=cid)
-
-          #Check for security purposes
-          if not c in g.user.gradingActive():
-            abort(403)
-
-          u = User.objects.get(id=current_user.id)
-
-          s = GraderStats.objects.filter(user=u, course=c, clockOut=None)
-
-          if len(s) == 0:
-            s = GraderStats()
-            s.user = u
-            s.course = c
-            s.clockIn = datetime.datetime.utcnow()
-            s.clockOut = None
-            if form.location.data == "Other":
-              s.location = form.other.data
-            else:
-              s.location = form.location.data
-            s.save()
-            flash("You have been signed in", "success")
-          else:
-            flash("You are already signed in", "warning")
-        else:
-          flash("You must provide a location if you select Other", "warning")
-      else:
-        flash("Form validation failed " + str(form.course.errors), "error")
-    return redirect(url_for('index'))
-  except Course.DoesNotExist:
-    #If either p can't be found or we can't get its parents then 404
-    abort(404)
-
-@app.route('/grutor/clockout/<sid>')
-@login_required
-def grutorClockOut(sid):
-  gs = GraderStats.objects.get(id=sid)
-  gs.clockOut = datetime.datetime.utcnow()
-  gs.save()
-  flash("You have been signed out", "success")
-  return redirect(url_for('index'))

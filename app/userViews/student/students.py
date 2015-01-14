@@ -14,7 +14,6 @@ from werkzeug import secure_filename
 from app.structures.models.user import *
 from app.structures.models.gradebook import *
 from app.structures.models.course import *
-from app.structures.models.stats import StudentStats
 
 from app.structures.forms import SubmitAssignmentForm, AttendanceForm
 from app.helpers.autograder import gradeSubmission

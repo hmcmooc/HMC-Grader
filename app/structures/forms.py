@@ -126,6 +126,7 @@ class CourseSettingsForm(Form):
 
 class ReuploadTestForm(Form):
   testFile = FileField("File")
+
 # '''
 # Grutor forms
 # '''
@@ -137,8 +138,10 @@ class ClockInForm(Form):
   ("Balloon/Birch Labs", "Ballon/Birch Labs"),
   ("Platt Lounge", "Platt Lounge"),
   ("Other", "Other")])
-  other = TextField("Other")
+  other = TextField("Other Location")
 
+class ClockOutForm(Form):
+  comments = TextAreaField("Comments")
 
 # '''
 # Student forms

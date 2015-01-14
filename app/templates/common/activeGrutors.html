@@ -9,10 +9,47 @@ Submission Site
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    <h2>Clock-In to tutoring</h2>
+    <form class="form-inline" method="POST" action="{{url_for('grutorClockIn')}}">
+      {{ciForm.hidden_tag()}}
+      <div class="heading">
+        <h3 class="form-heading">Clock-In</h3>
+      </div>
+      <div class="form-group">
+        {{ciForm.course.label}}
+        {{ciForm.course(class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{ciForm.location.label}}
+        {{ciForm.location(class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{ciForm.other.label}}
+        {{ciForm.other(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary">Clock-In</button>
+    </form>
   </div>
   <div class="col-sm-2"></div>
 </div>
+{% for sesh in grutoringCourses %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <form class="form-inline" method="POST" action="{{url_for('grutorClockOut', sid=sesh.id)}}">
+      {{coForm.hidden_tag()}}
+      <div class="heading">
+        <h4 class="form-heading">Clock-Out of {{sesh.course.name}}</h4>
+      </div>
+      <div class="form-group">
+        {{coForm.comments.label}}
+        {{coForm.comments(class="form-control")}}
+      </div>
+      <button type="submit" class="btn btn-primary">Clock-Out</button>
+    </form>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endfor %}
 <hr>
 {% endif %}
 {% if courses|length == 0%}
@@ -48,8 +85,8 @@ Submission Site
         <tbody>
           {% for grader in grutorLists[c.id] %}
           <tr>
-            <td style="width:210px;"><img src="{{url_for('sendProfilePicture', uid=grader.user.id)}}" class="img-rounded" style="max-width:200px; max-height:200px; margin-left:auto; margin-right:auto; display:block;"></td>
-            <td>{{grader.user.firstName}} {{grader.user.lastName}}</td>
+            <td style="width:210px;"><img src="{{url_for('sendProfilePicture', uid=grader.grutor.id)}}" class="img-rounded" style="max-width:200px; max-height:200px; margin-left:auto; margin-right:auto; display:block;"></td>
+            <td>{{grader.grutor.firstName}} {{grader.grutor.lastName}}</td>
             <td>{{grader.location}}</td>
           </tr>
           {% endfor %}

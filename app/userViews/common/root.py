@@ -12,7 +12,6 @@ from app.structures.models.course import *
 from app.structures.models.stats import *
 
 #Import the forms needed on these pages
-from app.structures.forms import AttendanceForm, ClockInForm
 
 @app.route('/')
 def index():
@@ -36,44 +35,13 @@ def index():
   Forms Handled: None
   '''
   if g.user.is_authenticated():
-    clockForm = ClockInForm()
-    clockForm.course.choices = [(str(x.id), x.name) for x in g.user.gradingActive()]
-
-    activeHours = GraderStats.objects.filter(user=g.user.id, clockOut=None)
-
     inProgress = Submission.objects.filter(gradedBy=g.user.id, status=3)
 
     return render_template("userindex.html", active_page="index", \
-                            clockForm=clockForm,\
-                            activeHours=activeHours,\
                             numInProgress=len(inProgress),\
                             inProgress=inProgress)
   return render_template("index.html", active_page="index")
 
-
-#
-# Common function for all users
-#
-
-@app.route('/activegrutors')
-def viewActiveGrutors():
-  '''
-  Function Type: View Function
-  Template: activeGrutors.html
-  Purpose: Display all the active grutors for the courses a user is taking
-
-  Inputs: None
-
-  Template Parameters:
-    courses: A list of courses the user is in currently or is grading
-    grutorLists: A dictionary mapping course IDs to lists of active graders
-  '''
-  courses = list(set(g.user.studentActive()+g.user.gradingActive()))
-  grutorLists = {}
-  for c in courses:
-    grutorLists[c.id] = GraderStats.objects.filter(course=c, clockOut=None)
-  return render_template("common/activeGrutors.html", courses=courses, \
-                          grutorLists=grutorLists)
 
 #
 # Error handling functions

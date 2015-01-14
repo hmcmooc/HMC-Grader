@@ -1,3 +1,3 @@
 # coding=utf-8
 
-__all__ = ['root', 'accounts', 'pages', 'gradeBook']
+__all__ = ['root', 'accounts', 'pages', 'gradeBook', 'activegrutors']
