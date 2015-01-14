@@ -37,7 +37,33 @@ Course Statistics
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    <h2>Submissions</h2>
+    <h2>Tutoring Statistics</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Hours</th>
+          <th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th>
+          <th>Thursday</th><th>Friday</th><th>Saturday</th>
+        </tr>
+      </thead>
+      <tbody id="tutoringSessions">
+        <tr><td colspan="8" style="text-align:center;"><b>In Development</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Submissions Time Statistics</h2>
   </div>
   <div class="col-sm-2"></div>
 </div>
@@ -62,42 +88,13 @@ Course Statistics
 </div>
 
 <hr>
-
-{#<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
-    <h2>Tutoring Attendance</h2>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-4">
-    <b>Start Date:</b>
-    <input id="attendStart" name="subStart" class="form-control" type="text"></input>
-  </div>
-  <div class="col-sm-4">
-    <b>End Date:</b>
-    <input id="attendEnd" name="subEnd" class="form-control" type="text"></input>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8" style="text-align:center;">
-    <div id="attendChart"></div>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
-    <h2>Grading Record</h2>
+    <h2>Grading Statistics</h2>
   </div>
   <div class="col-sm-2"></div>
-</div>#}
-
+</div>
 <div class="row">
   <div class="col-sm-2"></div>
   <div class="col-sm-8">
@@ -174,7 +171,6 @@ function setupSection(name, dataUrl) {
 }
 $(function() {
   setupSection("sub", "{{url_for('ajaxSubmissionStats', cid=course.id)}}")
-  //setupSection("attend", "{{url_for('ajaxAttendanceStats', cid=course.id)}}")
   var graders = {{uids|tojson}};
 
   for (var i = 0; i < graders.length; i++) {
