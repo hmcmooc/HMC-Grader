@@ -43,9 +43,10 @@ def beforeRequest():
   g.user = current_user
 
 #Add the custom converters we have made here
-from app.helpers.converters import BoolConverter
+from app.helpers.converters import BoolConverter, TimeConverter
 
 app.url_map.converters['bool'] = BoolConverter
+app.url_map.converters['time'] = TimeConverter
 
 #We pre imort all the models because they have a required import order.
 #By doing this here we remove that requirement in other files which makes

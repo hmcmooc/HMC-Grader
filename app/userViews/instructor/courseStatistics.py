@@ -22,6 +22,9 @@ from flask.ext.login import current_user, login_required
 from app.structures.models.user import *
 from app.structures.models.gradebook import *
 from app.structures.models.course import *
+from app.structures.models.stats import *
+
+from mongoengine import Q
 
 @app.route('/stats/<cid>')
 @login_required
@@ -121,6 +124,47 @@ def ajaxGraderPerformance(cid):
     data += "</tr>"
 
     return jsonify(row=data)
+
+  except Exception as e:
+    return jsonify(error=str(e))
+
+def getTutoringSessions(time):
+  from datetime import timedelta
+  sMax = timedelta(minutes=20)
+  eMin = timedelta(minutes=10)
+  eMax = timedelta(minutes=30)
+
+  return TutoringSession.objects((Q(startTime__gte=time) & Q(startTime__lte=time+sMax)) |
+        (Q(endTime__gte=time+eMin) & Q(endTime__lte=time+eMax)))
+
+@app.route('/stats/<cid>/tutoring', methods=['POST'])
+@login_required
+def ajaxTutoringStats(cid):
+  try:
+    c = Course.objects.get(id=cid)
+    if not c in g.user.gradingCourses():
+      return jsonify(error="permission denied")
+
+    content = request.get_json()
+    import dateutil.parser
+    from datetime import timedelta, time, date, datetime
+    startDate = dateutil.parser.parse(content['weekStart'][:-1])
+    startDate.replace(tzinfo=None)
+    #TODO: GENERATE COUNTS HERE AND LINKS TO DETAIL PAGES
+    out = ""
+    startDelta = timedelta(hours=12)
+    startTime = datetime.combine(date.today(), time(hour=12))
+    for h in range(24):
+      out += "<tr><td>%s-%s</td>" % (startTime.strftime("%I:%M%p"), (startTime+timedelta(minutes=30)).strftime("%I:%M%p"))
+      dayTime = startDate + startDelta
+      for d in range(7):
+        out += "<td>%d</td>" % (len(getTutoringSessions(dayTime)))
+        dayTime = dayTime + timedelta(days=1)
+      out += "<tr>"
+      startDelta = startDelta + timedelta(minutes=30)
+      startTime = startTime + timedelta(minutes=30)
+
+    return jsonify(table=out)
 
   except Exception as e:
     return jsonify(error=str(e))
