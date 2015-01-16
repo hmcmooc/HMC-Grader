@@ -158,7 +158,7 @@ def ajaxTutoringStats(cid):
       out += "<tr><td>%s-%s</td>" % (startTime.strftime("%I:%M%p"), (startTime+timedelta(minutes=30)).strftime("%I:%M%p"))
       dayTime = startDate + startDelta
       for d in range(7):
-        out += "<td>%d</td>" % (len(getTutoringSessions(dayTime)))
+        out += "<td><a href='%s'>%d</a></td>" % (url_for('instructorViewSession', cid=cid, statTime=dayTime), len(getTutoringSessions(dayTime)))
         dayTime = dayTime + timedelta(days=1)
       out += "<tr>"
       startDelta = startDelta + timedelta(minutes=30)
@@ -168,3 +168,17 @@ def ajaxTutoringStats(cid):
 
   except Exception as e:
     return jsonify(error=str(e))
+
+
+@app.route('/stats/<cid>/<time:statTime>')
+@login_required
+def instructorViewSession(cid, statTime):
+  try:
+    from datetime import timedelta
+    c = Course.objects.get(id=cid)
+    if not c in g.user.courseInstructor:
+      abort(403)
+    return render_template('instructor/viewSession.html', seshs=getTutoringSessions(statTime),\
+    startTime=statTime, endTime=statTime+timedelta(minutes=30))
+  except Course.DoesNotExist:
+    abort(404)

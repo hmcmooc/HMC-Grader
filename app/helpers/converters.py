@@ -16,7 +16,8 @@ class BoolConverter(BaseConverter):
 class TimeConverter(BaseConverter):
 
   def to_python(self, value):
-    return 0
+    import dateutil.parser
+    return dateutil.parser.parse(value)
 
   def to_url(self, value):
-    return "TIME_HERE"
+    return str(value.isoformat())

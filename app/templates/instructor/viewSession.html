@@ -1,0 +1,41 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Tutoring Session Details
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h2><span class="time">{{startTime.isoformat()}}</span>-<span class="time">{{endTime.isoformat()}}</span></h2>
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% for s in seshs %}
+<div class="row">
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-8">
+    <h3>{{s.grutor.firstName}} {{s.grutor.lastName}}</h3>
+    {{s.comments|markdown}}
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text(d.format("lll"))
+})
+</script>
+{% endblock %}
