@@ -40,8 +40,8 @@ def addOrGetUser(firstName, lastName, email=None, password="asdf"):
   a new user'''
   if email != None:
     try:
-      u = User.objects.get(firstName=firstName, lastName=lastName, email=email)
-      return u
+      u = User.objects.filter(firstName=firstName, lastName=lastName, email=email)
+      return u[0]
     except User.DoesNotExist:
       pass
 
