@@ -47,6 +47,20 @@ def addOrGetUser(firstName, lastName, email=None, password="asdf"):
 
   return addUser(firstName, lastName, email, password)
 
+def addOrGetByUsername(username, firstName, lastName, email=None, password="asdf"):
+  try:
+    u = User.objects.get(username=username)
+    return u
+  except User.DoesNotExist:
+    u = User()
+    u.username = username
+    u.firstName = firstName
+    u.lastName = lastName
+    u.email = email
+    u.setPassword(password)
+    u.save()
+    return u
+
 def getCourse(semester, name):
   try:
     c = Course.objects.get(semester=semester, name=name)
