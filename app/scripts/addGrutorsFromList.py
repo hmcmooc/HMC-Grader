@@ -31,6 +31,8 @@ if __name__ == "__main__":
       firstName = info[1]
       lastName = info[0]
 
+      print "%s, %s, %s" %(firstName, lastName, email)
+
       u = addOrGetUser(firstName, lastName, email)
 
       u.courseGrutor.append(course)
