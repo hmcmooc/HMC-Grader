@@ -27,7 +27,7 @@ if __name__ == "__main__":
     #Get pairs of rows
     for info in studentReader:
       email = info[3]
-      name = name[1]
+      name = info[1]
       #Extract the name parts
       lastName, firstMid = name.split(",")
       firstName = firstMid.strip().split(" ")[0]
@@ -38,5 +38,5 @@ if __name__ == "__main__":
 
       if len(u.courseStudent) == 0:
         u.courseStudent.append(course)
-      
+
       u.save()
