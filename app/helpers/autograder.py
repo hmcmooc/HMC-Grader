@@ -41,7 +41,7 @@ def getTestPrints(summary, testName):
 def makeTestInfo(problem, user, subnum):
   with open(".info", "w") as f:
     f.write("username: " + user.username)
-    f.write("subnum: " + subnum)
+    f.write("subnum: " + str(subnum))
     c, a = problem.getParents()
     f.write("courseName: " + c.name)
     f.write("assignmentName: " + a.name)
