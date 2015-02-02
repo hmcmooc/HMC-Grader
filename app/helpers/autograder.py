@@ -105,7 +105,7 @@ def gradeSubmission(pid, uid, subnum):
       if os.path.isfile(os.path.join(submissionDir, f)):
         shutil.copy(os.path.join(submissionDir, f), testDirPath)
       else:
-        shutil.copytree(os.path.join(submissionDir, f), testDirPath)
+        shutil.copytree(os.path.join(submissionDir, f), os.path.join(testDirPath, f))
 
     #Move the test files
     #NOTE: We move these files second so that if a student submits a file that
