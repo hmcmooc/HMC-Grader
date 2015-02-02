@@ -62,7 +62,6 @@ def gradeSubmission(pid, uid, subnum):
     problem = Problem.objects.get(id=pid)
     course, assignment = problem.getParents()
 
-  #  makeTestInfo(problem, user, subnum)
 
     #First check if tests have even been assigned
     if len(problem.testfiles) == 0:
@@ -82,6 +81,7 @@ def gradeSubmission(pid, uid, subnum):
 
     #Change to that directory
     os.chdir(testDirPath)
+    makeTestInfo(problem, user, subnum)
 
     #Get all submitted files and put them in the temp directory
     submissionDir = getSubmissionPath(course, assignment, problem, user, subnum)
