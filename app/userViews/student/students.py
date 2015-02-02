@@ -179,7 +179,7 @@ def studentRenderGrades():
         if problem == None:
           #If there was no submission link to the make blank page
           outString += "<td class='active'>"
-          outString += ">0.00/%.2f"%(p.gradeColumn.maxScore)
+          outString += "0.00/%.2f"%(p.gradeColumn.maxScore)
           outString += "</td>"
         else:
           highlight = createHighlight(problem)
