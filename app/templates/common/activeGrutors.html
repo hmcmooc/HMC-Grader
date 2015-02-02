@@ -80,6 +80,7 @@ Submission Site
             <th>Picture</th>
             <th>Name</th>
             <th>Location</th>
+            <th>Active Since</th>
           </tr>
         </thead>
         <tbody>
@@ -88,6 +89,7 @@ Submission Site
             <td style="width:210px;"><img src="{{url_for('sendProfilePicture', uid=grader.grutor.id)}}" class="img-rounded" style="max-width:200px; max-height:200px; margin-left:auto; margin-right:auto; display:block;"></td>
             <td>{{grader.grutor.firstName}} {{grader.grutor.lastName}}</td>
             <td>{{grader.location}}</td>
+            <td class="time">{{grader.startTime.isoformat()}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -98,4 +100,16 @@ Submission Site
   <div class="col-sm-2"></div>
 </div>
 {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='moment.js')}}"></script>
+<script>
+$(".time").each(function(){
+  var t = $(this).text();
+  var d = new moment(t+"Z");
+  $(this).text(d.fromNow())
+})
+</script>
 {% endblock %}
