@@ -51,6 +51,7 @@ def makeTestInfo(problem, user, subnum):
 def regradeSubmission(submission):
   submission.autoGraderComments = ""
   submission.grade.scores = {}
+  submission.status = 0
   submission.save()
   gradeSubmission(submission.problem.id, submission.submitter.id, submission.problem.getSubmissionInfo(submission)[1])
 
