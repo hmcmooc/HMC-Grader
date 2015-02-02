@@ -47,6 +47,12 @@ def makeTestInfo(problem, user, subnum):
     f.write("assignmentName: " + a.name)
     f.write("problemName: " + problem.name)
 
+@celery.task()
+def regradeSubmission(submission):
+  submission.autoGraderComments = ""
+  submission.grade.scores = {}
+  submission.save()
+  gradeSubmission(submission.problem.id, submission.submitter.id, submission.problem.getSubmissionInfo(submission)[1])
 
 @celery.task()
 def gradeSubmission(pid, uid, subnum):

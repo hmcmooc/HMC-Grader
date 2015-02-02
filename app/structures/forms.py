@@ -135,7 +135,7 @@ class ClockInForm(Form):
   course = SelectField("Course")
   location = SelectField("Location", choices=[\
   ("LAC Labs", "LAC Labs"),\
-  ("Balloon/Birch Labs", "Ballon/Birch Labs"),
+  ("Balloon/Birch Labs", "Balloon/Birch Labs"),
   ("Platt Lounge", "Platt Lounge"),
   ("Other", "Other")])
   other = TextField("Other Location")
