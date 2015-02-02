@@ -70,7 +70,7 @@ td a {
     <table class="table table-responsive table-hover table-bordered" id="{{course.id}}">
       <thead>
         <tr> <!-- This row is for the gradebook groups -->
-          <th rowspan="2">Username</th>
+          <th rowspan="3">Username</th>
           {% for a in course.gradeBook.groups() %}
           <th colspan="{{a.getWidth()}}">{{a.name}}</th>
           {% endfor %}
@@ -82,6 +82,15 @@ td a {
           <th>None</th>
           {% else %}
           <th><a href="{{url_for('redirectGradebook', cid=course.id, col=c.id, instr=instructor)}}">{{c.name}}</a></th>
+          {% endif %}
+          {% endfor %}
+        </tr>
+        <tr>
+          {% for c in course.gradeBook.columns() %}
+          {% if c == None %}
+          <th>None</th>
+          {% else %}
+          <th>{{c.maxScore}}</th>
           {% endif %}
           {% endfor %}
         </tr>
