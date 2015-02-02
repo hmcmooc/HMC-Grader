@@ -94,7 +94,7 @@ td a {
           <th>{{c.maxScore}}</th>
           {% endif %}
           {% endfor %}
-          <th>{{[x.maxScore for x in course.gradeBook.columns()]}}</th>
+          <th>{{course.gradeBook.totalPoints()}}</th>
         </tr>
       </thead>
       <tbody class="list">
