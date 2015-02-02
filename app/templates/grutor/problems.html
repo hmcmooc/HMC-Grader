@@ -61,6 +61,7 @@ Submissions for grading
           <th>Submission Status</th>
           <th>Is Late</th>
           <th>Submission Time</th>
+          <th>Total Points</th>
           <th>Grade Submission</th>
           <th>Graded By</th>
         </tr>
@@ -74,6 +75,7 @@ Submissions for grading
             <td class="active">No Submission</td>
             <td class="active"></td>
             <td>N/A</td>
+            <td>0.00</td>
             <td><a href="{{url_for('grutorMakeBlank', pid=problem.id, uid=user.id)}}" class="btn btn-primary btn-xs">Grade</a></td>
             <td>N/A</td>
           {% else %}
@@ -82,6 +84,7 @@ Submissions for grading
             <td style="text-align:center" class={% if sub.isLate %}"danger"{% else %}"{{c}}" {%endif%}>{% if sub.isLate %}<span class="octicon octicon-check"></span>{%endif%}</td>
             {% endwith %}
             <td class="time">{{sub.submissionTime.isoformat()}}</td>
+            <td>{{sub.grade.totalScore()}}</td>
             <td><a href="{{url_for('grutorGradeSubmission', pid=problem.id, uid=user.id, subnum=problem.getSubmissionNumber(user))}}" class="btn btn-primary btn-xs">Grade</a></td>
             <td>{% if sub.gradedBy == None %}None{%else%}{{sub.gradedBy.username}}{%endif%}</td>
           {% endif %}
