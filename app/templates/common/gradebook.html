@@ -87,12 +87,15 @@ td a {
         </tr>
         <tr>
           <th>Total Points</th>
+          {% set total = 0 %}
           {% for c in course.gradeBook.columns() %}
           {% if c == None %}
           <th>None</th>
           {% else %}
+          {% set total += c.maxScore %}
           <th>{{c.maxScore}}</th>
           {% endif %}
+          <th>{{total}}</th>
           {% endfor %}
         </tr>
       </thead>
