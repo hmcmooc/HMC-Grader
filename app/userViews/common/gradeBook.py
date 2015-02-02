@@ -127,7 +127,7 @@ def commonRenderGrade(cid, instr):
           #If there was no submission link to the make blank page
           outString += "<td class='active'><a href='"
           outString += "#'" #TODO Replace this with an actual link
-          outString += ">0.00/%.2f"%(p.gradeColumn.maxScore)
+          outString += ">0.00"
           outString += "</a></td>"
         else:
           highlight = createHighlight(problem)
@@ -140,7 +140,7 @@ def commonRenderGrade(cid, instr):
             userCourseScore += problem['rawTotalScore']
 
           maxPoints = p.gradeColumn.maxScore
-          cellTemplate = "<td %s><a href='%s'>%.2f/%.2f</a></td>" % (highlight, url, points, maxPoints)
+          cellTemplate = "<td %s><a href='%s'>%.2f</a></td>" % (highlight, url, points)
           outString += cellTemplate
 
     for group in c.gradeBook.auxillaryGrades:
@@ -151,12 +151,12 @@ def commonRenderGrade(cid, instr):
       for col in group.columns:
         score = col.scores.setdefault(u.username, None)
         if score:
-          outString += "<td>%.2f/%.2f</td>" % (score.totalScore(), col.maxScore)
+          outString += "<td>%.2f</td>" % (score.totalScore())
           userCourseScore += score.totalScore()
         else:
-          outString += "<td>%.2f/%.2f</td>" % (0, col.maxScore)
+          outString += "<td>%.2f</td>" % (0)
 
-    outString += "<td>%.2f/%.2f</td></tr>" % (userCourseScore, c.gradeBook.totalPoints())
+    outString += "<td>%.2f</td></tr>" % (userCourseScore)
     return jsonify(res=outString)
 
   except (Course.DoesNotExist,User.DoesNotExist):
