@@ -80,13 +80,13 @@ def runTests(cmdPrefix, testFile, timeLimit):
   summary['rawErr'] = testError
 
   if testProc.returncode != 0:
-    return {'timeout':False, 'died':True, 'generalError': testError}, {}
+    return {'timeout':False, 'died':True, 'rawErr': testError, 'rawOut':testOut}, {}
 
   try:
     testResults = testError.split(randline)[1]
   except IndexError:
     # b. If this line was never seen, then something bad happened
-    return {'timeout':False, 'died':True, 'generalError': "Could not parse the test output:\n" + testOut + "\n\n" + testError}, {}
+    return {'timeout':False, 'died':True, 'rawErr': "Could not parse the test output:\n" + testOut + "\n\n" + testError}, {}
   else:
     failedTests = {}
     for failedCaseMatch in re.finditer('-'*20 + r'\n(.*?)\n' + '-'*20, testResults, flags=re.DOTALL):
