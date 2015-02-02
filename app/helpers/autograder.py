@@ -223,7 +223,10 @@ def gradeSubmission(pid, uid, subnum):
 
 
       except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
         sub.autoGraderComments += "<font color='Red'>Error running tests:</font> \n<pre>" + str(e) + "</pre>\n\n"
+        sub.autoGraderComments += "<pre>" + str(tb) + "</pre>\n\n"
 
     #Remove the testing directory and all of the files
     shutil.rmtree(testDirPath)
