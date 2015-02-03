@@ -39,13 +39,16 @@ def getTestPrints(summary, testName):
   return out, err
 
 def makeTestInfo(problem, user, subnum):
+  c, a = problem.getParents()
+  infoString = """username: %s
+  subnum: %d
+  courseName: %s
+  assignmentName: %s
+  problemName: %s""" % (user.username, subnum, c.name, a.name, problem.name)
+  print infoString
   with open(".info", "w") as f:
-    f.write("username: " + user.username)
-    f.write("subnum: " + str(subnum))
-    c, a = problem.getParents()
-    f.write("courseName: " + c.name)
-    f.write("assignmentName: " + a.name)
-    f.write("problemName: " + problem.name)
+    f.write(infoString)
+
 
 @celery.task()
 def regradeSubmission(submission):
