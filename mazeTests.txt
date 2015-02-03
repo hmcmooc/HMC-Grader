@@ -1,0 +1,8 @@
+mazeMap
+hw0pr4.txt
+###
+topleftcorner: 1,1
+toprightcorner: 23,1
+bottomrightcorner: 22,23
+bottomleftcorner: 1,23
+intersection: 18,12

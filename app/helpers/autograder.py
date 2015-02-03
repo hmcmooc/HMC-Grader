@@ -28,7 +28,7 @@ def ensureFiles(reqFiles, filePath):
   return reqFiles
 
 def getTestPrints(summary, testName):
-  pattern = "%s:(.*)" % testName
+  pattern = "^%s:(.*)" % testName
 
   out = ""
   for m in re.finditer(pattern, summary.setdefault('rawOut', "")):
@@ -53,7 +53,7 @@ def makeTestInfo(problem, user, subnum):
 @celery.task()
 def regradeSubmission(submission):
   submission.autoGraderComments = ""
-  submission.grade.scores = {}
+  submission.grade.scores = {}g 15/CS 60/Homeg 15/CS 60/Home
   submission.status = 0
   submission.save()
   gradeSubmission(submission.problem.id, submission.submitter.id, submission.problem.getSubmissionInfo(submission)[1])
