@@ -167,7 +167,7 @@ def studentRenderGrades():
 
     userCourseScore = 0
 
-    outString = "<tr>"
+    outString = "<tr><th>Your Scores</th>"
     # <td>{{link to problem grading}}</td>
     for assignment, a in zip(assignmentScores, c.assignments):
       #If this assignment doesn't have any problems we put a blank column in
