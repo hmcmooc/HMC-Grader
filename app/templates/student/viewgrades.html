@@ -34,6 +34,7 @@ td a {
     <table class="table table-responsive table-bordered" id="{{c.id}}">
       <thead>
         <tr> <!-- This row is for the gradebook groups -->
+          <th rowspan="2"></th>
           {% for a in c.gradeBook.groups() %}
           <th colspan="{{a.getWidth()}}">{{a.name}}</th>
           {% endfor %}
@@ -49,6 +50,7 @@ td a {
           {% endfor %}
         </tr>
         <tr>
+          <th>Max Score</th>
           {% for a in c.gradeBook.columns() %}
           {% if a == None %}
           <th>None</th>
