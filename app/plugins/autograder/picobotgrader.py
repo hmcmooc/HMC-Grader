@@ -95,6 +95,7 @@ def parseRules(filename):
   rules = []
   with open(filename) as f:
     for line in f:
+      line = line.strip()
       m = re.match(RULE_REGEX, line)
       if m:
         rules.append((int(m.group(1)), m.group(2).upper(), m.group(3).upper(), int(m.group(4))))
