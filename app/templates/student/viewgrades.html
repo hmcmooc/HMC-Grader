@@ -48,6 +48,17 @@ td a {
           {% endif %}
           {% endfor %}
         </tr>
+        <tr>
+          <th>Total Points</th>
+          {% for a in c.gradeBook.columns() %}
+          {% if a == None %}
+          <th>None</th>
+          {% else %}
+          <th>{{a.maxScore}}</th>
+          {% endif %}
+          {% endfor %}
+          <th>{{c.gradeBook.totalPoints()}}</th>
+        </tr>
       </thead>
       <tbody>
       </tbody>
