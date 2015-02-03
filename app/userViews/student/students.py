@@ -179,7 +179,7 @@ def studentRenderGrades():
         if problem == None:
           #If there was no submission link to the make blank page
           outString += "<td class='active'>"
-          outString += "0.00/%.2f"%(p.gradeColumn.maxScore)
+          outString += "0.00"
           outString += "</td>"
         else:
           highlight = createHighlight(problem)
@@ -191,7 +191,7 @@ def studentRenderGrades():
             userCourseScore += problem['rawTotalScore']
 
           maxPoints = p.gradeColumn.maxScore
-          cellTemplate = "<td %s>%.2f/%.2f</td>" % (highlight, points, maxPoints)
+          cellTemplate = "<td %s>%.2f</td>" % (highlight, points)
           outString += cellTemplate
 
     for group in c.gradeBook.auxillaryGrades:
@@ -202,12 +202,12 @@ def studentRenderGrades():
       for col in group.columns:
         score = col.scores.setdefault(u.username, None)
         if score:
-          outString += "<td>%.2f/%.2f</td>" % (score.totalScore(), col.maxScore)
+          outString += "<td>%.2f</td>" % (score.totalScore())
           userCourseScore += score.totalScore()
         else:
-          outString += "<td>%.2f/%.2f</td>" % (0, col.maxScore)
+          outString += "<td>%.2f</td>" % (0)
 
-    outString += "<td>%.2f/%.2f</td></tr>" % (userCourseScore, c.gradeBook.totalPoints())
+    outString += "<td>%.2f</td></tr>" % (userCourseScore)
     return jsonify(res=outString, cid=str(c.id))
 
   except (Course.DoesNotExist,User.DoesNotExist):
