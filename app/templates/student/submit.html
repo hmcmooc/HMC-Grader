@@ -10,17 +10,17 @@ Submit to {{course.name}}->{{assignment.name}}->{{problem.name}}
   </div>
   <div class="col-sm-4">
     <h3>Required Files For Submission:</h3>
-    <ul class="list">
+    <ul class="list-group">
       {% for f in problem.getStrictFiles() %}
-      <li>{{f}}</li>
+      <li class="list-group-item">{{f}}</li>
       {% endfor %}
     </ul>
   </div>
   <div class="col-sm-4">
     <h3>Required Files For Auto-Grading:</h3>
-    <ul class="list">
+    <ul class="list-group">
       {% for f in problem.getRequiredFiles() %}
-      <li>{{f}}</li>
+      <li class="list-group-item">{{f}}</li>
       {% endfor %}
     </ul>
   </div>
