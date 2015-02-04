@@ -24,6 +24,7 @@ import os, datetime, fcntl, random
 import markdown
 
 from app.helpers.filestorage import *
+from app.helpers.autograder import regradeSubmission
 
 @app.route('/grutor/grade/<pid>/random')
 @login_required
@@ -244,4 +245,21 @@ def grutorMakeBlank(pid, uid):
     return redirect(url_for('grutorGradeSubmission', uid=uid, pid=pid, subnum=1))
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
+    abort(404)
+
+
+@app.route('/grutor/regrade/<sid>')
+@login_required
+def grutorRegradeSubmission(sid):
+  try:
+    sub = Submission.objects.get(id=sid)
+    p = sub.problem
+    c,a = p.getParents()
+    if not (c in current_user.courseInstructor):
+      abort(403)
+
+    regradeSubmission.delay(sub)
+
+    return redirect(url_for('grutorGradelistProblem', pid=p.id))
+  except Submission.DoesNotExist:
     abort(404)

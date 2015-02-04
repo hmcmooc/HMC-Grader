@@ -45,7 +45,7 @@ def makeTestInfo(problem, user, subnum):
   courseName: %s
   assignmentName: %s
   problemName: %s""" % (user.username, subnum, c.name, a.name, problem.name)
-  print infoString
+  print "\n" + infoString
   with open(".info", "w") as f:
     f.write(infoString)
 
