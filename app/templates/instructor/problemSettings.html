@@ -40,6 +40,12 @@ Edit Problem
         {{form.time.label}}
         {{form.time(placeholder="eg. 11:59 PM", class="form-control")}}
       </div>
+
+      <div class="form-group">
+        {{form.strictFiles.label}}
+        {{form.strictFiles(placeholder="eg. foo.py, bar.py", class="form-control")}}
+      </div>
+
       <div class="form-group">
         {{form.requiredFiles.label}}
         {{form.requiredFiles(placeholder="eg. foo.py, bar.py", class="form-control")}}
@@ -203,6 +209,10 @@ $(function(){
 
   {% if problem.requiredFiles != None %}
   $('#requiredFiles').val("{{problem.requiredFiles}}")
+  {% endif %}
+
+  {% if problem.strictFiles != None %}
+  $('#strictFiles').val("{{problem.strictFiles}}")
   {% endif %}
 
   //Turn the forms into a date picker and time picker

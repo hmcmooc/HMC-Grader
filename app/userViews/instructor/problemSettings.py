@@ -119,6 +119,11 @@ def instructorSaveProblemSettings(pid):
         else:
           p.requiredFiles = None
 
+        if len(form.strictFiles.data) > 0:
+          p.strictFiles = form.strictFiles.data
+        else:
+          p.strictFiles = None
+
         p.save()
 
   except (Course.DoesNotExist, Problem.DoesNotExist, AssignmentGroup.DoesNotExist):

@@ -99,7 +99,9 @@ class Problem(db.Document):
   allowPartners = db.BooleanField(default=True)
 
   #Which files must a student submit
-  requiredFiles = db.StringField()
+  requiredFiles = db.StringField(default=None)
+  strictFiles = db.StringField(default=None)
+  bannedFiles = db.StringField(default=None)
 
   #URLs for grader notes and for problem specification
   gradeNotes = db.StringField()
@@ -182,6 +184,13 @@ class Problem(db.Document):
     import re
     if self.requiredFiles != None and len(self.requiredFiles) > 0:
       return re.split(', *', self.requiredFiles)
+    else:
+      return []
+
+  def getStrictFiles(self):
+    import re
+    if self.strictFiles != None and len(self.strictFiles) > 0:
+      return re.split(', *', self.strictFiles)
     else:
       return []
 

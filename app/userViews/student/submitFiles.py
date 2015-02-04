@@ -91,11 +91,49 @@ def uploadFiles(pid):
       form = SubmitAssignmentForm(request.form)
       form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
       if form.validate():
+
+        #Make sure the partner exists before doing anything
+        if form.partner.data != "None":
+          partner = User.objects.get(id=form.partner.data)
+
         #Create the submissions
         userSub, userSubPath = createSubmission(p, user)
         userSub.save()
+
+        #Save the files to the folder
+        error = saveFiles(userSubPath, request.files.getlist("files"))
+
+        if error != None:
+          #Remove the files
+          shutil.rmtree(userSubPath)
+          #remove the submission from the submission list
+          p.studentSubmissions[user.username].submissions = p.studentSubmissions[user.username].submissions[:-1]
+          #delete the submission
+          userSub.delete()
+          raise error
+
+        missingFiles, missingStrict = ensureFiles(p, userSubPath)
+
+        if not len(missingStrict) == 0:
+          #Remove the files
+          shutil.rmtree(userSubPath)
+          #remove the submission from the submission list
+          p.studentSubmissions[user.username].submissions = p.studentSubmissions[user.username].submissions[:-1]
+          #delete the submission
+          userSub.delete()
+          flash("Your submission was missing files required for acceptance", "error")
+          for m in missingStrict:
+            flash("Missing required file: " + m, "error")
+          return redirect(url_for("submitAssignment", pid=p.id))
+
+        if not len(missingFiles) == 0:
+          flash("Required files for autograding are missing from your submission. \
+                It has been accepted but autograding will not run.", "warning")
+          for m in missingFiles:
+            flash("Missing required file: " + m, "warning")
+
+        #Prepare everything before setting up the partner submission
         if form.partner.data != "None":
-          partner = User.objects.get(id=form.partner.data)
           partnerSub, partnerSubPath = createSubmission(p, partner)
           partnerSub.save()
 
@@ -107,20 +145,9 @@ def uploadFiles(pid):
           partnerSub.partnerSubmission = userSub
           partnerSub.save()
 
-        #Save the files to the folder
-        saveFiles(userSubPath, request.files.getlist("files"))
-
-        if form.partner.data != "None":
+          #remove the folder so we can copy the other folder
           shutil.rmtree(partnerSubPath)
           shutil.copytree(userSubPath, partnerSubPath)
-
-        missingFiles = ensureFiles(p, userSubPath)
-
-        if not len(missingFiles) == 0:
-          flash("Some required files are missing from your submission. \
-                It has been accepted but autogradign will not run.", "warning")
-          for m in missingFiles:
-            flash("Missing required file: " + m, "warning")
 
         #Save our submissions to the database
         p.save()
@@ -151,21 +178,24 @@ def saveFiles(filePath, files):
         continue
       f.save(os.path.join(filePath, filename))
       processZip(filePath, filename)
+      return None
   except Exception as e:
-    shutil.rmtree(filePath)
     flash("One of your files has caused our system to crash."+\
     " This most commonly happens with zip files which contain two copies of files with the same name or a file which has the same name as the zip file itself."+\
     " Please look at the error and try to correct this issue."+\
     " If this is not your issue please report a bug to the system administrator", "warning")
-    raise e
+    return e
 
 def ensureFiles(problem, filePath):
   reqFiles = problem.getRequiredFiles()
+  strictFiles = problem.getStrictFiles()
   for root, dirs, files in os.walk(filePath):
     for f in files:
       if f in reqFiles:
         reqFiles.remove(f)
-  return reqFiles
+      if f in strictFiles:
+        strictFiles.remove(f)
+  return reqFiles, strictFiles
 
 def processZip(filePath, fileName):
   from zipfile import ZipFile, is_zipfile
