@@ -34,6 +34,9 @@ Grade book column
   <div class="col-sm-2">
   </div>
   <div class="col-sm-3">
+    {% if instructor %}
+    <button id="maxPoints" class="btn btn-primary" onclick="givePoints()">Give Max Points</button>
+    {% endif %}
     <form id="scores">
       <table class="table table-bordered">
         <thead>
@@ -81,5 +84,14 @@ function save(){
     }
   });
 }
+
+{% if instructor %}
+function givepoints(){
+  var maxScore = $("#maxPoints").val();
+  $("form#scores :input").each(function(){
+    $(this).val(maxScore);
+  });
+}
+{% endif %}
 </script>
 {% endblock %}
