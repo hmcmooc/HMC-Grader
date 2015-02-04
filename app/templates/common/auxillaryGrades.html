@@ -86,7 +86,7 @@ function save(){
 }
 
 {% if instructor %}
-function givepoints(){
+function givePoints(){
   var maxScore = $("#maxPoints").val();
   $("form#scores :input").each(function(){
     $(this).val(maxScore);
