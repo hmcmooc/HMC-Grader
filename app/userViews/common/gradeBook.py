@@ -139,7 +139,7 @@ def serveGradebook(cid, raw):
           row += [0]
 
         for col in group.columns:
-          score = col.scores.setdefault(u.username, None)
+          score = col.scores.setdefault(s.username, None)
           if score:
             row += [score.totalScore()]
             userCourseScore += score.totalScore()
