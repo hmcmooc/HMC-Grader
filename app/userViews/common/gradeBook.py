@@ -10,7 +10,7 @@ from app import app
 
 #Import needed flask functions
 from flask import g, render_template, redirect, url_for, flash, jsonify, abort
-from flask import request
+from flask import request, after_this_request, send_file
 from flask.ext.login import current_user, login_required
 
 #Import the models we need on these pages
@@ -23,6 +23,9 @@ from app.structures.forms import CreateGradeColumnForm, CreateGradebookGroupForm
 
 #Import app helpers
 from app.helpers.gradebook import getStudentAssignmentScores, getStudentAuxScores
+
+#Import other python helpers
+import tempfile, csv
 
 @app.route('/gradebook/<cid>/<bool:instr>')
 @login_required
@@ -67,6 +70,89 @@ def viewGradebook(cid, instr):
                       groupForm=CreateGradebookGroupForm(),\
                       colForm=colForm, disableColForm=disableColForm,\
                       instructor=instr)
+  except Course.DoesNotExist:
+    abort(404)
+
+@app.route('/gradebook/download/<cid>/<bool:raw>')
+@login_required
+def serveGradebook(cid, raw):
+  try:
+    course = Course.objects.get(id=cid)
+
+    if not course in current_user.courseInstructor:
+      abort(403)
+
+    csvf = tempfile.NamedTemporaryFile()
+
+    writer = csv.writer(csvf, delimiter=",", quotechar="\"")
+
+    #Put the main headers on
+    row = ['', 'Assignment']
+    for a in course.gradeBook.groups():
+      row += [a.name]*a.getWidth()
+    writer.writerow(row)
+
+    #Put the problem headers on
+    row = ['', 'Problem']
+    for c in course.gradeBook.columns():
+      if c == None:
+        row += ["None"]
+      else:
+        row += [c.name]
+    row += ['Total Points']
+    writer.writerow(row)
+
+    #Put in the max points row
+    row = ['', 'Max Points']
+    for c in course.gradeBook.columns():
+      if c == None:
+        row += [0]
+      else:
+        row += [c.maxScore]
+    row += [course.gradeBook.totalPoints()]
+    writer.writerow(row)
+    writer.writerow(['Name', 'Username'])
+
+    #Do the user rows
+    students = User.objects.filter(courseStudent=course)
+
+    for s in students:
+      row = [(s.firstName + ' ' + s.lastName), s.username]
+      userCourseScore = 0
+      scores = getStudentAssignmentScores(course, s)
+      for a in scores:
+        if len(a) == 0:
+          row += ['N/A']
+          continue
+        for p in a:
+          if p == None:
+            row += [0]
+          else:
+            if 'finalTotalScore' in p:
+              row += [p['finalTotalScore']]
+              userCourseScore += p['finalTotalScore']
+            else:
+              row += [p['rawTotalScore']]
+              userCourseScore += p['rawTotalScore']
+      for group in course.gradeBook.auxillaryGrades:
+        if len(group.columns) == 0:
+          row += [0]
+
+        for col in group.columns:
+          score = col.scores.setdefault(u.username, None)
+          if score:
+            row += [score.totalScore()]
+            userCourseScore += score.totalScore()
+          else:
+            row += [0]
+      row += [userCourseScore]
+      writer.writerow(row)
+
+    #Be kind rewind the file
+    csvf.seek(0)
+
+    return send_file(csvf,as_attachment=True, attachment_filename='grades.csv', cache_timeout=50)
+
   except Course.DoesNotExist:
     abort(404)
 
