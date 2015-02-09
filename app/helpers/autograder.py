@@ -38,16 +38,20 @@ def getTestPrints(summary, testName):
     err += m.group(1) + "\n"
   return out, err
 
-def makeTestInfo(problem, user, subnum):
+def makeTestInfo(problem, user, subnum, msg=None):
   c, a = problem.getParents()
   infoString = """username: %s
   subnum: %d
   courseName: %s
   assignmentName: %s
   problemName: %s""" % (user.username, subnum, c.name, a.name, problem.name)
-  print "\n" + infoString
-  with open(".info", "w") as f:
-    f.write(infoString)
+
+  if msg == None:
+    print "\n" + infoString
+    with open(".info", "w") as f:
+      f.write(infoString)
+  else:
+    print "\n" + infoString + "\nMessage: " + msg
 
 
 @celery.task()
@@ -247,6 +251,8 @@ def gradeSubmission(pid, uid, subnum):
     else:
       sub.status = max(sub.status, 2)
     sub.save()
+
+    makeTestInfo(problem, user, subnum, msg="Testing finished")
 
   except (User.DoesNotExist, Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     pass
