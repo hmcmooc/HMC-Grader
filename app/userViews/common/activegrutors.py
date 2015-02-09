@@ -38,7 +38,7 @@ def viewActiveGrutors():
   grutorLists={}
 
   now = datetime.utcnow()
-  delta = timedelta(hours=5)
+  delta = timedelta(hours=3)
   for c in courses:
     seshs = TutoringSession.objects.filter(course=c.id, endTime=None)
     finalSeshs = []
