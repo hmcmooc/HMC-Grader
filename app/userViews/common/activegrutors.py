@@ -44,7 +44,7 @@ def viewActiveGrutors():
     finalSeshs = []
     for ts in seshs:
       if (now-ts.startTime) > delta:
-        ts.endTime = now
+        ts.endTime = ts.startTime + delta
         continue
       finalSeshs.append(ts)
     grutorLists[c.id] = finalSeshs
