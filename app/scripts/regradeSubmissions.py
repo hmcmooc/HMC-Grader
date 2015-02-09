@@ -6,8 +6,8 @@ from app.structures.models.user import *
 from app.helpers.autograder import regradeSubmission
 
 if __name__ == "__main__":
-  courseName = "CS 5" #raw_input("Course Name: ")
-  semester = "Spring 15" #raw_input("Course Semester: ")
+  courseName = raw_input("Course Name: ")
+  semester = raw_input("Course Semester: ")
 
   course = getCourse(semester, courseName)
 
