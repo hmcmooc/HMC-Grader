@@ -15,7 +15,7 @@ from app.structures.models.stats import *
 from app.structures.forms import ClockInForm, ClockOutForm
 
 #python imports
-from datetime import datetime
+from datetime import datetime, timedelta
 
 @app.route('/activegrutors')
 def viewActiveGrutors():
@@ -36,8 +36,18 @@ def viewActiveGrutors():
 
   courses = list(set(g.user.gradingActive() + g.user.studentActive()))
   grutorLists={}
+
+  now = datetime.utcnow()
+  delta = timedelta(hours=5)
   for c in courses:
-    grutorLists[c.id] = TutoringSession.objects.filter(course=c.id, endTime=None)
+    seshs = TutoringSession.objects.filter(course=c.id, endTime=None)
+    finalSeshs = []
+    for ts in seshs:
+      if (now-ts.startTime) > delta:
+        ts.endTime = now
+        continue
+      finalSeshs.append(ts)
+    grutorLists[c.id] = finalSeshs
   return render_template("common/activeGrutors.html", courses=courses, \
                           grutorLists=grutorLists,\
                           ciForm=ciForm, coForm=ClockOutForm(),\
