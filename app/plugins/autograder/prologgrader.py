@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 from subprocess import Popen, PIPE
 
+from app.helpers.command import Command
+
 PLUGIN_NAME = "Prolog (plunit)"
 
 PROLOG_TEST_REGEX = r"^test\((.*)\) *:- .*$"
@@ -22,16 +24,20 @@ def testFileParser(filename):
 
 def runTests(cmdPrefix, testFile, timeLimit):
   startTime = datetime.now()
-  testProc = Popen(cmdPrefix + ['swipl', '-s', testFile, '-g', 'run_tests', '-t', 'halt'], stdout=PIPE, stderr=PIPE)
+  # testProc = Popen(cmdPrefix + ['swipl', '-s', testFile, '-g', 'run_tests', '-t', 'halt'], stdout=PIPE, stderr=PIPE)
+  #
+  # timeoutReached = False
+  # while testProc.poll() is None:
+  #   currentTime = datetime.now()
+  #   delta = currentTime - startTime
+  #   if delta.total_seconds() > timeLimit:
+  #     testProc.kill()
+  #     timeoutReached = True
+  #     break
 
-  timeoutReached = False
-  while testProc.poll() is None:
-    currentTime = datetime.now()
-    delta = currentTime - startTime
-    if delta.total_seconds() > timeLimit:
-      testProc.kill()
-      timeoutReached = True
-      break
+  testProc = Command(cmdPrefix + ['swipl', '-s', testFile, '-g', 'run_tests', '-t', 'halt'])
+
+  timeoutReached, testOut, testError = testProc.run(timeout=int(timeLimit), env=environ)
 
   if timeoutReached:
     summary = {}
@@ -45,7 +51,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
 
     return summary, {}
 
-  testOut, testError = testProc.communicate()
+  #testOut, testError = testProc.communicate()
 
   summary = {}
   summary['rawOut'] = testOut

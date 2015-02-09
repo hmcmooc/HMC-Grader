@@ -9,8 +9,8 @@ from app.userViews.student.submitFiles import createSubmission
 from datetime import datetime
 
 if __name__ == "__main__":
-  semester = "Spring 15" #raw_input("Course Semester: ")
   courseName = "CS 5" #raw_input("Course Name: ")
+  semester = "Spring 15" #raw_input("Course Semester: ")
 
   course = getCourse(semester, courseName)
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
   students = User.objects.filter(courseStudent=course)
 
   for s in students:
-    print "Student: " + student.username
+    print "Student: " + s.username
     sub = problem.getLatestSubmission(s)
     if sub == None:
       sub, _ = createSubmission(problem, s)

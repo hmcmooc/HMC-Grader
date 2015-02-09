@@ -3,6 +3,8 @@ from subprocess import Popen, PIPE
 from os import environ
 from datetime import datetime
 
+from app.helpers.command import Command
+
 import itertools, json
 
 PLUGIN_NAME = "Python (pyunit)"
@@ -30,21 +32,14 @@ def testFileParser(filename):
 
 def runTests(cmdPrefix, testFile, timeLimit):
   startTime = datetime.now()
-  testProc = Popen(cmdPrefix + ['python', testFile], \
-                    stdout=PIPE, stderr=PIPE, env=environ)
 
-  timeoutReached = False
-  while testProc.poll() is None:
-    currentTime = datetime.now()
-    delta = currentTime - startTime
-    if delta.total_seconds() > timeLimit:
-      testProc.kill()
-      timeoutReached = True
-      break
+  testProc = Command(cmdPrefix + ['python', testFile])
 
+  timeoutReached, testOut, testError = testProc.run(timeout=int(timeLimit), env=environ)
 
   #Check for a timeout
   if timeoutReached:
+    print "Timeout reached"
     summary = {}
     summary['totalTests'] = 0
     summary['failedTests'] = 0
@@ -56,7 +51,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
 
     return summary, {}
 
-  testOut, testError = testProc.communicate()
+  #testOut, testError = testProc.communicate()
 
   summary = {}
   summary['rawOut'] = testOut

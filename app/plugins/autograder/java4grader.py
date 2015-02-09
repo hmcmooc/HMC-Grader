@@ -5,6 +5,8 @@ from subprocess import Popen, PIPE
 
 from datetime import datetime
 
+from app.helpers.command import Command
+
 PLUGIN_NAME = "Java (junit4)"
 
 JAVA_TEST_REGEX = r"@Test\s+public\s+void\s+([a-zA-Z0-9-_]+)"
@@ -44,19 +46,26 @@ def runTests(cmdPrefix, testFile, timeLimit):
   pathName = os.getcwd()+className
   cmdRun = ["/usr/bin/java", "-cp", "/usr/share/java/junit4.jar:.", "org.junit.runner.JUnitCore", className]
 
-  startTime = datetime.now()
+  # startTime = datetime.now()
+  #
+  # runner = Popen(cmdPrefix+cmdRun,stdout=PIPE, stderr=PIPE)
+  #
+  # while runner.poll() is None:
+  #   currentTime = datetime.now()
+  #   delta = currentTime - startTime
+  #   if delta.total_seconds() > timeLimit:
+  #     runner.kill()
+  #     return {'timeout':True, 'died':False}, {}
+  #     break
+  #
+  # stdout,stderr = runner.communicate()
 
-  runner = Popen(cmdPrefix+cmdRun,stdout=PIPE, stderr=PIPE)
+  runner = Command(cmdPrefix+cmdRun)
 
-  while runner.poll() is None:
-    currentTime = datetime.now()
-    delta = currentTime - startTime
-    if delta.total_seconds() > timeLimit:
-      runner.kill()
-      return {'timeout':True, 'died':False}, {}
-      break
+  timeout, stdout, stderr = runner.run(timeout=int(timeLimit), env=environ)
 
-  stdout,stderr = runner.communicate()
+  if timeout:
+    return {'timeout':True, 'died':False}, {}
 
   summary = {}
   summary['rawOut'] = stdout

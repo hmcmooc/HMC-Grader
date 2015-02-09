@@ -4,6 +4,8 @@ from datetime import datetime
 
 from subprocess import Popen, PIPE
 
+from app.helpers.command import Command
+
 PLUGIN_NAME = "Racket (Rackunit)"
 
 RACKET_TEST_REGEX = r"\(check-.*\?\s+\(.*\)\s+.*\s+\"([^:]+?)(?:\:.+)?\"\)"
@@ -60,21 +62,28 @@ def runTests(cmdPrefix, testFile, timeLimit):
   #End of manipulation of files
   #Run the tests
 
-  startTime = datetime.now()
-  testProc = Popen(cmdPrefix + ['/usr/bin/racket', testFile],\
-                  stdout=PIPE, stderr=PIPE)
+  testProc = Command(cmdPrefix + ['/usr/bin/racket', testFile])
 
-  while testProc.poll() is None:
-    currentTime = datetime.now()
-    delta = currentTime - startTime
-    if delta.total_seconds() > timeLimit:
-      testProc.kill()
-      #Report a timeout
-      return {'timeout':True, 'died':False}, {}
+  timeout, testOut, testError = testProc.run(timeout=int(timeLimit), env=environ)
+
+  if timeout:
+    return {'timeout':True, 'died':False}, {}
+
+  # startTime = datetime.now()
+  # testProc = Popen(cmdPrefix + ['/usr/bin/racket', testFile],\
+  #                 stdout=PIPE, stderr=PIPE)
+  #
+  # while testProc.poll() is None:
+  #   currentTime = datetime.now()
+  #   delta = currentTime - startTime
+  #   if delta.total_seconds() > timeLimit:
+  #     testProc.kill()
+  #     #Report a timeout
+  #     return {'timeout':True, 'died':False}, {}
 
   summary = {}
 
-  testOut, testError = testProc.communicate()
+  #testOut, testError = testProc.communicate()
 
   summary['rawOut'] = testOut
   summary['rawErr'] = testError
