@@ -42,7 +42,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
     studentFile.write(studentFileText)
     studentFile.close()
   except Exception as e:
-    return {'tiemout':False, 'died':True, 'rawErr': str(e)}, {}
+    return {'timeout':False, 'died':True, 'rawErr': str(e)}, {}
 
   #Put a random string in the test file so that we can tell where the tests
   #begin.
