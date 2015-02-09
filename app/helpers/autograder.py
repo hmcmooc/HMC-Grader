@@ -31,10 +31,10 @@ def getTestPrints(summary, testName):
   pattern = "^%s:(.*)" % testName
 
   out = ""
-  for m in re.finditer(pattern, summary.setdefault('rawOut', "")):
+  for m in re.finditer(pattern, summary.setdefault('rawOut', ""), re.M):
     out += m.group(1) + "\n"
   err = ""
-  for m in re.finditer(pattern, summary.setdefault('rawErr', "")):
+  for m in re.finditer(pattern, summary.setdefault('rawErr', ""), re.M):
     err += m.group(1) + "\n"
   return out, err
 
