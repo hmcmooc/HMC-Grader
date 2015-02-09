@@ -217,6 +217,7 @@ function saveGrades(){
     type:'POST',
     contentType:'application/json',
     data: JSON.stringify(values),
+    async: false,
     dataType: 'json',
     success: function(data) {
       //Do nothing with returned data
@@ -234,6 +235,7 @@ function saveComments(){
     type:'POST',
     contentType:'application/json',
     data: JSON.stringify(values),
+    async: false,
     dataType: 'json',
     success: function(data) {
       //Nothing to do
