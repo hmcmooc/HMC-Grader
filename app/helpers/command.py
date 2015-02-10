@@ -31,10 +31,10 @@ class Command(object):
             try:
                 self.process = subprocess.Popen(self.command, **kwargs)
                 self.output, self.error = self.process.communicate()
-                self.status = self.process.returncode
+                self.returncode = self.process.returncode
             except:
                 self.error = traceback.format_exc()
-                self.status = -1
+                self.returncode = -1
         # default stdout and stderr
         if 'stdout' not in kwargs:
             kwargs['stdout'] = subprocess.PIPE
