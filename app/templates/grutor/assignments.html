@@ -40,12 +40,10 @@ Assignments for {{course.name}}
         <tr>
           <td>{{p.name}}</td>
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
-          {% with u,ip,d = p.getStatusCount() %}
-          <td>{{p.studentSubmissions.keys()|length}}/{{u + ip + d}}</td>
+          <td>{{p.studentSubmissions.keys()|length}}</td>
           <td id={{p.id}}>
             Calculating
           </td>
-          {% endwith %}
           <td>
             <a href="{{url_for('grutorGradelistProblem', pid=p.id)}}" class="btn btn-primary btn-xs">Grade</a>
           </td>
