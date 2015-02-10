@@ -27,7 +27,7 @@ Assignments for {{course.name}}
           <th>Problem</th>
           <th>Due Date</th>
           <th>Submissions</th>
-          <th>Status (TODO - IP - DONE)</th>
+          <th>Status</th>
           <th>Grade</th>
         </tr>
       </thead>
@@ -42,8 +42,8 @@ Assignments for {{course.name}}
           <td {% if p.duedate != None %}class="time">{{p.duedate.isoformat()}}{% else %}>None Set{%endif%}</td>
           {% with u,ip,d = p.getStatusCount() %}
           <td>{{p.studentSubmissions.keys()|length}}/{{u + ip + d}}</td>
-          <td>
-            {{u}} - {{ip}} - {{d}}
+          <td id={{p.id}}>
+            Calculating
           </td>
           {% endwith %}
           <td>
@@ -69,5 +69,40 @@ $(".time").each(function(){
   var d = new moment(t+"Z");
   $(this).text(d.format("lll"))
 })
+
+
+$(function(){
+  if (!String.prototype.format) {
+    String.prototype.format = function() {
+      var args = arguments;
+      return this.replace(/{(\d+)}/g, function(match, number) {
+        return typeof args[number] != 'undefined'
+          ? args[number]
+          : match
+        ;
+      });
+    };
+  }
+  {% for a in course.assignments[::-1] %}
+  {% for p in a.problems|sort(attribute="name") %}
+  $.ajax({
+    url:"{{url_for('grutorGetStatus', pid=p.id)}}",
+    dataType:'json',
+    success: function(data){
+      if(data.u == 0 && data.i == 0) {
+        $("#{{p.id}}").addClass('success');
+        $("#{{p.id}}").html("Done")
+      } else if (data.u == 0 && data.i != 0) {
+        $("#{{p.id}}").addClass('warning');
+        $("#{{p.id}}").html("In Progress ({0})".format(data.i))
+      } else {
+        $("#{{p.id}}").addClass('danger');
+        $("#{{p.id}}").html("Unfinished ({0}-{1})".format(data.u, data.i));
+      }
+    }
+  })
+  {% endfor %}
+  {% endfor %}
+});
 </script>
 {% endblock %}

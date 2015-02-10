@@ -129,7 +129,9 @@ class Problem(db.Document):
     done = 0
     for u in users:
       sub = self.getLatestSubmission(u)
-      if sub == None or sub.status < 3:
+      if sub == None:
+        continue
+      if sub.status < 3:
         ungraded += 1
       elif sub.status == 3:
         ip += 1

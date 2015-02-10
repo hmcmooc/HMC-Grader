@@ -28,11 +28,15 @@ Submissions for grading
       </thead>
       <tbody>
         <tr>
-          {% with ungraded, ip, done = problem.getStatusCount() %}
-          <td style="text-align:center">{{ungraded}}</td>
-          <td style="text-align:center">{{ip}}</td>
-          <td style="text-align:center">{{done}}</td>
-          {% endwith %}
+          <td style="text-align:center" id="ungraded">
+            Calculating
+          </td>
+          <td style="text-align:center" id="inprogress">
+            Calculating
+          </td>
+          <td style="text-align:center" id="done">
+            Calculating
+          </td>
         </tr>
       </tbody>
     </table>
@@ -107,6 +111,18 @@ $(".time").each(function(){
   var t = $(this).text();
   var d = new moment(t+"Z");
   $(this).text(d.format("lll"))
+})
+
+$(function(){
+  $.ajax({
+    url:"{{url_for('grutorGetStatus', pid=problem.id)}}",
+    dataType:'json',
+    success: function(data){
+      $("#ungraded").html(data.u);
+      $("#inprogress").html(data.i);
+      $("#done").html(data.d);
+    }
+  })
 })
 </script>
 {% endblock %}
