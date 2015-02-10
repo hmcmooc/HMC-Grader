@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 from datetime import datetime
 
 from app.helpers.command import Command
+from os import environ
 
 PLUGIN_NAME = "Java (junit4)"
 

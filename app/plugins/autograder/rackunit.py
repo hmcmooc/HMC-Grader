@@ -5,6 +5,7 @@ from datetime import datetime
 from subprocess import Popen, PIPE
 
 from app.helpers.command import Command
+from os import environ
 
 PLUGIN_NAME = "Racket (Rackunit)"
 
