@@ -164,11 +164,11 @@ def gradeSubmission(pid, uid, subnum):
         summary, failedTests = testRunner(prefix, f, gradeSpec.setdefault('timeout', 30))
 
         if summary['timeout']:
-          sub.autoGraderComments += "<font color='Red'>A timeout occured</font>\n\n"
+          sub.autoGraderComments += "<font color='Red'>A timeout occurred</font>\n\n"
           continue
 
         if summary['died']:
-          sub.autoGraderComments += "<font color='Red'>An error occured and the testing file failed to execute.</font>\n\n"
+          sub.autoGraderComments += "<font color='Red'>An error occurred and the testing file failed to execute.</font>\n\n"
           sub.autoGraderComments += "Stdout:\n<pre>" + summary.setdefault("rawOut","") + "</pre>\n"
           sub.autoGraderComments += "Stderr:\n<pre>" + summary.setdefault("rawErr","") + "</pre>\n"
           continue
