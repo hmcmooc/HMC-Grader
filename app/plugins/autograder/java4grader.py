@@ -39,7 +39,7 @@ def runTests(cmdPrefix, testFile, timeLimit):
     #If the compiler produced output on stderr we have an issue so report it
     summary = {}
     summary['died'] = True
-    summary['generalError'] = compOut
+    summary['rawErr'] = compOut
     summary['timeout'] = False
     return summary, {}
 
