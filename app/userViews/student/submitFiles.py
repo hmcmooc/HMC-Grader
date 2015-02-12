@@ -214,11 +214,11 @@ def processZip(filePath, fileName):
         shutil.move(os.path.join(extractPath, d, f), filePath)
   else:
     for f in os.listdir(extractPath):
-      shutil.move(os.path.join(path, f), filePath)
+      shutil.move(os.path.join(extractPath, f), filePath)
 
   shutil.rmtree(os.path.join(filePath, '.extracted'))
 
-def createSubmission(problem, user, now = datetime.datetime.utcnow()):
+def createSubmission(problem, user, now=datetime.datetime.utcnow()):
   '''
   Function Type: Helper Function
   Purpose: Create a new submission for a user
