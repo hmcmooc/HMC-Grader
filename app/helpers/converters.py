@@ -21,3 +21,15 @@ class TimeConverter(BaseConverter):
 
   def to_url(self, value):
     return str(value.isoformat())
+
+class ProblemConverter(BaseConverter):
+
+  def to_python(self, value):
+    from app.structures.models.course import Problem
+    try:
+      return Problem.objects.get(id=value)
+    except Problem.DoesNotExist:
+      abort(404)
+
+  def to_url(self, value):
+    return str(value.id)
