@@ -79,6 +79,7 @@ def uploadFiles(pid):
     SubmitAssignmentForm: Contains the files being submitted and the partner
     choice.
   '''
+  now = datetime.datetime.utcnow()
   try:
     p = Problem.objects.get(id=pid)
     c, a = p.getParents()
@@ -97,7 +98,7 @@ def uploadFiles(pid):
           partner = User.objects.get(id=form.partner.data)
 
         #Create the submissions
-        userSub, userSubPath = createSubmission(p, user)
+        userSub, userSubPath = createSubmission(p, user, now)
         userSub.save()
 
         #Save the files to the folder
@@ -134,7 +135,7 @@ def uploadFiles(pid):
 
         #Prepare everything before setting up the partner submission
         if form.partner.data != "None":
-          partnerSub, partnerSubPath = createSubmission(p, partner)
+          partnerSub, partnerSubPath = createSubmission(p, partner, now)
           partnerSub.save()
 
           #Link the submissions
@@ -217,7 +218,7 @@ def processZip(filePath, fileName):
 
   shutil.rmtree(os.path.join(filePath, '.extracted'))
 
-def createSubmission(problem, user):
+def createSubmission(problem, user, now):
   '''
   Function Type: Helper Function
   Purpose: Create a new submission for a user
@@ -249,7 +250,7 @@ def createSubmission(problem, user):
   sub.submitter = user
   sub.grade = grade
   sub.problem = problem
-  sub.submissionTime = datetime.datetime.utcnow()
+  sub.submissionTime = now
 
   if problem.duedate < sub.submissionTime:
     sub.isLate = True
