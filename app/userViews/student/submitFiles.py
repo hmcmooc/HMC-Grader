@@ -218,7 +218,7 @@ def processZip(filePath, fileName):
 
   shutil.rmtree(os.path.join(filePath, '.extracted'))
 
-def createSubmission(problem, user, now):
+def createSubmission(problem, user, now = datetime.datetime.utcnow()):
   '''
   Function Type: Helper Function
   Purpose: Create a new submission for a user
