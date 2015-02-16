@@ -182,6 +182,14 @@ class Problem(db.Document):
     filePath = getSubmissionPath(c, a, self, user, subnum)
     return [ f for f in listdir(filePath) if isfile(join(filePath,f)) ]
 
+  def getFilePath(self, user, subnum):
+    c, a = self.getParents()
+    return getSubmissionPath(c, a, self, user, subnum)
+
+  def getTestFilePath(self):
+    c, a = self.getParents()
+    return getTestPath(c, a, self)
+
   def getRequiredFiles(self):
     import re
     if self.requiredFiles != None and len(self.requiredFiles) > 0:

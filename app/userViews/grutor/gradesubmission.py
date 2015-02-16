@@ -14,36 +14,18 @@ import codecs
 
 import os
 
-@app.route('/student/<pid>/<uid>/<subnum>/reviewFiles')
+@app.route('/grutor/<pid>/getFile', methods=['POST'])
 @login_required
-def studentViewFiles(pid, uid, subnum):
+def grutorGetFiles(pid):
   try:
     problem = Problem.objects.get(id=pid)
     c, a = problem.getParents()
-    if not (c in current_user.courseStudent or c in current_user.gradingCourses()):
+    if not (c in current_user.gradingCourses()):
       abort(403)
-
-    u = User.objects.get(id=uid)
-    return render_template('student/reviewfiles.html', problem=problem, subnum=subnum,\
-                           user=u, course=c, assignment=a)
-  except Problem.DoesNotExist:
-    abort(404)
-
-@app.route('/student/<pid>/<uid>/<subnum>/getFile', methods=['POST'])
-@login_required
-def studentGetFiles(pid, uid, subnum):
-  try:
-    problem = Problem.objects.get(id=pid)
-    c, a = problem.getParents()
-    if not (c in current_user.courseStudent or c in current_user.gradingCourses()):
-      abort(403)
-
-    u = User.objects.get(id=uid)
-    s = problem.getSubmission(u, subnum)
 
     content = request.get_json()
 
-    filepath = getSubmissionPath(c, a, problem, u, subnum)
+    filepath = getTestPath(c, a, problem)
     filepath = os.path.join(filepath, content['filename'])
 
     import magic
@@ -63,13 +45,13 @@ def studentGetFiles(pid, uid, subnum):
         f.close()
     else:
       return jsonify(majorType=fileType[0], minorType=fileType[1],\
-       url=url_for('serveFiles', pid=pid, uid=uid, subnum=subnum, filename=content['filename']))
+       url=url_for('grutorServeFiles', pid=pid, filename=content['filename']))
   except Problem.DoesNotExist:
     abort(404)
 
-@app.route('/assignment/<pid>/<uid>/<subnum>/<filename>/serve')
+@app.route('/grutor/<pid>/test/<filename>/serve')
 @login_required
-def serveFiles(pid, uid, subnum, filename):
+def grutorServeFiles(pid, filename):
   '''
   Function Type: Callback-Download
   Purpose: Downloads the file specified for the user.
@@ -84,14 +66,10 @@ def serveFiles(pid, uid, subnum, filename):
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.courseStudent or c in current_user.gradingCourses()):
+    if not (c in current_user.gradingCourses()):
       abort(403)
 
-    u = User.objects.get(id=uid)
-
-    s = p.getSubmission(u, subnum)
-
-    filepath = getSubmissionPath(c, a, p, u, subnum)
+    filepath = getTestPath(c, a, p)
 
     return send_file(os.path.join(filepath, filename))
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
@@ -99,9 +77,9 @@ def serveFiles(pid, uid, subnum, filename):
     abort(404)
 
 
-@app.route('/assignments/<pid>/<uid>/<subnum>/download/<path:filename>')
+@app.route('/grutor/<pid>/test/download/<path:filename>')
 @login_required
-def downloadFiles(pid, uid, subnum, filename):
+def grutorDownloadFiles(pid, filename):
   '''
   Function Type: Callback-Download
   Purpose: Downloads the file specified for the user.
@@ -116,14 +94,11 @@ def downloadFiles(pid, uid, subnum, filename):
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
     #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.courseStudent or c in current_user.gradingCourses()):
+    if not (c in current_user.gradingCourses()):
       abort(403)
 
-    u = User.objects.get(id=uid)
 
-    s = p.getSubmission(u, subnum)
-
-    filepath = getSubmissionPath(c, a, p, u, subnum)
+    filepath = getTestPath(c, a, p)
 
     return send_file(os.path.join(filepath, filename), as_attachment=True)
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):

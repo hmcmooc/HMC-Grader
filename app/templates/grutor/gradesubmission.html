@@ -4,6 +4,11 @@
 Assignments for {{course.name}}
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+<link href="{{url_for('static', filename='google-code-prettify/prettify.css')}}" type="text/css" rel="stylesheet"/>
+{% endblock %}
+
 {% block rows %}
 <div class="row">
   <div class="col-sm-2">
@@ -163,7 +168,7 @@ Assignments for {{course.name}}
       <div class="panel panel-default">
         <div class="panel-heading" role="tab" id="headingAutoOne">
           <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoOne" aria-expanded="true" aria-controls="collapseAutoOne">
+            <a data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoOne" aria-expanded="false" aria-controls="collapseAutoOne">
               Auto-Grader Comments
             </a>
             <div class="btn-group pull-right">
@@ -171,7 +176,7 @@ Assignments for {{course.name}}
             </div>
           </h4>
         </div>
-        <div id="collapseAutoOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAutoOne">
+        <div id="collapseAutoOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAutoOne">
           <div class="panel-body">
             <textarea id="autocommentarea" class="form-control" rows="6" {% if submission.comments|length == 0%}placeholder="No Comments"{% endif %}>{{ submission.autoGraderComments }}</textarea>
           </div>
@@ -181,12 +186,12 @@ Assignments for {{course.name}}
       <div class="panel panel-default">
         <div class="panel-heading" role="tab" id="headingAutoTwo">
           <h4 class="panel-title">
-            <a id="previewAutoLink" class="collapsed" data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoTwo" aria-expanded="false" aria-controls="collapseAutoTwo">
+            <a id="previewAutoLink" class="collapsed" data-toggle="collapse" data-parent="#graderAutoAccordion" href="#collapseAutoTwo" aria-expanded="true" aria-controls="collapseAutoTwo">
               Auto-Grader Comments (Preview)
             </a>
           </h4>
         </div>
-        <div id="collapseAutoTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAutoTwo">
+        <div id="collapseAutoTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAutoTwo">
           <div class="panel-body" id="autopreview">
             {{ submission.autoGraderComments|markdown}}
           </div>
@@ -197,7 +202,32 @@ Assignments for {{course.name}}
   <div class="col-sm-2"></div>
 </div>
 
-{% include 'widgets/filebrowser.html' %}
+{% with header="Student Files" %}
+{% with filepath=problem.getFilePath(user, subnum) %}
+{% with tests = False %}
+{% include 'widgets/filetree.html' %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+
+{% with header="Test Files" %}
+{% with filepath=problem.getTestFilePath() %}
+{% with tests = True %}
+{% include 'widgets/filetree.html' %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+
+<hr>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8" id="previewArea" style="text-align:center">
+    <p>No file selected for preview</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -300,5 +330,76 @@ $(".time").each(function(){
   var d = new moment(t+"Z");
   $(this).text(d.format("lll"))
 })
+</script>
+<script src="{{url_for('static', filename='google-code-prettify/prettify.js')}}"></script>
+<script>
+function preview(filename) {
+  $("#previewArea").empty();
+  $("#previewArea").append("<h1>"+filename+"</h1>");
+  data = {}
+  data.filename = filename
+  $.ajax({
+    url:"{{url_for('studentGetFiles', pid=problem.id, uid=user.id, subnum=subnum)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(data),
+    dataType: 'json',
+    success: function(data) {
+      console.log(data);
+      if (data.majorType == 'text') {
+        if (data.minorType == 'plain'){
+          $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
+        } else {
+          $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
+        }
+        $("#previewText").text(data.content);
+        prettyPrint()
+      } else if (data.majorType == 'image') {
+        $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
+      } else if (data.majorType == 'application' && data.minorType == 'pdf') {
+        $("#previewArea").append("<object data='"+data.url+"' type='application/pdf' width='100%' height='800px'>\
+        <p>It appears your browser doesn't have a built in PDF viewer</p>\
+        </object>");
+      } else {
+        $("#previewArea").append("<span class='mega-octicon octicon-file-binary'></span><br><b>Cannot preview this file</b>");
+      }
+      window.location.href="#previewArea";
+    }
+  })
+}
+function testpreview(filename) {
+  $("#previewArea").empty();
+  $("#previewArea").append("<h1>"+filename+"</h1>");
+  data = {}
+  data.filename = filename
+  $.ajax({
+    url:"{{url_for('grutorGetFiles', pid=problem.id, uid=user.id, subnum=subnum)}}",
+    type:'POST',
+    contentType:'application/json',
+    data: JSON.stringify(data),
+    dataType: 'json',
+    success: function(data) {
+      console.log(data);
+      if (data.majorType == 'text') {
+        if (data.minorType == 'plain'){
+          $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
+        } else {
+          $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
+        }
+        $("#previewText").text(data.content);
+        prettyPrint()
+      } else if (data.majorType == 'image') {
+        $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
+      } else if (data.majorType == 'application' && data.minorType == 'pdf') {
+        $("#previewArea").append("<object data='"+data.url+"' type='application/pdf' width='100%' height='800px'>\
+        <p>It appears your browser doesn't have a built in PDF viewer</p>\
+        </object>");
+      } else {
+        $("#previewArea").append("<span class='mega-octicon octicon-file-binary'></span><br><b>Cannot preview this file</b>");
+      }
+      window.location.href="#previewArea";
+    }
+  })
+}
 </script>
 {% endblock %}

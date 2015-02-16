@@ -1,0 +1,35 @@
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h3>{{header}}</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>View</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in walkFileTree(filepath) %}
+        <tr>
+          <td>{% if file[1] %}<b>{%endif%}{{'-'*file[0]}} {{file[2]}}{% if file[1] %}</b>{%endif%}</td>
+          {% if file[1] %}
+          <td></td>
+          <td></td>
+          {% else %}
+          {% if tests %}
+          <td><button class="btn btn-primary btn-xs" onclick="testpreview('{{file[3]}}');">View</button></td>
+          <td><a href="{{url_for('grutorDownloadFiles', pid=problem.id, filename=file[3])}}" class="btn btn-primary btn-xs">Download</a></td>
+          {% else %}
+          <td><button class="btn btn-primary btn-xs" onclick="preview('{{file[3]}}');">View</button></td>
+          <td><a href="{{url_for('downloadFiles', pid=problem.id, uid=user.id, subnum=subnum, filename=file[3])}}" class="btn btn-primary btn-xs">Download</a></td>
+          {% endif %}
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2"></div>
+</div>

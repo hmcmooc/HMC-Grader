@@ -62,7 +62,31 @@ from structures.models.pages import *
 def activeCourses():
   return Course.objects.filter(isActive=True)
 
+#Makes list of tuples
+#(Depth, isDirectory, name, path)
+def walkFileTree(filepath):
+  from os import listdir
+  from os.path import isfile, isdir, join
+  def increaseDepth(prevFile):
+    def f(tup):
+      return (tup[0]+1, tup[1], tup[2], join(prevFile,tup[3]))
+    return f
+
+  out = []
+  for f in os.listdir(filepath):
+    if isfile(join(filepath, f)):
+      out.append((0, False, f, f))
+    else:
+      out.append((0, True, f, f))
+      out += map(increaseDepth(f), walkFileTree(join(filepath, f)))
+
+  return out
+
+
+
+
 app.jinja_env.globals.update(activeCourses=activeCourses)
+app.jinja_env.globals.update(walkFileTree=walkFileTree)
 
 #We import all of the various modules in userViews. These modules contain functions
 #which generate URL->enpoint bindings which allows the pages to be rendered or
