@@ -10,6 +10,8 @@ from app.structures.models.course import *
 
 from app.helpers.filestorage import *
 
+import codecs
+
 import os
 
 @app.route('/student/<pid>/<uid>/<subnum>/reviewFiles')
@@ -50,8 +52,15 @@ def studentGetFiles(pid, uid, subnum):
     fileType = fileType.split('/')
 
     if fileType[0] == 'text':
-      with open(filepath, 'r') as f:
-        return jsonify(majorType=fileType[0], minorType=fileType[1], content=f.read())
+      try:
+        f = codecs.open(filepath, encoding='utf-8', errors='ignore')
+        content = f.read()
+        return jsonify(majorType=fileType[0], minorType=fileType[1], content=content)
+      except Exception as e:
+        return jsonify(majorType=fileType[0], minorType=fileType[1], content=str(e))
+        pass
+      finally:
+        f.close()
     else:
       return jsonify(majorType=fileType[0], minorType=fileType[1],\
        url=url_for('serveFiles', pid=pid, uid=uid, subnum=subnum, filename=content['filename']))
