@@ -58,6 +58,11 @@ def grutorGradeRandom(pid):
       #the mongoengine wrapper
       subCol = Submission._get_collection()
       sub = p.getLatestSubmission(user)
+
+      if sub == None:
+        flash("Bad state for user %s. Please notify the administrator."%(username), "error")
+        continue
+
       if sub.partner == None:
         res = subCol.find_and_modify(query={'_id': sub.id, 'status':2, 'isLatest':True}, \
           update={'$set': {'status':3, 'gradedBy': g.user.id}})
