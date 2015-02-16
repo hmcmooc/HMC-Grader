@@ -108,7 +108,7 @@ class Problem(db.Document):
   problemPage = db.StringField()
 
   #Settings for releasing grades
-  releaseAutoComments = db.BooleanField(default=False)
+  releaseAutoComments = db.BooleanField(default=True)
   autoGradeOnly = db.BooleanField(default=False)
 
 
