@@ -217,7 +217,7 @@ def commonRenderGrade(cid, instr):
           outString += "</a></td>"
         else:
           highlight = createHighlight(problem)
-          url = url_for('grutorGradeSubmission', pid=p, uid=u.id, subnum=p.getSubmissionNumber(u))
+          url = url_for('grutorGradeSubmission', pid=p.id, uid=u.id, subnum=p.getSubmissionNumber(u))
           if 'finalTotalScore' in problem:
             points =  problem['finalTotalScore']
             userCourseScore += problem['finalTotalScore']
