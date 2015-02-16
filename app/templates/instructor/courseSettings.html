@@ -116,9 +116,11 @@ Edit Course: {{course.name}}
         </thead>
         <tbody class="list">
           {% for s in students %}
-          <tr>
+          <tr id="{{s.username}}_student">
           <td class="name">{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
-          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='student')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td>
+            <btn onclick="confirmUserDelete('{{s.username}}', '{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='student')}}', 'student')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></btn>
+            </td>
           <tr>
           {% endfor %}
         </tbody>
@@ -146,9 +148,11 @@ Edit Course: {{course.name}}
         </thead>
         <tbody class="list">
           {% for s in grutors %}
-          <tr>
+          <tr id="{{s.username}}_grutor">
           <td class="name">{{s.username}}</td>
-          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='grutor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td>
+            <btn onclick="confirmUserDelete('{{s.username}}', '{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='grutor')}}', 'grutor')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></btn>
+          </td>
           <tr>
           {% endfor %}
         </tbody>
@@ -177,9 +181,11 @@ Edit Course: {{course.name}}
         <tbody class="list">
           {% for s in instrs %}
           {% if not s.isAdmin %}
-          <tr>
+          <tr id="{{s.username}}_instructor">
           <td class="name">{{s.username}}</td>
-          <td><a href="{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='instructor')}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></td>
+          <td>
+            <btn onclick="confirmUserDelete('{{s.username}}', '{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='instructor')}}', 'instructor')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></btn>
+          </td>
           <tr>
           {% endif %}
           {% endfor %}
@@ -255,6 +261,33 @@ function confirmDelete(name, url, isAssignment){
               $("[problemName='"+name+"']").remove();
               flash("Problem " + name + " removed", "success")
             }
+          }})
+        }
+      },
+      close: {
+        label:"No",
+        className:"btn-default",
+        callback: function(){
+          //Nothing to do
+        }
+      }
+    }
+  })
+}
+
+function confirmUserDelete(name, url, type){
+  bootbox.dialog({
+    message: "Are you sure you want to remove "+name+" as a/an "+type+" of this course?<br>",
+    title:"Confirm Delete",
+    buttons: {
+      confirm: {
+        label:"Confirm",
+        className:"btn-danger",
+        callback: function(){
+          $.ajax({url:url,
+          success:function(){
+            //location.reload();
+            $("#"+name+"_"+type).remove();
           }})
         }
       },
