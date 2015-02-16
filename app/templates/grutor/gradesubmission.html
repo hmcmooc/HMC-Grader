@@ -72,7 +72,7 @@ Assignments for {{course.name}}
       </tr>
       {% if course in g.user.courseInstructor %}
       <tr>
-        <th>Regrade Submission (Removes comments and scores)</th>
+        <th>Regrade Submission (Removes comments and scores for this student)</th>
         <td><a href="{{url_for('grutorRegradeSubmission', sid=submission.id)}}" class="btn btn-danger btn-xs">Regrade</a></td>
       </tr>
       {% endif %}
