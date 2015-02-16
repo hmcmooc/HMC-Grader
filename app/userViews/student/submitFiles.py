@@ -120,6 +120,11 @@ def uploadFiles(pid):
           shutil.rmtree(userSubPath)
           #remove the submission from the submission list
           p.studentSubmissions[user.username].submissions = p.studentSubmissions[user.username].submissions[:-1]
+
+          if len(p.studentSubmissions[user.username].submissions) == 0:
+            del p.studentSubmissions[user.username]
+            p.save()
+
           #delete the submission
           userSub.delete()
           flash("Your submission was missing files required for acceptance", "error")
