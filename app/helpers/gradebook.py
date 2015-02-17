@@ -8,7 +8,7 @@ def getStudentAssignmentScores(course, user):
   gl = []
   for a in course.assignments:
     al = []
-    for p in a.problems:
+    for p in sorted(a.problems, key=lambda x: x.name):
       sub = p.getLatestSubmission(user)
       if not sub == None:
         gradeData = {}
