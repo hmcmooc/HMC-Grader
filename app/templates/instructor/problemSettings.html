@@ -84,6 +84,11 @@ Edit Problem
           {{form.autoGradeOnly()}} {{form.autoGradeOnly.label}}
         </label>
       </div>
+      <div class="form-group">
+        <label>
+          {{form.isOpen()}} {{form.isOpen.label}}
+        </label>
+      </div>
       <div style="display:none;">
         {{form.hiddentime()}}
       </div>
@@ -186,6 +191,7 @@ $(function(){
     $('#allowPartners').prop("checked", {{problem.allowPartners|tojson}})
     $('#releaseAutoComments').prop("checked", {{problem.releaseAutoComments|tojson}})
     $('#autoGradeOnly').prop("checked", {{problem.autoGradeOnly|tojson}})
+    $('#isOpen').prop("checked", {{problem.isOpen|tojson}})
   }
 
   {% if problem.duedate == None %}

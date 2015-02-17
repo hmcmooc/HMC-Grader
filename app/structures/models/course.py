@@ -111,6 +111,9 @@ class Problem(db.Document):
   releaseAutoComments = db.BooleanField(default=True)
   autoGradeOnly = db.BooleanField(default=False)
 
+  #Settings for opening and closing a problem
+  isOpen = db.BooleanField(default=True)
+
 
   #Map usernames to submission lists
   studentSubmissions = db.MapField(db.EmbeddedDocumentField('StudentSubmissionList'))

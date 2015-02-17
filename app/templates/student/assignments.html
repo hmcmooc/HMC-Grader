@@ -33,9 +33,13 @@ Assignments for {{course.name}}
         {% for p in a.problems|sort(attribute="name") %}
         <tr>
           {% with sub = p.getLatestSubmission(g.user) %}
-          <td>{% if p.problemPage != None %}<a href="{{p.problemPage}}" target="_blank">{% endif %}{{p.name}}{% if p.problemPage != None %}</a>{% endif %}</td>
+          <td>{% if p.problemPage != None %}<a href="{{p.problemPage}}" target="_blank">{% endif %}{{p.name}}{% if p.problemPage != None %}</a>{% endif %}{% if not p.isOpen %}<b> [Closed]</b>{%endif%}</td>
           <td style="text-align:center">
+            {% if p.isOpen %}
             <a href="{{url_for('submitAssignment', pid=p.id)}}" class="btn btn-primary btn-xs">Submit</a>
+            {% else %}
+            <button class="btn btn-primary btn-xs" disabled="disabled">Submit</button>
+            {% endif %}
           </td>
           {% if p.getSubmissionNumber(g.user) == 0 %}
           <td>Unsubmitted</td>

@@ -100,6 +100,7 @@ class ProblemOptionsForm(Form):
   allowPartners = BooleanField("Allow Partners")
   releaseAutoComments = BooleanField("Release autograder comments")
   autoGradeOnly = BooleanField("Finish grading after autograder (Releases scores and comments)")
+  isOpen = BooleanField("Is the problem open for submissions")
   hiddentime = TextField("")
 
 class AddTestForm(Form):

@@ -102,6 +102,7 @@ def instructorSaveProblemSettings(pid):
         p.allowPartners = form.allowPartners.data
         p.releaseAutoComments = form.releaseAutoComments.data
         p.autoGradeOnly = form.autoGradeOnly.data
+        p.isOpen = form.isOpen.data
 
         #Assign gradenotes
         if len(form.gradeNotes.data) > 0:
