@@ -188,6 +188,7 @@ class Problem(db.Document):
 
   def getTestFilePath(self):
     c, a = self.getParents()
+    ensurePathExists(getTestPath(c, a, self))
     return getTestPath(c, a, self)
 
   def getRequiredFiles(self):
