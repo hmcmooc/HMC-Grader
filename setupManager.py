@@ -8,28 +8,29 @@ This file is pretty large and has a lot of weird formatting for output purposes
 but if you read it it should be pretty self explanatory.
 """
 
-import os, sys, time
+import os, sys, time, socket
+import netifaces, pexpect
 
 from manager import setupSupport, setupApplication
 from manager.manageNode import ManageNode
+from manager.command import commandLine
+from manager.utilities import getInput
 
-def getInput(msg, typecast, verify, tryLimit=5):
-  tries = 0
-  while tries < tryLimit:
-    try:
-      data = typecast(raw_input(msg))
-      if not verify(data):
-        tries += 1
-        print "Invalid input please try again\n"
-        continue
-      else:
-        return data
-    except:
-      print "Data couldn't be converted to correct type. Please try again\n"
-      tries += 1
-      continue
+def getListeningIP():
+  print """
+This machine can listen on the following addresses
+"""
+  iplist = []
+  ipnum = 0
+  for interface in netifaces.interfaces():
+        for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+          print " %d) %s\n" % (ipnum, link['addr'])
+          iplist.append(link['addr'])
+          ipnum += 1
 
-  sys.exit("Maximum number of tries exceeded exiting program")
+  choice = getInput("Use address #: ", int, lambda x: x >=0 and x < ipnum)
+
+  return iplist[choice]
 
 
 
@@ -118,6 +119,8 @@ on this server) please provide a port number now.
     else:
       return False
 
+  ip = getListeningIP()
+
   port = getInput("Enter port number (Default 9050): ", str, checkPort)
 
   #If the port is empty set it to the default otherwise use the port
@@ -127,7 +130,7 @@ on this server) please provide a port number now.
     port = int(port)
 
   #Spawn the node object
-  mN = ManageNode('', port)
+  mN = ManageNode(ip, port)
   mN.start()
 
   #Now that we have started the node we want to make sure that if anything
@@ -165,7 +168,7 @@ information for any other node in the network.
       while tries < 5:
         def checkIP(ip):
           import re
-          if re.match(r'\d{3}\.\d{3}\.\d{3}\.\d{3}'):
+          if re.match(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', ip):
             return True
           else:
             return False
@@ -203,7 +206,7 @@ Connection established waiting for remote node to verify...
 Connection accepted. Initializing...
 """
 
-      mN.sendClientMsg(ManageNode.INITIALIZE_REQUEST, None)
+      mN.sendClientMessage(0, ManageNode.INITIALIZE_REQUEST, None)
       #Busy wait with timeout
       timeout = 0
       while not mN.initialized:
@@ -229,11 +232,11 @@ setup this node can use this information to help make setup easier.
     if choice == 0:
       setupSupport.runSetup(mN)
     else:
-      setupApplicatoin.runSetup(mN)
+      setupApplication.runSetup(mN)
 
     #Once setup is done we can then just wait for the managment node to be
     #finished
-    mN.join()
+    commandLine(mN)
   finally:
     mN.stop()
     mN.join()

@@ -18,12 +18,19 @@ def default_con_lost(node, msg, clientID):
 def default_con_ack(node, msg, clientID):
   client = node.getClient(clientID)
   client.accepted = True
-  client.listeningAdder = msg
+  client.listeningAddr = msg
+  client.setnMsg(Node.CON_ACK_RESP, node.listeningAddr)
+
+def default_con_ack_resp(node, msg, clientID):
+  client = node.getClient(clientID)
+  client.accepted = True
+  client.listeningAddr = msg
 
 class Node(threading.Thread):
-  CON_RECV = 'conn_recv'
-  CON_LOST = 'conn_lost'
-  CON_ACK = 'conn_ack'
+  CON_RECV = 'con_recv'
+  CON_LOST = 'con_lost'
+  CON_ACK = 'con_ack'
+  CON_ACK_RESP = 'con_ack_resp'
 
   def __init__(self, host, port, stopPoll=0.5):
     #Initialize our threadness
@@ -52,7 +59,8 @@ class Node(threading.Thread):
     #create the message dispatch table
     self.dispatch = {Node.CON_RECV: default_con_recv,
     Node.CON_LOST: default_con_lost,
-    Node.CON_ACK: default_con_ack}
+    Node.CON_ACK: default_con_ack,
+    Node.CON_ACK_RESP: default_con_ack_resp}
 
   def run(self):
     while self.running:

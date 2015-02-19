@@ -11,7 +11,7 @@ def handle_con_recv(node, msg, clientID):
   client.accepted = True
   client.start()
   out = {}
-  out['listeningAddr'] = node.listeninAddr
+  out['listeningAddr'] = node.listeningAddr
   #Notify the new node if you provide any services
   out['providesDB'] = node.providesDB == -1
   out['providesFS'] = node.providesFS == -1
@@ -20,13 +20,15 @@ def handle_con_recv(node, msg, clientID):
 
 #TODO: Change this to handle losing key components
 def handle_con_lost(node, msg, clientID):
+  client = node.getClient(clientID)
+  print "Lost: ", client.listeningAddr
   del node.clients[clientID]
 
 
 def handle_con_ack(node, msg, clientID):
   client = node.getClient(clientID)
   client.accepted = True
-  client.listeningAdder = msg['listeningAddr']
+  client.listeningAddr = msg['listeningAddr']
   #Fill out our table of who provides what
   if msg['providesDB']:
     node.providesDB = clientID
@@ -37,6 +39,8 @@ def handle_con_ack(node, msg, clientID):
   if msg['providesQ']:
     node.providesQ = clientID
 
+  client.sendMsg(Node.CON_ACK_RESP, node.listeningAddr)
+
 
 #For handling: initialize_request
 def handle_initialize_request(node, msg, clientID):
@@ -46,9 +50,9 @@ def handle_initialize_request(node, msg, clientID):
     if client == None:
         return
 
-    clients = [lambda x: x.listeningAddr for x in node.clients.items() if not x == client]
+    clients = [x.listeningAddr for x in node.clients.values() if not x == client]
 
-    client.sendMsg(INITIALIZE_RESPONSE, clients)
+    client.sendMsg(ManageNode.INITIALIZE_RESPONSE, clients)
 
 def handle_initialize_response(node, msg, clientID):
     #If we are initialized already just ignore extra messages s
