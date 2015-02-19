@@ -6,22 +6,36 @@ from node import *
 #Overloading the typical RECIVE, LOST, and ACK to add some features for this
 #system
 
-#TODO: Change this to send provides messages
 def handle_con_recv(node, msg, clientID):
   client = node.getClient(msg)
   client.accepted = True
   client.start()
-  client.sendMsg(Node.CON_ACK, node.listeningAddr)
+  out = {}
+  out['listeningAddr'] = node.listeninAddr
+  #Notify the new node if you provide any services
+  out['providesDB'] = node.providesDB == -1
+  out['providesFS'] = node.providesFS == -1
+  out['providesQ']  = node.providesQ  == -1
+  client.sendMsg(Node.CON_ACK, out)
 
 #TODO: Change this to handle losing key components
 def handle_con_lost(node, msg, clientID):
   del node.clients[clientID]
 
-#TODO: Change this to handle recieving provides messages
+
 def handle_con_ack(node, msg, clientID):
   client = node.getClient(clientID)
   client.accepted = True
-  client.listeningAdder = msg
+  client.listeningAdder = msg['listeningAddr']
+  #Fill out our table of who provides what
+  if msg['providesDB']:
+    node.providesDB = clientID
+
+  if msg['providesFS']:
+    node.providesFS = clientID
+
+  if msg['providesQ']:
+    node.providesQ = clientID
 
 
 #For handling: initialize_request
@@ -41,6 +55,8 @@ def handle_initialize_response(node, msg, clientID):
     if node.initialized:
         return
 
+    node.initialized = True
+
     #We should be given a list of all of the nodes in the network
     #We then connect to all of these nodes
     for client in msg:
@@ -54,7 +70,15 @@ class ManageNode(Node):
   def __init__(self, host, port):
       Node.__init__(self, host, port)
 
+      #Has this node recieved an initialization response
       self.initialized = False
+
+      #ID's of clients who provide these services
+      #If this node provides that service the value is -1
+      #If no node provides the service the value is None
+      self.providesDB = None
+      self.providesFS = None
+      self.providesQ  = None
 
       #Set up the dispatch table
       self.dispatch[Node.CON_RECV] = handle_con_recv

@@ -203,7 +203,27 @@ Connection established waiting for remote node to verify...
 Connection accepted. Initializing...
 """
 
-      #TODO: Initialize here
+      mN.sendClientMsg(ManageNode.INITIALIZE_REQUEST, None)
+      #Busy wait with timeout
+      timeout = 0
+      while not mN.initialized:
+        if timeout == 30:
+          #Timeout at 30 seconds
+          sys.exit("Timeout exceeded")
+        time.sleep(1)
+        timeout += 1
+
+      print """
+================================================================================
+= SUCCESS: Connected to the management netowork                                =
+================================================================================
+
+The node successfully connected to the management network. This node now knows
+about all the other nodes and what services they provide. During the rest of
+setup this node can use this information to help make setup easier.
+
+"""
+
 
     #Based on the choice we spawn a different setup routine
     if choice == 0:
