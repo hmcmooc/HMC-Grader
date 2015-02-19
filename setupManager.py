@@ -231,8 +231,9 @@ setup this node can use this information to help make setup easier.
     else:
       setupApplicatoin.runSetup(mN)
 
-    #Once the setup functions are done we should be ready to attach ourselves to
-    #the rest of the nodes
+    #Once setup is done we can then just wait for the managment node to be
+    #finished
+    mN.join()
   finally:
     mN.stop()
     mN.join()
