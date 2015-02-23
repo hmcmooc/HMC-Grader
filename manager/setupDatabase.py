@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import pexpect, sys, re
+import pexpect, sys, re, subprocess
 from getpass import getpass
 from utilities import checkForProgram, getInput, getYN
 
@@ -58,7 +58,8 @@ This could take some time. Get up and stretch we will be here when you get back.
   #pexpect.run("echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list")
   pexpect.run("apt-get update")
   #We install this version because we know this on works (it has been tested)
-  pexpect.run("apt-get install -y mongodb-org=2.6.7")
+  #pexpect.run("apt-get install -y mongodb-org=2.6.7")
+  subprocess.call(['apt-get', 'install', '-y', 'mongodb-org=2.6.7'])
   #Start the mongo service
   pexpect.run("service mongod start")
   print "MongoDB installed"
