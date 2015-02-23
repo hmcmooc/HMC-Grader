@@ -72,7 +72,7 @@ Begining configuration for new database
   mongo = pexpect.spawn("mongo")
   mongo.expect("> ")
   mongo.sendline("use admin")
-  mongo.expect("switched to db admin\n> ")
+  mongo.expect("> ")
   #Try to get a password for the admin user.
   while True:
     print "Enter password for administrator account: "
