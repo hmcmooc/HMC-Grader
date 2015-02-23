@@ -64,7 +64,7 @@ This could take some time. Get up and stretch we will be here when you get back.
   print "Beginning installation"
   subprocess.call(['apt-get', 'install', '-y', 'mongodb-org=2.6.7'])
   #Start the mongo service
-  print "Starting mongo service" 
+  print "Starting mongo service"
   print pexpect.run("service mongod start")
   print "MongoDB installed"
 
@@ -104,7 +104,7 @@ https://github.com/robojeb/HMC-Grader/wiki/Setup-HMC-Grader
 Now editing mongo.conf file to enable authentication...
 """
   #Open the config file
-  with open('/etc/mongodb.conf', 'r') as confFile:
+  with open('/etc/mongod.conf', 'r') as confFile:
     conf = confFIle.read()
 
   #Replace 2 lines
