@@ -84,6 +84,9 @@ class ManageNode(Node):
       self.providesFS = None
       self.providesQ  = None
 
+      #Info dictionaries for storing useful data
+      self.dbInfo = None
+
       #Set up the dispatch table
       self.dispatch[Node.CON_RECV] = handle_con_recv
       self.dispatch[Node.CON_LOST] = handle_con_lost

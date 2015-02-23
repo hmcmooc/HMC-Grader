@@ -1,6 +1,7 @@
 # coding=utf-8
 
-import pexpect
+import pexpect, sys, re
+from getpass import getpass
 from utilities import checkForProgram, getInput, getYN
 
 def setupDatabase(mN):
@@ -30,12 +31,12 @@ def setupDatabase(mN):
       installMongo()
 
     #If mongo has just been installed we must be setting up a new database
-    setupNewDatabase()
+    setupNewDatabase(mN)
   else:
     print "Required programs already installed\n"
     #We don't know how much of the database is set up so we ask lots of
     #questions
-    setupExistingDatabase()
+    setupExistingDatabase(mN)
 
   print """
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,7 +45,11 @@ def setupDatabase(mN):
 """
 
 def installMongo():
-  print "Now installing MongoDB 2.6.7"
+  print """
+Now installing MongoDB 2.6.7...
+
+This could take some time. Get up and stretch we will be here when you get back.
+"""
   #Following mongo installation instructions from
   #https://pexpect.readthedocs.org/en/latest/api/pexpect.html
   pexpect.run("apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10")
@@ -56,11 +61,105 @@ def installMongo():
   pexpect.run("service mongod start")
   print "MongoDB installed"
 
-def setupNewDatabase():
+def setupNewDatabase(mN):
+  print """
+Begining configuration for new database
+"""
   #connect to the database
   mongo = pexpect.spawn("mongo")
-  mongo.expect(".*>.*")
-  pass
+  mongo.expect("> ")
+  mongo.sendline("use admin")
+  mongo.expect("switched to db admin\n> ")
+  #Try to get a password for the admin user.
+  while True:
+    print "Enter password for administrator account: "
+    password = getPass()
+    print "Confirm password: "
+    passConfirm = getPass()
 
-def setupExistingDatabase():
+    if password == passConfirm:
+      break
+
+    print "Passwords didn't match...\n"
+
+  mongo.sendline('db.createUser({user: "siteUserAdmin",pwd: "%s",roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]})' %password)
+  mongo.sendline("quit()")
+  print """
+Created administrator account: siteUserAdmin
+
+If setup should fail from this point on you can resume from step 5.iii in the
+instructions at the following URL:
+
+https://github.com/robojeb/HMC-Grader/wiki/Setup-HMC-Grader
+
+Now editing mongo.conf file to enable authentication...
+"""
+  #Open the config file
+  with open('/etc/mongodb.conf', 'r') as confFile:
+    conf = confFIle.read()
+
+  #Replace 2 lines
+  #comment out the bind_ip line
+  conf = re.sub('bind_ip', '#bind_ip', conf)
+  #uncomment the auth line
+  conf = re.sub('#auth', 'auth', conf)
+
+  #Write out the new file
+  with open('/etc/mongodb.conf', 'r') as confFile:
+    confFile.write(conf)
+
+  pexpect.run("service mongod restart")
+  print """
+Configuration file modified restarted mongod
+"""
+
+  mongo = pexpect.spawn("mongo -u siteUserAdmin -p --authenticationDatabase admin")
+  mongo.expect("Enter password: ")
+  mongo.sendLine(password)
+  mongo.expect("> ")
+
+  dbName = getInput("Enter a name for the database (all lowercase no spaces): ", str, lambda x: True)
+  dbName = dbName.lower()
+  dbName = re.sub('\w','', dbName)
+
+  print """
+Creating database:  %s
+""" % (dbName)
+
+  mongo.sendline("use %s"%(dbName))
+
+  dbUser = getInput("Enter a username for the submission site database: ", str, lambda x: True)
+  dbUser = dbUser.lower()
+  dbUser = re.sub('\w','', dbUser)
+
+  print """
+Creating user: %s
+""" % (dbUser)
+
+  #Try to get a password for the admin user.
+  while True:
+    print "Enter password for database account: "
+    userPassword = getPass()
+    print "Confirm password: "
+    passConfirm = getPass()
+
+    if userPassword == passConfirm:
+      break
+
+    print "Passwords didn't match...\n"
+
+  mongo.sendline('db.createUser({ user: "%s", pwd:"%s", roles:[{role:"dbOwner", db:"submissionSite"}]})')
+  print """
+Created the user account
+"""
+  mongo.sendline("quit()")
+
+  mN.dbInfo = {}
+  mN.dbInfo['dbUser'] = dbUser
+  mN.dbInfo['dbPass'] = userPassword
+  mN.dbInfo['dbPort'] = 27017
+  mN.dbInfo['dbName'] = dbName
+
+
+def setupExistingDatabase(mN):
   pass
