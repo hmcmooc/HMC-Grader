@@ -52,7 +52,9 @@ def submitAssignment(pid):
       abort(403)
 
     saf = SubmitAssignmentForm()
-    saf.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
+    users = [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
+    users.sort(key=lambda x: x[1])
+    saf.partner.choices = [("None", "None")] + users
 
     return render_template("student/submit.html", \
                             course=c, assignment=a, problem=p,\
