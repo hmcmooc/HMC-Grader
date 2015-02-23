@@ -129,7 +129,7 @@ Configuration file modified restarted mongod
 
   mongo = pexpect.spawn("mongo -u siteUserAdmin -p --authenticationDatabase admin")
   mongo.expect("Enter password: ")
-  mongo.sendLine(password)
+  mongo.sendline(password)
   mongo.expect("> ")
 
   dbName = getInput("Enter a name for the database (all lowercase no spaces): ", str, lambda x: True)
