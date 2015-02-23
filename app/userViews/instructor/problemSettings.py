@@ -172,7 +172,10 @@ def addRubricSec(pid):
     if not c in current_user.courseInstructor:
       abort(403)
 
-    p.rubric[request.args['name']] = Decimal(request.args['points'])
+    rubricSec = request.args['name']
+    rubricSec = rubricSec.replace('$',u'＄').replace('.', u'．')
+
+    p.rubric[rubricSec] = Decimal(request.args['points'])
 
     #update the column score in the gradebook
     p.gradeColumn.maxScore = p.totalPoints()
