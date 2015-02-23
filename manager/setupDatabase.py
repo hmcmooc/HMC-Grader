@@ -64,7 +64,8 @@ This could take some time. Get up and stretch we will be here when you get back.
   print "Beginning installation"
   subprocess.call(['apt-get', 'install', '-y', 'mongodb-org=2.6.7'])
   #Start the mongo service
-  pexpect.run("service mongod start")
+  print "Starting mongo service" 
+  print pexpect.run("service mongod start")
   print "MongoDB installed"
 
 
