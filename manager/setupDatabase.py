@@ -43,6 +43,7 @@ def setupDatabase(mN):
 + Database service setup successful                                            +
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 """
+  mN.providesDB = -1
 
 def installMongo():
   print """
@@ -174,6 +175,7 @@ Created the user account
   mongo.sendline("quit()")
 
   mN.dbInfo = {}
+  mN.dbInfo['dbIP'] = mN.listeningAddr[0]
   mN.dbInfo['dbUser'] = dbUser
   mN.dbInfo['dbPass'] = userPassword
   mN.dbInfo['dbPort'] = 27017
@@ -181,4 +183,51 @@ Created the user account
 
 
 def setupExistingDatabase(mN):
+  print """
+The script has detected that you already had mongo installed.
+
+At this point there are three possibilities:
+
+  1) If this is a clean mongo installation the script can configure this
+  installation for use with the CS> system.
+
+  2) If you already have a database setup for the CS> system you can provide the
+  appropriate information to the script.
+
+  3) If the mongo database exists for some other application and no CS> database
+  exists. Then you will have to manually configure a CS> database and return to
+  select option 2
+"""
+
+  choice = getInput("Which option best describes your situation: ", int, lambda x: x >= 1 and x <= 3)
+
+  if choice == 1:
+    setupNewDatabase(mN)
+  elif choice == 2:
+    mN.dbInfo = {}
+
+    def checkIP(ip):
+      import re
+      if re.match(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', ip):
+        return True
+      else:
+        return False
+
+    mN.dbInfo['dbIP'] = getInput("What IP address is the database listening on?: ", str, checkIP)
+    mN.dbInfo['dbPort'] = getInput("What port is the database listening on?: ", int, lambda x: True)
+    mN.dbInfo['dbName'] = getInput("What is the name of the database?: ", str, lambda x: True)
+    mN.dbInfo['dbUser'] = getInput("What is the name of the database user?:", str, lambda x: True)
+    print "What is the database user password?"
+    mN.dbInfo['dbPass'] = getpass()
+    pass
+  elif choice == 3:
+    print """
+Information for setting up the database can be found at:
+
+https://github.com/robojeb/HMC-Grader/wiki/Setup-HMC-Grader
+
+The system will now terminate
+"""
+    sys.exit()
+
   pass
