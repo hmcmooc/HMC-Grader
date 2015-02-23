@@ -108,7 +108,7 @@ Now editing mongo.conf file to enable authentication...
 """
   #Open the config file
   with open('/etc/mongod.conf', 'r') as confFile:
-    conf = confFIle.read()
+    conf = confFile.read()
 
   #Replace 2 lines
   #comment out the bind_ip line
@@ -120,7 +120,9 @@ Now editing mongo.conf file to enable authentication...
   with open('/etc/mongodb.conf', 'r') as confFile:
     confFile.write(conf)
 
+  print "Restarting mongd service"
   pexpect.run("service mongod restart")
+  time.sleep(5)
   print """
 Configuration file modified restarted mongod
 """
