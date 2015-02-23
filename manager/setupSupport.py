@@ -39,7 +39,7 @@ NOTE: This server can only provide services not provided by another server
     return map(int, input.split(','))
 
   choices = getInput("What services do you want to provide? (enter a comma separated list)\n",
-                    splitInput, lambda x: all(map(lambda y: y>=0 and y <=2)))
+                    splitInput, lambda x: all(map(lambda y: y>=0 and y <=2, x)))
 
   #Check if the user selected somethign that was already provided
   #If they did ask if they want to restart or if they would like to remove the
