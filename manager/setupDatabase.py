@@ -53,7 +53,9 @@ This could take some time. Get up and stretch we will be here when you get back.
   #Following mongo installation instructions from
   #https://pexpect.readthedocs.org/en/latest/api/pexpect.html
   pexpect.run("apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10")
-  pexpect.run("echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list")
+  with open('/etc/apt/sources.list.d/mongodb.list', 'w') as f:
+    f.write('deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen')
+  #pexpect.run("echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list")
   pexpect.run("apt-get update")
   #We install this version because we know this on works (it has been tested)
   pexpect.run("apt-get install -y mongodb-org=2.6.7")
