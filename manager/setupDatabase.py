@@ -81,9 +81,9 @@ Begining configuration for new database
   #Try to get a password for the admin user.
   while True:
     print "Enter password for administrator account: "
-    password = getPass()
+    password = getpass()
     print "Confirm password: "
-    passConfirm = getPass()
+    passConfirm = getpass()
 
     if password == passConfirm:
       break
@@ -147,9 +147,9 @@ Creating user: %s
   #Try to get a password for the admin user.
   while True:
     print "Enter password for database account: "
-    userPassword = getPass()
+    userPassword = getpass()
     print "Confirm password: "
-    passConfirm = getPass()
+    passConfirm = getpass()
 
     if userPassword == passConfirm:
       break
