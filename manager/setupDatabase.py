@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import pexpect, sys, re, subprocess
+import pexpect, sys, re, subprocess, time
 from getpass import getpass
 from utilities import checkForProgram, getInput, getYN
 
@@ -66,7 +66,10 @@ This could take some time. Get up and stretch we will be here when you get back.
   #Start the mongo service
   print "Starting mongo service"
   print pexpect.run("service mongod start")
+  print "Waiting for mongod server to start accepting connections"
+  time.sleep(5)
   print "MongoDB installed"
+
 
 
 
