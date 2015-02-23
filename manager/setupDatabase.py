@@ -58,16 +58,18 @@ This could take some time. Get up and stretch we will be here when you get back.
     f.write('deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen')
   #pexpect.run("echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list")
   print "Updating apt lists"
-  pexpect.run("apt-get update")
+  #Use the subprocess call so the user gets informative output
+  subprocess.call(["apt-get", "update"])
   #We install this version because we know this on works (it has been tested)
   #pexpect.run("apt-get install -y mongodb-org=2.6.7")
   print "Beginning installation"
+  #Use the subprocess call so the user gets informative output
   subprocess.call(['apt-get', 'install', '-y', 'mongodb-org=2.6.7'])
   #Start the mongo service
   print "Starting mongo service"
   print pexpect.run("service mongod start")
   print "Waiting for mongod server to start accepting connections"
-  time.sleep(5)
+  time.sleep(3)
   print "MongoDB installed"
 
 
@@ -94,7 +96,10 @@ Begining configuration for new database
 
     print "Passwords didn't match...\n"
 
-  mongo.sendline('db.createUser({user: "siteUserAdmin",pwd: "%s",roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]})' %password)
+  command = 'db.createUser({user: "siteUserAdmin",pwd: "%s",roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]})' %(password)
+  print "Created command: " + command
+  mongo.sendline(command)
+  mongo.expect("> ")
   mongo.sendline("quit()")
   print """
 Created administrator account: siteUserAdmin
@@ -122,7 +127,7 @@ Now editing mongo.conf file to enable authentication...
 
   print "Restarting mongd service"
   pexpect.run("service mongod restart")
-  time.sleep(5)
+  time.sleep(3)
   print """
 Configuration file modified restarted mongod
 """
