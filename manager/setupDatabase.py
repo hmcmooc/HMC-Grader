@@ -117,7 +117,7 @@ Now editing mongo.conf file to enable authentication...
   conf = re.sub('#auth', 'auth', conf)
 
   #Write out the new file
-  with open('/etc/mongod.conf', 'r') as confFile:
+  with open('/etc/mongod.conf', 'w') as confFile:
     confFile.write(conf)
 
   print "Restarting mongd service"
