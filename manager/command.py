@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from utilities import makeStatusMsg
+
 def commandLine(manageNode):
   print """
 Starting interactive command line...
@@ -9,3 +11,18 @@ Starting interactive command line...
     cmd = raw_input("> ")
     if cmd.lower() == "stop":
       break
+    elif cmg.lower() == "staus":
+      print """
+================================================================================
+= Backing system status                                                        =
+================================================================================
+
+Database Status:     %s
+File System Status:  %s
+Work Queue Status:   %s
+""" % (
+  makeStatusMsg(manageNode, manageNode.providesDB),
+  makeStatusMsg(manageNode, manageNode.providesFS),
+  makeStatusMsg(manageNode, manageNode.providesQ)
+  )
+  

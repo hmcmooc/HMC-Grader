@@ -24,3 +24,10 @@ def getInput(msg, typecast, verify, tryLimit=5):
 
 def getYN(msg):
   return getInput(msg, str, lambda x: x in ['y','n']) == 'y'
+
+def makeStatusMsg(mN, status):
+  if status == None:
+    return "Not provided"
+  else:
+    client = mN.getClient(status)
+    return "Provided by %s:%d" % (client.listeningAddr[0], client.listeningAddr[1])

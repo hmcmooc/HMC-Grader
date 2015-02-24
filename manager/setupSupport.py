@@ -2,16 +2,7 @@
 
 import sys
 from setupDatabase import setupDatabase
-from utilities import getInput, checkForProgram
-
-#Helper function to let the user know what servers are providing what
-def makeStatusMsg(mN, status):
-  if status == None:
-    return "Not provided"
-  else:
-    client = mN.getClient(status)
-    return "Provided by %s:%d" % (client.listeningAddr[0], client.listeningAddr[1])
-
+from utilities import getInput, checkForProgram, makeStatusMsg
 
 
 def runSetup(mN):
@@ -98,8 +89,37 @@ script. Otherwise the script will resume without the Work Queue option selected.
 
 
 def setupFilesystem(mN):
+  print """
+================================================================================
+= Setting up File System Service                                               =
+================================================================================
+"""
+  filePath = getInput("Where do you want to store the data? (Absolute path): ", str, lambda x: True)
+  print "Setting up storage space..."
+  def ensurePathExists(path):
+    import os
+    if not os.path.isdir(path):
+      os.makedirs(path)
+
+  from os.path import join
+  ensurePathExists(filePath)
+  ensurePathExists(join(filePath, 'submissions'))
+  ensurePathExists(join(filePath, 'plugins/autograder'))
+  ensurePathExists(join(filePath, 'plugins/latework'))
+  print "Storage space setup complete."
+  user = getInput("What user should other nodes connect as?: ", str, lambda x: True)
+  keyPath = getInput("Where is the authorized keys file? (Absolute Path): ", str, lambda x: True)
+  ensurePathExists(keyPath)
+  mN.fsInfo = {}
+  mN.fsInfo['filePath'] = filePath
+  mN.fsInfo['remoteUser'] = user
+  mN.fsInfo['keyPath'] = keyPath
   mN.providesFS = -1
-  pass
+  print """
+================================================================================
+= File System Setup Complete                                                   =
+================================================================================
+"""
 
 def setupWorkQueue(mN):
   mN.providesQ = -1
