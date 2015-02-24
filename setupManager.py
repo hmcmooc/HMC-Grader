@@ -163,6 +163,11 @@ nodes and then restart this script.
 As this node is not the first node in the network please enter connection
 information for any other node in the network.
 """
+      clusterName = getInput("Enter cluster name: ", str, lambda x: True)
+      clusterKey  = getInput("Enter cluster key: ", str, lambda x: True)
+      mN.clusterName = clusterName
+      mN.clusterKey  = clusterKey
+
       tries = 0
       #Allow the user to try to connect to the network up to 5 times then give up
       while tries < 5:
@@ -226,7 +231,21 @@ about all the other nodes and what services they provide. During the rest of
 setup this node can use this information to help make setup easier.
 
 """
-
+    else:
+      print """
+================================================================================
+= Setting up cluster authentication                                            =
+================================================================================
+"""
+      clusterName = getInput("Enter cluster name: ", str, lambda x: True)
+      clusterKey  = getInput("Enter cluster key: ", str, lambda x: True)
+      mN.clusterName = clusterName
+      mN.clusterKey  = clusterKey
+      print """
+================================================================================
+= Succesfully set up cluster authentication                                    =
+================================================================================
+"""
 
     #Based on the choice we spawn a different setup routine
     if choice == 0:

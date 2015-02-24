@@ -10,7 +10,7 @@ def makeStatusMsg(mN, status):
     return "Not provided"
   else:
     client = mN.getClient(status)
-    return "Provided by %s:%d" % (client.listeningAddr[0][1])
+    return "Provided by %s:%d" % (client.listeningAddr[0], client.listeningAddr[1])
 
 
 
@@ -41,10 +41,11 @@ NOTE: This server can only provide services not provided by another server
   choices = getInput("What services do you want to provide? (enter a comma separated list)\n",
                     splitInput, lambda x: all(map(lambda y: y>=0 and y <=2, x)))
 
+  print choices
   #Check if the user selected somethign that was already provided
   #If they did ask if they want to restart or if they would like to remove the
   #choice
-  if 0 in choices and mN.providesDB:
+  if 0 in choices and mN.providesDB != None:
     print """
 The Database service is already being provided. If you want this server to
 provide the service instead please stop the other server and restart this
@@ -56,7 +57,7 @@ script. Otherwise the script will resume without the Database option selected.
 
     choices.remove(0)
 
-  if 1 in choices and mN.providesFS:
+  if 1 in choices and mN.providesFS != None:
     print """
 The Filesystem service is already being provided. If you want this server to
 provide the service instead please stop the other server and restart this
@@ -67,7 +68,7 @@ script. Otherwise the script will resume without the Filesystem option selected.
       sys.exit("Terminating script")
     choices.remove(1)
 
-  if 2 in choices and mN.providesQ:
+  if 2 in choices and mN.providesQ != None:
     print """
 The Work Queue service is already being provided. If you want this server to
 provide the service instead please stop the other server and restart this
@@ -97,7 +98,9 @@ script. Otherwise the script will resume without the Work Queue option selected.
 
 
 def setupFilesystem(mN):
+  mN.providesFS = -1
   pass
 
 def setupWorkQueue(mN):
+  mN.providesQ = -1
   pass

@@ -5,34 +5,124 @@ import threading
 import select
 from multiprocessing import Queue
 import json
+from base64 import b64encode, b64decode
 
+#
+# The following functions define the connection establishment protocol
+#
+
+#Established node recieves a connection from a new client
 def default_con_recv(node, msg, clientID):
-  client = node.getClient(msg)
-  client.accepted = True
+  client = node.getClient(clientID)
   client.start()
-  client.sendMsg(Node.CON_ACK, node.listeningAddr)
+  client.sendMsg(Node.AUTH_REQ, None)
 
-def default_con_lost(node, msg, clientID):
-  del node.clients[clientID]
+#Established node recieves a connection from a new client and we are using
+#encryption
+def encrypt_con_recv(node, msg, clientID):
+  client = node.getClient(clientID)
+  client.start()
+  client.sendMsg(Node.PUB_REQ, None)
 
+#connecting node handles a request for a public key from the
+#already established node
+def encrypt_pub_req(node, msg, clientID):
+  client = node.getClient(clientID)
+  from Crypto.PublicKey import RSA
+  from Crypto.Cipher import PKCS1_OAEP
+  key = RSA.generate(1024)
+  #Get the public key to send to the established node
+  pub = key.publickey()
+  #store the public key
+  client.pubKey = key
+  #Send the public key
+  client.sendMsg(Node.PUB_RESP, pub.exportKey('PEM'))
+
+#Established node recieves a public key from the connecting node
+def encrypt_pub_resp(node, msg, clientID):
+  client = node.getClient(clientID)
+  from Crypto.PublicKey import RSA
+  from Crypto.Cipher import PKCS1_OAEP
+  from Crypto import Random
+  client.key = Random.new().read(32)
+  #Make the encoder
+  key = RSA.importKey(msg)
+  enc = PKCS1_OAEP.new(key)
+  #encode the key for transmission with the public key
+  encMsg = enc.encrypt(client.key)
+  encMsg = b64encode(encMsg)
+  client.sendMsg(Node.KEY_SEND, encMsg)
+
+
+#Connecting client handles getting an encrypted key from the established
+#node
+def encrypt_key_send(node, msg, clientID):
+  client = node.getClient(clientID)
+  from Crypto.Cipher import PKCS1_OAEP
+  dec = PKCS1_OAEP.new(client.pubKey)
+  client.key = dec.decrypt(b64decode(msg))
+  #Bypass the queue to prevent encryption deadlock
+  client.putMsg((Node.KEY_ACK, None))
+  client.encEnabled = True
+  pass
+
+#Established node handles and acknowledgement from the connecting node that
+#it now has the key
+def encrypt_key_ack(node, msg, clientID):
+  client = node.getClient(clientID)
+  client.encEnabled = True
+  client.sendMsg(Node.AUTH_REQ, None)
+
+#Connecting node handles a request for authentication
+def default_auth_req(node, msg, clientID):
+  client = node.getClient(clientID)
+  #Send the response of whatever the authFunc returns
+  client.sendMsg(Node.AUTH_RESP, node.authFunc())
+
+#Established node handles an authentication response from the connecting node
+def default_auth_resp(node, msg, clientID):
+  client = node.getClient(clientID)
+
+  if node.authCheck(msg):
+    client.accepted = True
+    client.sendMsg(Node.CON_ACK, node.listeningAddr)
+
+#
+# If anything is going to be overloaded it should be these ones
+# They are really where you can start communicating with user code before
+# this point it is easy to mess up the handshake
+#
+
+#Connecting node gets an acknoledgement of connection
 def default_con_ack(node, msg, clientID):
   client = node.getClient(clientID)
   client.accepted = True
   client.listeningAddr = msg
-  client.setnMsg(Node.CON_ACK_RESP, node.listeningAddr)
+  client.sendMsg(Node.CON_ACK_RESP, node.listeningAddr)
 
+#Established node gets response ack from connecting node
 def default_con_ack_resp(node, msg, clientID):
   client = node.getClient(clientID)
-  client.accepted = True
   client.listeningAddr = msg
+  client.accepted = True
+
+#A node handles losing a connection to a client
+def default_con_lost(node, msg, clientID):
+  del node.clients[clientID]
 
 class Node(threading.Thread):
-  CON_RECV = 'con_recv'
-  CON_LOST = 'con_lost'
-  CON_ACK = 'con_ack'
-  CON_ACK_RESP = 'con_ack_resp'
+  CON_RECV      = 'node_con_recv'
+  CON_LOST      = 'node_con_lost'
+  PUB_REQ       = 'node_pub_key_req'
+  PUB_RESP      = 'node_pub_key_resp'
+  KEY_SEND      = 'node_sym_key_send'
+  KEY_ACK       = 'node_sym_key_ack'
+  AUTH_REQ      = 'node_auth_req'
+  AUTH_RESP     = 'node_aut_resp'
+  CON_ACK       = 'node_con_ack'
+  CON_ACK_RESP  = 'node_con_ack_resp'
 
-  def __init__(self, host, port, stopPoll=0.5):
+  def __init__(self, host, port, encrypt=False, stopPoll=0.5):
     #Initialize our threadness
     threading.Thread.__init__(self)
     #Create a queue for incoming messages from our connected nodes
@@ -51,16 +141,32 @@ class Node(threading.Thread):
     self.clientNumLock = threading.Lock()
     self.clientNum = 0
 
+    #Are we using encryption
+    self.encrypt = encrypt
+
     if host != '':
-        self.listeningAddr = (host, port)
+      self.listeningAddr = (host, port)
     else:
-        self.listeningAddr = (socket.gethostbyname(socket.gethostname()), port)
+      self.listeningAddr = (socket.gethostbyname(socket.gethostname()), port)
 
     #create the message dispatch table
-    self.dispatch = {Node.CON_RECV: default_con_recv,
-    Node.CON_LOST: default_con_lost,
+    self.dispatch = {
+    Node.CON_RECV: default_con_recv,
+    Node.AUTH_REQ: default_auth_req,
+    Node.AUTH_RESP: default_auth_resp,
     Node.CON_ACK: default_con_ack,
-    Node.CON_ACK_RESP: default_con_ack_resp}
+    Node.CON_ACK_RESP: default_con_ack_resp,
+    Node.CON_LOST: default_con_lost}
+
+    if self.encrypt:
+      self.dispatch[Node.CON_RECV]  = encrypt_con_recv
+      self.dispatch[Node.PUB_REQ]   = encrypt_pub_req
+      self.dispatch[Node.PUB_RESP]  = encrypt_pub_resp
+      self.dispatch[Node.KEY_SEND]  = encrypt_key_send
+      self.dispatch[Node.KEY_ACK]   = encrypt_key_ack
+
+    self.authFunc = lambda: None
+    self.authCheck = lambda x: True
 
   def run(self):
     while self.running:
@@ -70,11 +176,12 @@ class Node(threading.Thread):
       for s in iready:
         if s == self.server:
           #accept a new connection
-          newClient = ConnectionClient(self.server.accept(), self.queue, self.getClientNum(), self.stopPoll)
+          newClient = ConnectionClient(self.server.accept(), self.queue, \
+                              self.getClientNum(), self.encrypt, self.stopPoll)
           self.clients[newClient.id] = newClient
           #Send ourselves a connection recieved msg
           #This is where we will start the
-          self.queue.put((Node.CON_RECV, newClient.id, -1))
+          self.queue.put((Node.CON_RECV, None, newClient.id))
         else:
           msgType, msg, client = self.queue.get()
           if msgType in self.dispatch:
@@ -130,7 +237,7 @@ class Node(threading.Thread):
       return None
 
 class ConnectionClient(threading.Thread):
-  def __init__(self, (socket, addr), queue, id, stopPoll=0.5):
+  def __init__(self, (socket, addr), queue, id, encrypt=False, stopPoll=0.5):
     threading.Thread.__init__(self)
     self.client = socket.makefile('r+b', bufsize=1024)
     self.addr = addr
@@ -141,6 +248,11 @@ class ConnectionClient(threading.Thread):
     self.stopPoll = stopPoll
     self.id = id
     self.listeningAddr = None
+    self.encrypt = encrypt
+    #Encryption stuff
+    self.pubKey = None
+    self.key = None
+    self.encEnabled = False
     pass
 
   def run(self):
@@ -156,14 +268,37 @@ class ConnectionClient(threading.Thread):
             self.running = False
             break
           else:
-            msgType, msg = json.loads(data)
-            self.queue.put((msgType, msg, self.id))
+            self.getMsg(data)
         if s == self.msgQueue._reader and self.client in oready:
-          self.client.write(json.dumps(self.msgQueue.get()) + '\n')
-          self.client.flush()
+          self.putMsg(self.msgQueue.get())
 
     #close socket when done
     self.client.close()
+
+  def putMsg(self, msg):
+    msgText = json.dumps(msg)
+    if self.encEnabled:
+      from Crypto.Cipher import AES
+      from Crypto import Random
+      iv = Random.new().read(AES.block_size)
+      cipher = AES.new(self.key, AES.MODE_CFB, iv)
+      msgText = iv + cipher.encrypt(msgText)
+      msgText = b64encode(msgText)
+
+    self.client.write(msgText + '\n')
+    self.client.flush()
+
+  def getMsg(self, data):
+    if self.encEnabled:
+      from Crypto.Cipher import AES
+      data = b64decode(data)
+      iv = data[:AES.block_size]
+      data = data[AES.block_size:]
+      cipher = AES.new(self.key, AES.MODE_CFB, iv)
+      data = cipher.decrypt(data)
+
+    msgType, msg = json.loads(data)
+    self.queue.put((msgType, msg, self.id))
 
   def stop(self):
     self.running = False
