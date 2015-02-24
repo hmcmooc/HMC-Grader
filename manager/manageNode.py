@@ -102,20 +102,41 @@ def handle_provides_msg(node, msg, clientID):
 #INFO_REQ
 def handle_info_request(node, msg, clientID):
   client = node.getClient(clientID)
-  #For "Security"
+
+  #For security only let accepted clients connect
   if not client.accepted:
     return
 
-  if msg['req'] == "DB":
-    pass
-  elif msg['req'] == "FS":
-    pass
-  elif msg['req'] == "Q":
-    pass
+  #Handle the message request but only if we are the provider of that service
+  if msg['req'] == "DB" and node.providesDB == -1:
+    client.sendMsg(ManageNode.INFO_RESPONSE, ["DB", node.dbInfo])
+  elif msg['req'] == "FS" and node.providesFS == -1:
+    from os.path import join
+    #Add their key to the authorized_keys file
+    with open(join('/home', node.fsInfo['user'], '.ssh/authorized_keys'), 'a') as f:
+      f.write(msg['key'] + '\n')
+
+    #Send them the connection information
+    client.sendMsg(ManageNode.INFO_RESPONSE, ["FS", node.fsInfo])
+  elif msg['req'] == "Q" and node.providesW == -1:
+    client.sendMsg(ManageNode.INFO_RESPONSE, ["Q", node.qInfo])
 
 
 def handle_info_response(node, msg, clientID):
-  pass
+  client = node.getClient(clientID)
+
+  #For security only let accepted clients connect
+  if not client.accepted:
+    return
+
+  if msg[0] == "DB":
+    self.dbInfo = msg[1]
+  elif msg[0] == "FS":
+    self.fsInfo = msg[1]
+  elif msg[0] == "Q":
+    self.qInfo = msg[1]
+
+  checkReady(node)
 
 #Check if we are ready
 #REady means that we have all provides and
@@ -169,6 +190,12 @@ class ManageNode(Node):
 
       #Info dictionaries for storing useful data
       self.dbInfo = None
+      self.fsInfo = None
+      self.qInfo  = None
+
+
+      #Client side information
+      self.publicKey = None
 
       #Set up the dispatch table
       self.dispatch[Node.CON_LOST] = handle_con_lost

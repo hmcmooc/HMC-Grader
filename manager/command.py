@@ -11,7 +11,7 @@ Starting interactive command line...
     cmd = raw_input("> ")
     if cmd.lower() == "stop":
       break
-    elif cmg.lower() == "status":
+    elif cmd.lower() == "status":
       print """
 ================================================================================
 = Backing system status                                                        =

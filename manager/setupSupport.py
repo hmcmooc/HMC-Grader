@@ -108,12 +108,10 @@ def setupFilesystem(mN):
   ensurePathExists(join(filePath, 'plugins/latework'))
   print "Storage space setup complete."
   user = getInput("What user should other nodes connect as?: ", str, lambda x: True)
-  keyPath = getInput("Where is the authorized keys file? (Absolute Path): ", str, lambda x: True)
   ensurePathExists(keyPath)
   mN.fsInfo = {}
   mN.fsInfo['filePath'] = filePath
-  mN.fsInfo['remoteUser'] = user
-  mN.fsInfo['keyPath'] = keyPath
+  mN.fsInfo['user'] = user
   mN.providesFS = -1
   print """
 ================================================================================
