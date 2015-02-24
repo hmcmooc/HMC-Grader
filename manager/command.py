@@ -11,7 +11,7 @@ Starting interactive command line...
     cmd = raw_input("> ")
     if cmd.lower() == "stop":
       break
-    elif cmg.lower() == "staus":
+    elif cmg.lower() == "status":
       print """
 ================================================================================
 = Backing system status                                                        =
@@ -25,4 +25,3 @@ Work Queue Status:   %s
   makeStatusMsg(manageNode, manageNode.providesFS),
   makeStatusMsg(manageNode, manageNode.providesQ)
   )
-  
