@@ -93,9 +93,7 @@ Edit Course: {{course.name}}
 </div>
 <hr/>
 <div class="row" id="users">
-  <div class="col-sm-3">
-  </div>
-  <div class="col-sm-2">
+  <div class="col-sm-4">
     <h1>Students</h2>
     <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ suserform.hidden_tag() }}
@@ -131,7 +129,7 @@ Edit Course: {{course.name}}
       </table>
     </div>
   </div>
-  <div class="col-sm-2">
+  <div class="col-sm-4">
     <h1>Grutors</h2>
     <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ guserform.hidden_tag() }}
@@ -163,7 +161,7 @@ Edit Course: {{course.name}}
       </table>
     </div>
   </div>
-  <div class="col-sm-2">
+  <div class="col-sm-4">
     <h1>Instructors</h2>
     <form class="form-inline" action="{{url_for('instructorAddUserToCourse', cid=course.id)}}" method="POST" role="form">
       {{ iuserform.hidden_tag() }}
@@ -196,8 +194,6 @@ Edit Course: {{course.name}}
         </tbody>
       </table>
     </div>
-  </div>
-  <div class="col-sm-3">
   </div>
 </div>
 {% endblock %}
