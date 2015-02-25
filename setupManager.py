@@ -13,7 +13,7 @@ import netifaces, pexpect
 
 from manager import setupSupport, setupApplication
 from manager.manageNode import ManageNode
-from manager.command import commandLine
+from manager.manageConsole import commandLine
 from manager.utilities import getInput
 
 def getListeningIP():
