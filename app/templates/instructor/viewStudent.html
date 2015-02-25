@@ -1,0 +1,59 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Student Details: {{user.username}}
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h3>Details for: {{user.username}}</h3>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <table class="table table-bordered">
+      <thead>
+        <th>Assignment Group</th>
+        <th>Problem</th>
+        <th>Submit</th>
+        <th>Status</th>
+        <th>Is Late</th>
+        <th>Score</th>
+      </thead>
+      <tbody>
+        {% for a in course.assignments %}
+        <tr>
+          <td rowspan="{{a.problems|length + 1}}">{{a.name}}</td>
+        </tr>
+        {% for p in a.problems|sort(attribute="name") %}
+        <tr>
+          <td>{{p.name}}</td>
+          <td><a href="{{url_for('submitAssignment', pid=p.id, uid=user.id)}}" class="btn btn-primary btn-xs">Submit</a></td>
+          {% with sub = p.getLatestSubmission(user) %}
+          {% if sub == None %}
+          <td>Unsubmitted</td>
+          <td></td>
+          <td>0.00</td>
+          {% else %}
+          {% with c,text = sub.getStatus() %}
+          <td class="{{c}}">
+          {{text}}<a target="_blank" href="{{url_for('grutorGradeSubmission', pid=p.id, subnum=p.getSubmissionNumber(user), uid=user.id)}}" class="btn btn-primary btn-xs pull-right">Grade</a>
+          <td style="text-align:center" class={% if sub.isLate %}"danger"{% else %}"{{c}}" {%endif%}>{% if sub.isLate %}<span class="octicon octicon-check"></span>{%endif%}</td>
+          </td>
+          <td>{{sub.grade.totalScore()}}</td>
+          {% endwith %}
+          {% endif %}
+          {% endwith %}
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endblock %}

@@ -24,9 +24,10 @@ from app.helpers.autograder import gradeSubmission
 #import other libraries
 import os, datetime, shutil
 
-@app.route('/assignments/submit/<pid>')
+@app.route('/assignments/submit/<pid>', defaults={'uid': None})
+@app.route('/assignments/submit/<pid>/<uid>')
 @login_required
-def submitAssignment(pid):
+def submitAssignment(pid, uid):
   '''
   Function Type: View Function
   Template: student/submit.html
@@ -47,27 +48,33 @@ def submitAssignment(pid):
   try:
     p = Problem.objects.get(id=pid)
     c,a = p.getParents()
-    #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.courseStudent):
-      abort(403)
+    #For security purposes we reject anyone who isnt in this class
+    if uid == None:
+      if not ( c in current_user.courseStudent):
+        abort(403)
+      u = current_user
+    else:
+      u = User.objects.get(id=uid)
+      if not (c in current_user.courseInstructor):
+        abort(403)
 
     saf = SubmitAssignmentForm()
-    users = [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
+    users = [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == u.username]
     users.sort(key=lambda x: x[1])
     saf.partner.choices = [("None", "None")] + users
 
     return render_template("student/submit.html", \
                             course=c, assignment=a, problem=p,\
-                            form=saf)
+                            form=saf, user=u)
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
     abort(404)
 
 #Endpoint for uploading files
 
-@app.route('/assignments/submit/<pid>/upload', methods=['POST'])
+@app.route('/assignments/submit/<pid>/<uid>/upload', methods=['POST'])
 @login_required
-def uploadFiles(pid):
+def uploadFiles(pid, uid):
   '''
   Function Type: Callback-Redirect Function
   Purpose: Create a new submission and put the files in the backing filesystem.
@@ -85,14 +92,14 @@ def uploadFiles(pid):
   try:
     p = Problem.objects.get(id=pid)
     c, a = p.getParents()
-    user = User.objects.get(id=g.user.id)
+    user = User.objects.get(id=uid)
     #For security purposes we send anyone who isnt in this class to the index
-    if not ( c in current_user.courseStudent):
+    if not ( c in current_user.courseStudent or c in current_user.courseInstructor):
       abort(403)
 
     if request.method == "POST":
       form = SubmitAssignmentForm(request.form)
-      form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == current_user.username]
+      form.partner.choices = [("None", "None")] + [(str(x.id), x.username) for x in User.objects.filter(courseStudent=c) if not x.username == user.username]
       if form.validate():
 
         #Make sure the partner exists before doing anything
@@ -166,7 +173,10 @@ def uploadFiles(pid):
           gradeSubmission.delay(p.id, partner.id, p.getSubmissionNumber(partner))
       else:
         flash("We could not validate your submission. If this keeps occurring please contact your professor.", "warning")
-    return redirect(url_for('studentAssignments', cid=c.id))
+    if g.user.id == user.id:
+      return redirect(url_for('studentAssignments', cid=c.id))
+    else:
+      return redirect(url_for('instructorViewStudent', cid=c.id, uid=user.id))
   except (Problem.DoesNotExist, Course.DoesNotExist, AssignmentGroup.DoesNotExist):
     #If either p can't be found or we can't get its parents then 404
     abort(404)

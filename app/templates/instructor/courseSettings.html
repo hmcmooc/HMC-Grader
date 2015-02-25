@@ -111,6 +111,7 @@ Edit Course: {{course.name}}
         <thead>
           <tr>
             <th>Username</th>
+            <th>View Details</th>
             <th>Remove</th>
           </tr>
         </thead>
@@ -118,6 +119,9 @@ Edit Course: {{course.name}}
           {% for s in students %}
           <tr id="{{s.username}}_student">
           <td class="name">{{s.username}} {% if course.anonymousGrading %}({{course.getIdentifier(s.username)}}){% endif %}</td>
+          <td>
+            <a href="{{url_for('instructorViewStudent', cid=course.id, uid=s.id)}}" class="btn btn-primary btn-xs">View</a>
+          </td>
           <td>
             <btn onclick="confirmUserDelete('{{s.username}}', '{{url_for('instructorRemoveUserFromCourse', cid=course.id, uid=s.id, t='student')}}', 'student')" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></btn>
             </td>

@@ -128,6 +128,7 @@ class CourseSettingsForm(Form):
 
 class ReuploadTestForm(Form):
   testFile = FileField("File")
+  
 
 # '''
 # Grutor forms
