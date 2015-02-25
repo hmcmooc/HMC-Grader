@@ -6,7 +6,7 @@ Assignments for {{course.name}}
 
 {% block styles %}
 {{super()}}
-<link href="{{url_for('static', filename='google-code-prettify/prettify.css')}}" type="text/css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{url_for('static', filename="highlight/styles/default.css")}}"/>
 {% endblock %}
 
 {% block rows %}
@@ -331,7 +331,7 @@ $(".time").each(function(){
   $(this).text(d.format("lll"))
 })
 </script>
-<script src="{{url_for('static', filename='google-code-prettify/prettify.js')}}"></script>
+<script src="{{url_for('static', filename='highlight/highlight.pack.js')}}"></script>
 <script>
 function preview(filename) {
   $("#previewArea").empty();
@@ -350,10 +350,10 @@ function preview(filename) {
         if (data.minorType == 'plain'){
           $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
         } else {
-          $("#previewArea").append("<pre style='text-align:left'id='previewText' class='prettyprint'></pre>");
+          $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
         }
         $("#previewText").text(data.content);
-        prettyPrint()
+        $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
       } else if (data.majorType == 'image') {
         $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
       } else if (data.majorType == 'application' && data.minorType == 'pdf') {
