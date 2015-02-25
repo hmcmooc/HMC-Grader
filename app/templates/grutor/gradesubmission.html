@@ -350,10 +350,10 @@ function preview(filename) {
         if (data.minorType == 'plain'){
           $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
           $("#previewText").text(data.content);
-          $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
         } else {
           $("#previewArea").append("<pre style='text-align:left'id='previewText'></pre>");
           $("#previewText").text(data.content);
+          $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
         }
         $("#previewText").text(data.content);
         $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
