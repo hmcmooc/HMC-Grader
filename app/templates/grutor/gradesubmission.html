@@ -355,8 +355,6 @@ function preview(filename) {
           $("#previewText").text(data.content);
           $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
         }
-        $("#previewText").text(data.content);
-        $("#previewText").each(function(i, e) {hljs.highlightBlock(e)});
       } else if (data.majorType == 'image') {
         $("#previewArea").append("<img style='max_width:100%' src='"+data.url+"'></img>");
       } else if (data.majorType == 'application' && data.minorType == 'pdf') {
