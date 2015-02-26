@@ -94,7 +94,7 @@ body {
             <li><a href="{{url_for('adminIndex')}}">Admin Dashboard</a></li>
             <li class="divider"></li>
             {% endif %}
-            <li{% if active_page == "userSettings" %} class="active"{% endif %}><a href="{{url_for('userSettings')}}">Settings</a></li>
+            <li{% if active_page == "userSettings" %} class="active"{% endif %}><a href="{{url_for('userSettings')}}"><span class="octicon octicon-gear"></span> Settings</a></li>
             <li><a href="{{url_for('logout')}}"><span class="octicon octicon-sign-out"></span> Logout</a></li>
           </ul>
         </li>
