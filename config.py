@@ -22,7 +22,7 @@ DATABASE_QUERY_TIMEOUT = 0.5
 #
 #Celery config ssettings
 #
-CELERY_BROKER_URL="amqp://grader:grutorsLoveGrading@134.173.43.27"
+CELERY_BROKER_URL="amqp://grader:grutorsLoveGrading@134.173.43.77"
 
 #
 # Settings for file storage

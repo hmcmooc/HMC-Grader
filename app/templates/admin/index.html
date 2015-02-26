@@ -14,82 +14,22 @@ Admin Panel: Statistics
 </div>
 <div class="row">
   <div class="col-sm-2"></div>
-  <div class="col-sm-4">
-    <div class="panel {% if diskUsage.percent < 40 %}panel-success{% elif diskUsage.percent < 70%}panel-warning{%else%}panel-danger{%endif%}">
-      <div class="panel-heading">Disk Usage</div>
-      <div class="panel-body">
-        <p><b>Usage: </b>{{diskUsage.percent}}%</p>
-        <div class="progress">
-          <div class="progress-bar" role="progressbar" aria-valuenow="{{diskUsage.percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{diskUsage.percent}}%;">
-            <span class="sr-only">{{diskUsage.percent}}% Complete</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-4">
-    <div class="panel {% if memory.percent < 40 %}panel-success{% elif memory.percent < 70%}panel-warning{%else%}panel-danger{%endif%}">
-      <div class="panel-heading">Memory Usage</div>
-      <div class="panel-body">
-        <p><b>Usage: </b><span id="ramText">{{memory.percent}}%<span></p>
-        <div class="progress">
-          <div class="progress-bar" role="progressbar" aria-valuenow="{{memory.percent}}" aria-valuemin="0" aria-valuemax="100" id="ramBar" style="width: {{memory.percent}}%;">
-            <span class="sr-only">{{memory.percent}}% Complete</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-2"></div>
-</div>
-<div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-4">
+  <div class="col-sm-8">
     <div class="panel panel-default">
       <div class="panel-heading">Grading Workers</div>
       <div class="panel-body">
-        <h4>Queue Lengths:</h4>
-        <ul id="queues" class="list-group">
-          <li class="list-group-item">
-            <div class="progress">
-              <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                Loading
-              </div>
-            </div>
-          </li>
+        {% for worker, info in workers.items() %}
+        <b>{{worker}}<b>
+        <ul>
+          <li>Status: {% if info['status'] %}Online{% else %}Offline{%endif%}</li>
+          <li>Running Tasks: {{info['running_tasks']}}</li>
+          <li>Completed Tasks: {{info['completed_tasks']}}</li>
         </ul>
+        {% endfor %}
       </div>
     </div>
   </div>
   <div class="col-sm-4"></div>
   <div class="col-sm-2"></div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{super()}}
-<script>
-function seconds(x){
-  return x*1000;
-}
-function minutes(x){
-  return seconds(x*60);
-}
-function getQueues(){
-  $.ajax({
-    url:"{{url_for('adminDataCelery')}}",
-    success:function(data){
-      $("#queues").empty()
-      for (var i= 0; i < data.queue.length; ++i){
-        $("#queues").append("<li class='list-group-item'><span class='badge'>"+data.queue[i][1].length+"</span>\n"+data.queue[i][0]+"</li>")
-      }
-      setTimeout(getQueues, minutes(5));
-    }
-  })
-}
-
-$(function(){
-  getQueues()
-});
-</script>
 {% endblock %}

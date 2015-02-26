@@ -44,11 +44,14 @@ def adminIndex():
   if not g.user.isAdmin:
     abort(403)
 
+  import urllib2,json
+
+  resp = urllib2.urlopen('http://127.0.0.1:5555/api/workers')
+  workers = json.loads(resp.read())
+
   #eventually we will compute statistics about the state of the system to be
   #put here
-  return render_template('admin/index.html', active_page="index",\
-                          diskUsage=psutil.disk_usage(app.config['STORAGE_HOME']),\
-                          memory=psutil.virtual_memory())
+  return render_template('admin/index.html', active_page="index", workers=workers)
 
 
 @app.route('/admincourses', methods=['POST', 'GET'])
