@@ -80,6 +80,9 @@ body {
         {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        {% if g.user.is_authenticated() %}
+        <li><a href="{{url_for("writeComment")}}"><span class="octicon octicon-pencil"></span> Leave a Comment</a></li>
+        {% endif %}
         <li><a href="https://github.com/robojeb/HMC-Grader/issues" target="_blank"><span class="octicon octicon-bug"></span> Report a Bug</a></li>
         {% if not g.user.is_authenticated() %}
         <li{% if active_page == "login" %} class="active"{% endif %}><a href="{{url_for('login')}}">Login</a></li>
