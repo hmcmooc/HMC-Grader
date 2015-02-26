@@ -27,10 +27,10 @@ This machine can listen on the following addresses
           print " %d) %s" % (ipnum, link['addr'])
           iplist.append(link['addr'])
           ipnum += 1
-        for link in netifaces.ifaddresses(interface)[netifaces.AF_INET6]:
-          print " %d) %s" % (ipnum, link['addr'])
-          iplist.append(link['addr'])
-          ipnum += 1
+        # for link in netifaces.ifaddresses(interface)[netifaces.AF_INET6]:
+        #   print " %d) %s" % (ipnum, link['addr'])
+        #   iplist.append(link['addr'])
+        #   ipnum += 1
 
   choice = getInput("Use address #: ", int, lambda x: x >=0 and x < ipnum)
 

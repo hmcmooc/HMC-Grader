@@ -1,0 +1,35 @@
+{% extends "base-layout.html" %}
+
+{% block title %}
+Give Feedback
+{% endblock %}
+
+{% block rows %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>Give Feedback</h2>
+    <p>Please help us improve our grading, tutoring, and course content by
+      providing feedback to us about your experiences. We strive to make our
+      courses better every year and your feedback helps immensely.
+    </p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <form method="POST" action="{{url_for('submitComment')}}">
+      {{form.hidden_tag()}}
+      <div class="form-group">
+        {{form.comment.label}}{{form.comment(class="form-control")}}
+      </div>
+      <div class="form-group">
+        {{form.useName()}}{{form.useName.label}}
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endblock %}

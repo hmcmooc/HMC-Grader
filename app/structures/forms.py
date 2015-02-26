@@ -128,7 +128,7 @@ class CourseSettingsForm(Form):
 
 class ReuploadTestForm(Form):
   testFile = FileField("File")
-  
+
 
 # '''
 # Grutor forms
@@ -169,3 +169,11 @@ class AttendanceForm(Form):
 
 class PageImageForm(Form):
   photo = FileField("File")
+
+# '''
+# Feedback forms
+# '''
+
+class FeedbackForm(Form):
+  useName = BooleanField("Attach my name to this comment", default=True)
+  comment = TextAreaField("Comment")

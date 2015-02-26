@@ -15,7 +15,7 @@ SECRET_KEY="Grutors <3 SPAM"
 MONGODB_SETTINGS = {'DB': 'submissionsite',
 'username': 'grader',
 'password': 'grutorsLoveGrading',
-'host': '134.173.43.27'}
+'host': '134.173.43.77'}
 
 DATABASE_QUERY_TIMEOUT = 0.5
 

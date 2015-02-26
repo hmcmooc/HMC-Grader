@@ -78,6 +78,10 @@ def getTestPath(course, assignment, problem):
 
   return path
 
+def getCommentPath():
+  path = os.path.join(app.config['STORAGE_HOME'], "comments")
+  return path
+
 #
 # Function for moving a problem if it gets renamed
 #
