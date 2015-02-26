@@ -13,7 +13,7 @@
       <tbody>
         {% for file in walkFileTree(filepath) %}
         <tr>
-          <td>{% if file[1] %}<b>{%endif%}{{'-'*file[0]}} {{file[2]}}{% if file[1] %}</b>{%endif%}</td>
+          <td>{% if file[1] %}<b>{%endif%}{{'-'*file[0]}}{% if file[1] %}<span class="octicon octicon-file-directory"></span>{% else %}<span class="octicon octicon-file-code"></span>{% endif %} {{file[2]}}{% if file[1] %}</b>{%endif%}</td>
           {% if file[1] %}
           <td></td>
           <td></td>
