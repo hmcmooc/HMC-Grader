@@ -24,7 +24,11 @@ This machine can listen on the following addresses
   ipnum = 0
   for interface in netifaces.interfaces():
         for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-          print " %d) %s\n" % (ipnum, link['addr'])
+          print " %d) %s" % (ipnum, link['addr'])
+          iplist.append(link['addr'])
+          ipnum += 1
+        for link in netifaces.ifaddresses(interface)[netifaces.AF_INET6]:
+          print " %d) %s" % (ipnum, link['addr'])
           iplist.append(link['addr'])
           ipnum += 1
 
@@ -183,12 +187,16 @@ information for any other node in the network.
 
         print "\nTrying to connect to the managment network...\n"
         try:
-          mN.connect(ip, port)
+          client = mN.connect(ip, port)
           break
-        except:
+        except Exception as e:
+          print e
+
+          import traceback
+          tb = traceback.format_exc()
+          print tb
           print "Connecting to network failed"
           tries += 1
-          continue
 
       #Die if we ran out of tries
       if tries == 5:
@@ -200,7 +208,7 @@ Connection established waiting for remote node to verify...
 
       #Busy wait with timeout
       timeout = 0
-      while not mN.clients[0].accepted:
+      while not client.accepted:
         if timeout == 30:
           #Timeout at 30 seconds
           sys.exit("Timeout exceeded")
@@ -211,7 +219,7 @@ Connection established waiting for remote node to verify...
 Connection accepted. Initializing...
 """
 
-      mN.sendClientMessage(0, ManageNode.INITIALIZE_REQUEST, None)
+      mN.sendClientMessage(client.id, ManageNode.INITIALIZE_REQUEST, None)
       #Busy wait with timeout
       timeout = 0
       while not mN.initialized:

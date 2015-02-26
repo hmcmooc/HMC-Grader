@@ -1,11 +1,12 @@
 # coding=utf-8
 
-import socket
-import threading
-import select
+import socket, sys, threading, json, time
 from multiprocessing import Queue
-import json
 from base64 import b64encode, b64decode
+
+#Import gevent stuff
+import gevent
+from gevent import select, Greenlet
 
 #
 # The following functions define the connection establishment protocol
@@ -110,6 +111,16 @@ def default_con_ack_resp(node, msg, clientID):
 def default_con_lost(node, msg, clientID):
   del node.clients[clientID]
 
+def default_connect(node, msg, clientID):
+  addr = msg
+  try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(addr)
+    newClient = ConnectionClient.spawn((s, addr), node.queue, clientID, node.stopPoll)
+    node.clients[newClient.id] = newClient
+  except Exception as e:
+    node.clients[clientID] = e
+
 class Node(threading.Thread):
   CON_RECV      = 'node_con_recv'
   CON_LOST      = 'node_con_lost'
@@ -121,6 +132,8 @@ class Node(threading.Thread):
   AUTH_RESP     = 'node_aut_resp'
   CON_ACK       = 'node_con_ack'
   CON_ACK_RESP  = 'node_con_ack_resp'
+
+  CONNECT       = 'node_connect'
 
   def __init__(self, host, port, encrypt=False, stopPoll=0.5):
     #Initialize our threadness
@@ -156,7 +169,8 @@ class Node(threading.Thread):
     Node.AUTH_RESP: default_auth_resp,
     Node.CON_ACK: default_con_ack,
     Node.CON_ACK_RESP: default_con_ack_resp,
-    Node.CON_LOST: default_con_lost}
+    Node.CON_LOST: default_con_lost,
+    Node.CONNECT: default_connect}
 
     if self.encrypt:
       self.dispatch[Node.CON_RECV]  = encrypt_con_recv
@@ -172,7 +186,6 @@ class Node(threading.Thread):
     while self.running:
       inputs = [self.server, self.queue._reader]
       iready, oready, eready = select.select(inputs, [], [], self.stopPoll)
-
       for s in iready:
         if s == self.server:
           #accept a new connection
@@ -196,8 +209,6 @@ class Node(threading.Thread):
   def stop(self):
     for c in self.clients:
       self.clients[c].stop()
-      if self.clients[c].is_alive():
-        self.clients[c].join()
     self.running = False
 
   #A decorator for adding handlers to the node
@@ -212,12 +223,22 @@ class Node(threading.Thread):
     self.queue.put((msgType, msg, -1))
 
   def connect(self, host, port):
-    addr = (host, port)
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(addr)
-    newClient = ConnectionClient((s, addr), self.queue, self.getClientNum(), self.stopPoll)
-    newClient.start()
-    self.clients[newClient.id] = newClient
+    newClientNum = self.getClientNum()
+    self.queue.put((Node.CONNECT, (host, port), newClientNum))
+    #Wait for the connection
+    while not newClientNum in self.clients:
+      time.sleep(10.0/1000.0)
+
+    if issubclass(type(self.clients[newClientNum]), Exception):
+      #If it was an exception clean them out of the dictionary and raise
+      # the exception
+      e = self.clients[newClientNum]
+      del self.clients[newClientNum]
+      raise e
+
+    #Otherwise return the client
+    return self.clients[newClientNum]
+
 
   def sendClientMessage(self, clientID, msgType, msg):
     client = self.clients[clientID]
@@ -236,9 +257,9 @@ class Node(threading.Thread):
     else:
       return None
 
-class ConnectionClient(threading.Thread):
+class ConnectionClient(Greenlet):
   def __init__(self, (socket, addr), queue, id, encrypt=False, stopPoll=0.5):
-    threading.Thread.__init__(self)
+    Greenlet.__init__(self)
     self.client = socket.makefile('r+b', bufsize=1024)
     self.addr = addr
     self.queue = queue
@@ -258,14 +279,21 @@ class ConnectionClient(threading.Thread):
   def run(self):
     while self.running:
       inputs = [self.client, self.msgQueue._reader]
-      iready, oready, eready = select.select(inputs, [self.client], [], self.stopPoll)
+      iready, oready, eready = select.select(inputs, [self.client], [self.client], self.stopPoll)
+
+      def postFailure():
+        self.queue.put((Node.CON_LOST, None, self.id))
+        self.running = False
+
+      if len(eready) > 0:
+        postFailure()
+        break
 
       for s in iready:
         if s == self.client:
           data = self.client.readline().strip()
           if data == '': #We lost the connection so we should terminate
-            self.queue.put((Node.CON_LOST, None, self.id))
-            self.running = False
+            postFailure()
             break
           else:
             self.getMsg(data)

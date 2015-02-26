@@ -112,6 +112,14 @@ def handle_info_request(node, msg, clientID):
     client.sendMsg(ManageNode.INFO_RESPONSE, ["DB", node.dbInfo])
   elif msg['req'] == "FS" and node.providesFS == -1:
     from os.path import join
+    #If we already have their key shortcircuit and skip it
+    with open(join('/home', node.fsInfo['user'], '.ssh/authorized_keys'), 'r') as f:
+      contents = f.read()
+      if msg['key'] in contents:
+        #Send them the connection information
+        client.sendMsg(ManageNode.INFO_RESPONSE, ["FS", node.fsInfo])
+        return
+
     #Add their key to the authorized_keys file
     with open(join('/home', node.fsInfo['user'], '.ssh/authorized_keys'), 'a') as f:
       f.write(msg['key'] + '\n')
@@ -203,3 +211,6 @@ class ManageNode(Node):
       self.dispatch[Node.CON_ACK]  = handle_con_ack
       self.dispatch[ManageNode.INITIALIZE_REQUEST] = handle_initialize_request
       self.dispatch[ManageNode.INITIALIZE_RESPONSE] = handle_initialize_response
+      self.dispatch[ManageNode.PROVIDES_MSG] = handle_provides_msg
+      self.dispatch[ManageNode.INFO_REQUEST] = handle_info_request
+      self.dispatch[ManageNode.INFO_RESPONSE] = handle_info_response

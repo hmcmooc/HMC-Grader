@@ -18,10 +18,13 @@ Starting interactive command line...
 ================================================================================
 
 Database Status:     %s
+DB Info: %s
 File System Status:  %s
+FS Info: %s
 Work Queue Status:   %s
+Q Info: %s
 """ % (
-  makeStatusMsg(manageNode, manageNode.providesDB),
-  makeStatusMsg(manageNode, manageNode.providesFS),
-  makeStatusMsg(manageNode, manageNode.providesQ)
+  makeStatusMsg(manageNode, manageNode.providesDB), str(manageNode.dbInfo),
+  makeStatusMsg(manageNode, manageNode.providesFS), str(manageNode.fsInfo),
+  makeStatusMsg(manageNode, manageNode.providesQ), str(manageNode.qInfo),
   )
