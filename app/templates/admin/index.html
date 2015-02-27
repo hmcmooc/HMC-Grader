@@ -21,7 +21,7 @@ Admin Panel: Statistics
         <ul style:"-webkit-columns: 3; -moz-columns: 3; columns: 3;">
         {% for worker, info in workers.items() %}
           <li>
-            <b>{{worker}}<b><br>
+            <b>{{worker}}</b><br>
             <ul>
               <li>Status: {% if info['status'] %}Online{% else %}Offline{%endif%}</li>
               <li>Running Tasks: {{info['running_tasks']}}</li>
@@ -30,6 +30,19 @@ Admin Panel: Statistics
           </li>
         {% endfor %}
         <ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4"></div>
+  <div class="col-sm-2"></div>
+</div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">Task Information</div>
+      <div class="panel-body">
+        Task Info here
       </div>
     </div>
   </div>
