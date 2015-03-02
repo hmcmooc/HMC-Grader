@@ -46,8 +46,11 @@ def adminIndex():
 
   import urllib2,json
 
-  resp = urllib2.urlopen('http://127.0.0.1:5555/api/workers')
-  workers = json.loads(resp.read())
+  if not app.config['FLOWER_ACCESS_URL'] == None:
+    resp = urllib2.urlopen(app.config['FLOWER_ACCESS_URL'] + '/api/workers')
+    workers = json.loads(resp.read())
+  else:
+    workers = {}
 
   #eventually we will compute statistics about the state of the system to be
   #put here
